@@ -155,6 +155,11 @@ public class Tiles {
         return tiles;
     }
 
+    public static int[][] getTileVertices()
+    {
+        return VERTICES;
+    }
+
     private static final int[][] VERTICES = {
         {0, 1, 2, 8, 9, 10},      // tile 0
         {2, 3, 4, 10, 11, 12},    // tile 1
