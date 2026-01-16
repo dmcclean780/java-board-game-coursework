@@ -30,5 +30,10 @@
     "tile.mountains.name": "Mountains",
     "tile.fields.name": "Fields",
     "tile.pasture.name": "Pasture",
-    "tile.desert.name": "Desert"
+    "tile.desert.name": "Desert",
+
+    "_comment": "Title Screen:",
+    "playText": "Play Game",
+    "settingsText": "Settings",
+    "exitText": "Exit"
 }

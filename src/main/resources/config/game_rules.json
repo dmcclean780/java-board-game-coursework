@@ -3,6 +3,7 @@
     "victoryPointsToWin": 10,
     "robberCardLimit": 7,
     "numberTokens": {
+        "-1": 1,
         "2": 1,
         "3": 2,
         "4": 2,

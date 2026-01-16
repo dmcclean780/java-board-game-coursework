@@ -8,7 +8,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import com.example.model.GameModel;
 import com.example.model.config.ConfigManager;
+import com.example.service.NavigationService;
+import com.example.viewmodel.TitleViewModel;
 /**
  * JavaFX App
  */
@@ -18,9 +21,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
-        stage.setScene(scene);
-        stage.show();
+        GameModel model = new GameModel();
+
+        NavigationService navigationService = new NavigationService(stage);
+
+        // Start with the first screen, passing the model
+        TitleViewModel titleVM = new TitleViewModel(model, navigationService);
+        navigationService.navigateTo("titleScreen", titleVM);
+
     }
 
     static void setRoot(String fxml) throws IOException {
