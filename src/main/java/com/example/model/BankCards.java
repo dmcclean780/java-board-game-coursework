@@ -74,20 +74,24 @@ public class BankCards {
         return false;
     }
 
-    public boolean giveDevelopmentCard() {
-        if (developmentCards.size() > 0) {
+    //returns empty string if deck is empty
+    public String giveDevelopmentCard() {
+        if (!developmentCards.isEmpty()) {
+            String devCard = developmentCards.get(developmentCards.size()-1);
             developmentCards.remove(developmentCards.size()-1);
-            return true;
+            return devCard;
         }
-        return false;
+        return "";
     }
 
-    public boolean giveDisasterCard() {
-        if (disasterCards.size() > 0) {
+    //returns empty string if deck is empty
+    public String giveDisasterCard() {
+        if (!disasterCards.isEmpty()) {
+            String disCard = disasterCards.get(disasterCards.size()-1);
             disasterCards.remove(disasterCards.size()-1);
-            return true;
+            return disCard;
         }
-        return false;
+        return "";
     }
 
     //receive cards from player and adds them to the bank
