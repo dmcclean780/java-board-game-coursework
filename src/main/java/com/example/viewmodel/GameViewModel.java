@@ -8,9 +8,6 @@ import com.example.model.Player;
 import com.example.model.Tile;
 import com.example.service.NavigationService;
 import com.example.model.Settlement;
-import com.example.model.Settlements;
-import com.example.model.Ports;
-import com.example.model.Roads;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

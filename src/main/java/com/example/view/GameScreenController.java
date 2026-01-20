@@ -3,13 +3,10 @@ package com.example.view;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.model.Ports;
-import com.example.model.Roads;
 import com.example.viewmodel.GameViewModel;
 import com.example.viewmodel.TileViewState;
 import com.example.viewmodel.VertexViewState;

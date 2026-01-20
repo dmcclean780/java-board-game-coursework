@@ -1,6 +1,5 @@
 package com.example.model;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class GameModel {
@@ -59,7 +58,7 @@ public class GameModel {
 
     public boolean settlementValid(int vertex, int playerIndex) {
         int playerID = players.get(playerIndex).getId();
-        boolean settlementDistanceValid = settlements.nearbySettlement(vertex);
+        boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is valid when *NOT* a nearby settlement
         boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID);
         boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
         return settlementDistanceValid && linkedByRoad && unowned;

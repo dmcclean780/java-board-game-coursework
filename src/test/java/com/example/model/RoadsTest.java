@@ -64,6 +64,18 @@ public class RoadsTest {
     }
 
     @Test
+    public void testIsVertexConnectedByPlayer() {
+        roads.buildRoad(0, 1, 4);
+        assertTrue(roads.isVertexConnectedByPlayer(0, 4));
+        assertFalse(roads.isVertexConnectedByPlayer(0, 5));
+
+        assertTrue(roads.isVertexConnectedByPlayer(1, 4));
+        assertFalse(roads.isVertexConnectedByPlayer(0, 5));
+
+        assertFalse(roads.isVertexConnectedByPlayer(2, 4));
+    }   
+
+    @Test
     public void testOwnedByPlayerInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> roads.ownedByPlayer(100));
     }

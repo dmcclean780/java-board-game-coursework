@@ -106,14 +106,12 @@ public class Settlements {
     }
 
     /**
-     * Checks if a potential settlement (at a vertex) is near another settlement.
+     * (Added by 40452739)
+     * Checks whether a potential settlement (at a vertex) is near another settlement.
      * @param vertex vertex to check
-     * @return whether there are any settlements near the vertex with a range of one
+     * @return whether there are any settlements near the vertex with a range of one edge
      */
     public boolean nearbySettlement(int vertex){
-        if (settlements[vertex].getPlayerID() == UNOWNED_SETTLEMENT_ID){
-            return false;
-        }
 
         if (!isValidVertex(vertex)){
             return false;
@@ -131,12 +129,12 @@ public class Settlements {
 
             for (int[] adj : AdjacencyMaps.RoadConnections) {
                 if ((adj[0] == vertex || adj[1] == vertex) && (adj[0] == svertex || adj[1] == svertex)) {
-                    return false;
+                    return true;
                 }
             }
         }
 
-        return true;
+        return false;
 
     }
 

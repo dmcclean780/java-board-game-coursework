@@ -3,7 +3,6 @@ package com.example.model;
 import org.junit.jupiter.api.Test;
 
 import com.example.model.config.ConfigManager;
-import com.example.model.config.service.ConfigService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
