@@ -367,6 +367,10 @@ public class Roads {
         {38, 39}, {39, 40}, {40, 41}, {41, 42}, {42, 43}, {43, 44}, {44, 45}, {45, 46}, // 5th line
         {39, 47}, {41, 49}, {43, 51}, {45, 53},  // 5th verticals
         {47, 48}, {48, 49}, {49, 50}, {50, 51}, {51, 52}, {52, 53}  // 6th (final) line
-        
     };
+
+    public static int[][] getRoadConnections()
+    {
+        return roadConnections;
+    }
 }
