@@ -12,217 +12,246 @@ import java.lang.reflect.Field;
  */
 public class RoadsTest {
 
+    // Generated tests using Copilot, tweaked and fixed where necessary (copilot could not understand minimumLongestRoadLength logic)
+
     private Roads roads;
 
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         roads = new Roads();
     }
 
     @Test
-    public void testLongestRoadOwner_noRoads() {
-        int[] a = {};
-        assertEquals(Roads.UNOWNED_ROAD_ID, roads.longestRoadOwner(a));
+    public void testConstructor() {
+        assertNotNull(roads);
+        assertEquals(Roads.NUMBER_OF_ROADS, Roads.roadConnections.length);
     }
 
     @Test
-    public void testLongestRoadOwner_singlePlayer() {
-        int save = Roads.minimumLongestRoadLength;
-        Roads.minimumLongestRoadLength = 3; // temporarily lower for test
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-        roads.buildRoad(2, 3, 1);
-        int[] playerIDs = {1};
-        assertEquals(1, roads.longestRoadOwner(playerIDs));
-        Roads.minimumLongestRoadLength = save; // restore original value
+    public void testBuildRoadByIndex() {
+        assertTrue(roads.buildRoad(0, 1));
+        assertEquals(1, roads.ownedByPlayer(0));
+        assertFalse(roads.buildRoad(0, 2)); // already owned
     }
 
     @Test
-    public void testLongestRoadOwner_multiplePlayers() {
-        int save = Roads.minimumLongestRoadLength;
-        Roads.minimumLongestRoadLength = 3; // temporarily lower for test
-        // Player 1 roads
+    public void testBuildRoadByVertices() {
+        assertTrue(roads.buildRoad(0, 1, 2));
+        assertEquals(2, roads.ownedByPlayer(0, 1));
+    }
+
+    @Test
+    public void testBuildRoadInvalidPlayerID() {
+        assertFalse(roads.buildRoad(0, 1, Roads.UNOWNED_ROAD_ID));
+    }
+
+    @Test
+    public void testBuildRoadInvalidIndex() {
+        assertFalse(roads.buildRoad(100, 1));
+        assertFalse(roads.buildRoad(-1, 1));
+    }
+
+    @Test
+    public void testOwnedByPlayerIndex() {
+        roads.buildRoad(5, 1);
+        assertEquals(1, roads.ownedByPlayer(5));
+    }
+
+    @Test
+    public void testOwnedByPlayerVertices() {
+        roads.buildRoad(0, 1, 3);
+        assertEquals(3, roads.ownedByPlayer(0, 1));
+    }
+
+    @Test
+    public void testOwnedByPlayerInvalidIndex() {
+        assertThrows(IndexOutOfBoundsException.class, () -> roads.ownedByPlayer(100));
+    }
+
+    @Test
+    public void testIsRoadOwnedIndex() {
+        assertFalse(roads.isRoadOwned(0));
+        roads.buildRoad(0, 1);
+        assertTrue(roads.isRoadOwned(0));
+    }
+
+    @Test
+    public void testIsRoadOwnedVertices() {
+        assertFalse(roads.isRoadOwned(0, 1));
         roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-        roads.buildRoad(2, 3, 1);
+        assertTrue(roads.isRoadOwned(0, 1));
+    }
 
-        // Player 2 roads
-        roads.buildRoad(4, 5, 2);
-        roads.buildRoad(5, 6, 2);
-        roads.buildRoad(6, 7, 2);
-        roads.buildRoad(7, 8, 2);
+    @Test
+    public void testRemoveRoadByIndex() {
+        roads.buildRoad(0, 1);
+        assertTrue(roads.removeRoad(0));
+        assertEquals(Roads.UNOWNED_ROAD_ID, roads.ownedByPlayer(0));
+        assertFalse(roads.removeRoad(0)); // already unowned
+    }
 
-        int[] playerIDs = {1, 2};
-        assertEquals(2, roads.longestRoadOwner(playerIDs));
+    @Test
+    public void testRemoveRoadByVertices() {
+        roads.buildRoad(0, 1, 1);
+        assertTrue(roads.removeRoad(0, 1));
+        assertFalse(roads.isRoadOwned(0, 1));
+    }
+
+    @Test
+    public void testRemoveRoadInvalidIndex() {
+        assertThrows(IndexOutOfBoundsException.class, () -> roads.removeRoad(100));
+    }
+
+    @Test
+    public void testGetAllRoads() {
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 1);
+        roads.buildRoad(5, 2);
         
-        Roads.minimumLongestRoadLength = save; // restore original value
+        Road[] ownedRoads = roads.getAllRoads();
+        assertEquals(3, ownedRoads.length);
     }
 
     @Test
-    public void testLongestRoadOwner_tieBreaker() {
-        // Player 1 roads
-        int save = Roads.minimumLongestRoadLength;
-        Roads.minimumLongestRoadLength = 3; // temporarily lower for test
+    public void testGetAllRoadsEmpty() {
+        Road[] ownedRoads = roads.getAllRoads();
+        assertEquals(0, ownedRoads.length);
+    }
+
+    @Test
+    public void testIsValidRoadIndex() {
+        assertTrue(Roads.isValidRoadIndex(0));
+        assertTrue(Roads.isValidRoadIndex(71));
+        assertFalse(Roads.isValidRoadIndex(-1));
+        assertFalse(Roads.isValidRoadIndex(72));
+    }
+
+    @Test
+    public void testIsValidVertices() {
+        assertTrue(Roads.isValidVertices(0, 1));
+        assertTrue(Roads.isValidVertices(1, 0)); // order shouldn't matter
+        assertFalse(Roads.isValidVertices(100, 200));
+    }
+
+    @Test
+    public void testGetRoadIndex() {
+        assertEquals(0, Roads.getRoadIndex(0, 1));
+        assertEquals(0, Roads.getRoadIndex(1, 0)); // reverse order
+        assertEquals(-1, Roads.getRoadIndex(100, 200));
+    }
+
+    @Test
+    public void testLongestRoadOwnerSinglePlayer() {
+        Roads.minimumLongestRoadLength = 0;
+        int[] players = {1};
+        assertEquals(Roads.UNOWNED_ROAD_ID, roads.longestRoadOwner(players));
+
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 1);
+        roads.buildRoad(2, 1);
+        
+        assertEquals(1, roads.longestRoadOwner(players));
+    }
+
+    @Test
+    public void testLongestRoadOwnerMultiplePlayers() {
+        
+        Roads.minimumLongestRoadLength = 3;
         roads.buildRoad(0, 1, 1);
         roads.buildRoad(1, 2, 1);
         roads.buildRoad(2, 3, 1);
+        roads.buildRoad(3, 4, 2);
+        roads.buildRoad(6, 14, 2);
+        roads.buildRoad(20, 31, 3);
+        
+        
+        int[] players = {1, 2, 3};
+        assertEquals(1, roads.longestRoadOwner(players));
+    }
 
-        // Player 2 roads with higher build IDs
-        roads.buildRoad(4, 5, 2);
-        roads.buildRoad(5, 6, 2);
-        roads.buildRoad(6, 7, 2);
-
-        int[] playerIDs = {1, 2};
-
-        assertEquals(1, roads.longestRoadOwner(playerIDs));
-        Roads.minimumLongestRoadLength = save; // restore original value
+    @Test
+    public void testLongestRoadOwnerNoMinimumLength() {
+        
+        Roads.minimumLongestRoadLength = 0;
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 2);
+        
+        int[] players = {1};
+        assertEquals(1, roads.longestRoadOwner(players));
     }
 
     @Test
     public void testLongestRoadExists() {
-        int a[] = {};
-        assertFalse(roads.longestRoadExists(a));
+        Roads.minimumLongestRoadLength = 3;
+        int[] players = {1};
+        
+        assertFalse(roads.longestRoadExists(players));
 
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-        roads.buildRoad(2, 3, 1);
-        int[] b = {1};
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 1);
+        roads.buildRoad(2, 1);
+        
+        assertTrue(roads.longestRoadExists(players));
+    }
 
-        assertTrue(roads.longestRoadExists(b));
+    @Test
+    public void testLongestRoadNotExists() {
+        
+        Roads.minimumLongestRoadLength = 3;
+        roads.buildRoad(0, 1);
+        
+        int[] players = {1};
+        assertFalse(roads.longestRoadExists(players));
     }
 
     @Test
     public void testGetLongestRoadLength() {
-        int a[] = {};
-        assertEquals(0, roads.getLongestRoadLength(a));
-
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-        roads.buildRoad(2, 3, 1);
-        int[] b = {1};
-
-        assertEquals(3, roads.getLongestRoadLength(b));
-    }
-
-    @Test
-    public void testAddRoad_invalidVertices() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            roads.buildRoad(-1, 2, 1);
-        });
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            roads.buildRoad(1, -2, 1);
-        });
-    }
-
-    @Test
-    public void testAddRoad_valid() {
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-
-        // No exceptions should be thrown
-    }
+        Roads.minimumLongestRoadLength = 0;
+        int[] players = {1};
+        assertEquals(0, roads.getLongestRoadLength(players));
+       
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 1);
+        roads.buildRoad(2, 1);
 
     
-
-    @Test
-    public void testRemoveRoad() {
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-
-        roads.removeRoad(0, 1);
-
-        // Use reflection to access private field
-        try {
-            Field roadsField = Roads.class.getDeclaredField("roadsList");
-            roadsField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.List<Road> roadsList = (java.util.List<Road>) roadsField.get(roads);
-
-            assertEquals(1, roadsList.size());
-            Road remainingRoad = roadsList.get(0);
-            assertArrayEquals(new int[]{1, 2}, remainingRoad.getVertices());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
-    }   
-
-    @Test
-    public void testRemoveRoad_nonExistent() {
-        roads.buildRoad(0, 1, 1);
-
-        // Should not throw any exception
-        roads.removeRoad(1, 2);
-
-        // Use reflection to access private field
-        try {
-            Field roadsField = Roads.class.getDeclaredField("roadsList");
-            roadsField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.List<Road> roadsList = (java.util.List<Road>) roadsField.get(roads);
-
-            assertEquals(1, roadsList.size());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
-    }
-
-
-    @Test
-    public void testAddRoad_tracksPlayerID() {
-        roads.buildRoad(0, 1, 3);
-
-        // Use reflection to access private field
-        try {
-            Field trackedField = Roads.class.getDeclaredField("trackedPlayerIDS");
-            trackedField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.Set<Integer> trackedSet = (java.util.Set<Integer>) trackedField.get(roads);
-            assertTrue(trackedSet.contains(3));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
+        assertEquals(3, roads.getLongestRoadLength(players));
     }
 
     @Test
-    public void testAddRoad_multiplePlayerIDs() {
-        roads.buildRoad(0, 1, 2);
-        roads.buildRoad(1, 2, 3);
-        roads.buildRoad(2, 3, 2);
-
-        // Use reflection to access private field
-        try {
-            Field trackedField = Roads.class.getDeclaredField("trackedPlayerIDS");
-            trackedField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.Set<Integer> trackedSet = (java.util.Set<Integer>) trackedField.get(roads);
-            assertTrue(trackedSet.contains(2));
-            assertTrue(trackedSet.contains(3));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
+    public void testGetLongestRoadLengthMultiplePlayers() {
+        Roads.minimumLongestRoadLength = 0;
+        int[] players = {1, 2, 3};
+        assertEquals(0, roads.getLongestRoadLength(players));
+        
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 1);
+        roads.buildRoad(2, 1);
+        
+        roads.buildRoad(5, 2);
+        roads.buildRoad(6, 2);
+        roads.buildRoad(61, 3);
+        
+        assertEquals(3, roads.getLongestRoadLength(players));
     }
 
     @Test
-    public void testAddRoad_duplicatePlayerID() {
-        roads.buildRoad(0, 1, 2);
+    public void testMultipleRoadsBuiltByDifferentPlayers() {
+        roads.buildRoad(0, 1);
         roads.buildRoad(1, 2, 2);
-
-        // Use reflection to access private field
-        try {
-            Field trackedField = Roads.class.getDeclaredField("trackedPlayerIDS");
-            trackedField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.Set<Integer> trackedSet = (java.util.Set<Integer>) trackedField.get(roads);
-            assertEquals(1, trackedSet.size());
-            assertTrue(trackedSet.contains(2));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
+        
+        assertEquals(1, roads.ownedByPlayer(0));
+        assertEquals(2, roads.ownedByPlayer(1, 2));
     }
 
     @Test
-    public void testAddRoad_negativeBuildID() {
-        assertFalse(roads.buildRoad(0, 1, Roads.UNOWNED_ROAD_ID));
+    public void testBuildIDIncrement() throws NoSuchFieldException, IllegalAccessException {
+        roads.buildRoad(0, 1);
+        roads.buildRoad(1, 2);
+        roads.buildRoad(2, 3);
+        
+        Field field = Roads.class.getDeclaredField("nextBuildID");
+        field.setAccessible(true);
+        assertEquals(4, field.getInt(roads));
     }
 }
