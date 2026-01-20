@@ -1,5 +1,6 @@
 package com.example.view;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,51 +12,35 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public class SettingsV {
+import com.example.view.components.Hex;
+import com.example.viewmodel.SettingsViewModel;
+
+public class SettingsController implements ViewModelAware<SettingsViewModel> {
     
+    private SettingsViewModel viewModel;
     @FXML
     private Canvas hexCanvas;
-
     private double r = 75; // hex radius
-
-    private static class Hex {
-        double[] xPoints;
-        double[] yPoints;
-        double distanceToCenter;
-
-        Hex(double x, double y, double r, double centerX, double centerY) {
-
-            xPoints = new double[6];
-            yPoints = new double[6];
-            for (int i = 0; i < 6; i++) {
-                double angleRad = Math.toRadians(60 * i);
-                xPoints[i] = x + r * Math.cos(angleRad);
-                yPoints[i] = y + r * Math.sin(angleRad);
-            }
-            double dx = x - centerX;
-            double dy = y - centerY;
-            distanceToCenter = Math.sqrt(dx * dx + dy * dy);
-        }
-    }
     private final List<Hex> hexes = new ArrayList<>();
     private WritableImage staticBackground;
-
     @FXML
     private Slider volumeSlider;
-
     @FXML
     private Label volumeValueLabel;
-
     @FXML
     private ComboBox<String> languageCombo;
-
     @FXML
     private ComboBox<String> textSizeCombo;
-
     @FXML
     private ComboBox<String> resolutionCombo;
+
+    @Override
+    public void setViewModel(SettingsViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
 
     @FXML
     public void initialize() {
@@ -81,6 +66,12 @@ public class SettingsV {
         languageCombo.setValue("English");
         textSizeCombo.setValue("Medium");
         resolutionCombo.setValue("1920x1080");
+    }
+
+    // Added to the Play 'Button'
+    @FXML
+    private void switchToSetup(MouseEvent event) throws IOException {
+        viewModel.playGame();
     }
 
     // Layout of hex grid for the background

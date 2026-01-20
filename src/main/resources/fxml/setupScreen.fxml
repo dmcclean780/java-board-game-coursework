@@ -16,7 +16,7 @@
            prefWidth="1536.0"
            xmlns="http://javafx.com/javafx/25"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.example.view.SetupScreenV"
+           fx:controller="com.example.view.SetupScreenController"
            alignment="CENTER">
 
     <!-- Background -->
