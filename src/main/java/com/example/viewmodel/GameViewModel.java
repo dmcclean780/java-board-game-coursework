@@ -9,6 +9,8 @@ import com.example.model.Tiles;
 import com.example.service.NavigationService;
 import com.example.model.Settlement;
 import com.example.model.Settlements;
+import com.example.model.Ports;
+import com.example.model.Roads;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,12 +26,13 @@ public final class GameViewModel {
     private NavigationService navigationService;
 
     private final ObservableList<TileViewState> tiles = FXCollections.observableArrayList();
-    private final ObservableList<VertexViewState> vertices = FXCollections.observableArrayList();
-    private final ObservableList<PlayerViewState> players = FXCollections.observableArrayList();
-
     private TurnState turnState = TurnState.DICE_ROLL;
     private int currentPlayerIndex = 0;
-
+    private final ObservableList<RoadViewState> roads = FXCollections.observableArrayList();
+    private final ObservableList<VertexViewState> vertices = FXCollections.observableArrayList();
+    private final ObservableList<PlayerViewState> players = FXCollections.observableArrayList();
+    private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
+    
     public GameViewModel(GameModel gameModel, NavigationService navigationService) {
         this.gameModel = gameModel;
         this.navigationService = navigationService;
@@ -59,6 +62,12 @@ public final class GameViewModel {
             playerState.nameProperty().set(modelPlayers.get(i).getName());
             players.add(playerState);
         }
+
+        // Initialize RoadViewStates
+        int[][] roadConnections = Roads.getRoadConnections();
+        for (int i = 0; i < roadConnections.length; i++) {
+            roads.add(new RoadViewState());  // owner defaults to -1
+        }
     }
 
     public ObservableList<TileViewState> tilesProperty() {
@@ -79,6 +88,14 @@ public final class GameViewModel {
 
     public TurnState getTurnState() {
         return turnState;
+    }
+    
+    public ObservableList<RoadViewState> roadsProperty(){
+        return roads;
+    }
+
+    public ObservableList<PortViewState> portsProperty(){
+        return ports;
     }
 
     public int[][] getTileVertices() {
@@ -201,4 +218,11 @@ public final class GameViewModel {
     }
 
 
+    public int[][] getRoads(){
+        return Roads.getRoadConnections();
+    }
+
+    public int[][] getPorts(){
+        return Ports.getPorts();
+    }
 }

@@ -56,13 +56,18 @@ public class Ports {
 
     private static final int[][] VERTICES = {
         {0, 1},     // port 0
-        {3, 4},     // port 1
+        {5, 6},     // port 1
         {14, 15},   // port 2
         {26, 37},   // port 3
         {45, 46},   // port 4
         {50, 51},   // port 5
         {47, 48},   // port 6
         {28, 38},   // port 7
-        {7, 17},    // port 8
+        {7, 17}     // port 8
     };
+
+    public static int[][] getPorts()
+    {
+        return VERTICES;
+    }
 }
