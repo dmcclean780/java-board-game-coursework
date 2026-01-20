@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.example.viewmodel.GameViewModel;
 import com.example.viewmodel.TileViewState;
+import com.example.viewmodel.TurnState;
 import com.example.viewmodel.VertexViewState;
 import com.example.viewmodel.PlayerViewState;
 
@@ -58,17 +59,19 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bindTile(i, viewModel.tilesProperty().get(i));
         }
 
+        setupAllVertices(viewModel.getTileVertices());
+
         for (int i = 0; i < vertexNodes.length; i++) {
             bindVertex(i, viewModel.verticesProperty().get(i));
-        }
 
-        setupAllVertices(viewModel.getTileVertices());
+        }
 
         ObservableList<PlayerViewState> players = viewModel.playersProperty();
         player1Display.textProperty().bind(players.get(0).nameProperty());
         player2Display.textProperty().bind(players.get(1).nameProperty());
         player3Display.textProperty().bind(players.get(2).nameProperty());
-        currentPlayerDisplay.textProperty().bind(players.get(3).nameProperty() != null ? players.get(3).nameProperty() : players.get(0).nameProperty());
+        currentPlayerDisplay.textProperty().bind(
+                players.get(3).nameProperty() != null ? players.get(3).nameProperty() : players.get(0).nameProperty());
     }
 
     private void bindTile(int index, TileViewState state) {
@@ -81,10 +84,20 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     private void bindVertex(int id, VertexViewState state) {
         state.type.addListener((obs, old, type) -> {
-            setVertex(id, state.owner.get(), type.intValue());
+            setVertex(id, state.owner.get(), type);
+            bindVertexVisibility(vertexNodes[id], state);
+            attachVertexClickHandler(vertexNodes[id], id);
+        });
+
+        state.owner.addListener((obs, old, owner) -> {
+            setVertex(id, owner.intValue(), state.type.get());
+            bindVertexVisibility(vertexNodes[id], state);
+            attachVertexClickHandler(vertexNodes[id], id);
         });
 
         setVertex(id, state.owner.get(), state.type.get());
+        attachVertexClickHandler(vertexNodes[id], id);
+        bindVertexVisibility(vertexNodes[id], state);
     }
 
     private Color resolveColor(String type) {
@@ -101,7 +114,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     public void initialize() {
-
         // Load Oswald font from classpath
         InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
         if (fontStream != null) {
@@ -250,12 +262,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             avgY /= corners.size();
 
             // Create vertex shape (default Circle for now)
-            Shape vertex = new Circle(8);
-            vertex.setFill(Color.GREY);
-            vertex.setStroke(Color.WHITE);
-            vertex.setStrokeWidth(1);
-            vertex.setLayoutX(avgX);
-            vertex.setLayoutY(avgY);
+            Shape vertex = createCircleVertex(Color.GREY, avgX, avgY);
 
             vertexNodes[vertexId] = vertex;
             vertexPane.getChildren().add(vertex);
@@ -344,7 +351,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         tile.getChildren().add(pips);
     }
 
-    private void setVertex(int vertexId, int playerOwner, int contains) {
+    private void setVertex(int vertexId, int playerOwner, String type) {
         if (vertexId < 0 || vertexId >= vertexNodes.length || vertexNodes[vertexId] == null) {
             return;
         }
@@ -358,28 +365,64 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                 : Color.GRAY;
 
         // Create new node depending on type
-        if (contains == 1) { // city = square
-            double size = 25;
-            Rectangle city = new Rectangle(size, size);
-            city.setFill(fillColor);
-            city.setStroke(Color.BLACK);
-            city.setStrokeWidth(2);
-            // Center rectangle on vertex coordinates
-            city.setLayoutX(vertexNodes[vertexId].getLayoutX() - size / 2);
-            city.setLayoutY(vertexNodes[vertexId].getLayoutY() - size / 2);
-            vertexNodes[vertexId] = city;
-            vertexPane.getChildren().add(city);
-        } else { // settlement = circle
-            double radius = 12;
-            Circle settlement = new Circle(radius);
-            settlement.setFill(fillColor);
-            settlement.setStroke(Color.BLACK);
-            settlement.setStrokeWidth(2);
-            settlement.setLayoutX(vertexNodes[vertexId].getLayoutX());
-            settlement.setLayoutY(vertexNodes[vertexId].getLayoutY());
-            vertexNodes[vertexId] = settlement;
-            vertexPane.getChildren().add(settlement);
+        double layoutX = vertexNodes[vertexId].getLayoutX();
+        double layoutY = vertexNodes[vertexId].getLayoutY();
+        Shape newVertex;
+        if (type == "player_infrastructure.city") { // city = square
+            newVertex = createSquareVertex(fillColor, layoutX, layoutY);
+        } else if (type == "player_infrastructure.settlement") { // settlement = circle
+            newVertex = createCircleVertex(fillColor, layoutX, layoutY);
+        } else {
+            newVertex = createCircleVertex(Color.GREY, layoutX, layoutY); // unowned = grey circle
         }
+
+        vertexNodes[vertexId] = newVertex;
+        vertexPane.getChildren().add(newVertex);
+    }
+
+    private Shape createCircleVertex(Color fillColor, double layoutX, double layoutY) {
+        double radius = 12;
+        Circle circle = new Circle(radius);
+        circle.setFill(fillColor);
+        circle.setStroke(Color.BLACK);
+        circle.setStrokeWidth(1);
+        circle.setLayoutX(layoutX);
+        circle.setLayoutY(layoutY);
+        return circle;
+    }
+
+    private Shape createSquareVertex(Color fillColor, double layoutX, double layoutY) {
+        double size = 25;
+        Rectangle square = new Rectangle(size, size);
+        square.setFill(fillColor);
+        square.setStroke(Color.BLACK);
+        square.setStrokeWidth(2);
+        square.setLayoutX(layoutX - size / 2);
+        square.setLayoutY(layoutY - size / 2);        
+        return square;
+    }
+
+    private void attachVertexClickHandler(Shape vertex, int vertexId) {
+        vertex.setOnMouseClicked(event -> {
+            event.consume(); // prevents clicks falling through
+
+            // Example: tell ViewModel
+            viewModel.onVertexClicked(vertexId);
+
+            // Optional visual feedback
+            vertex.setStroke(Color.GOLD);
+            vertex.setStrokeWidth(3);
+        });
+
+        // Optional hover feedback
+        vertex.setOnMouseEntered(e -> vertex.setOpacity(0.8));
+        vertex.setOnMouseExited(e -> vertex.setOpacity(1.0));
+    }
+
+    private void bindVertexVisibility(Shape vertex, VertexViewState state) {
+
+        vertex.visibleProperty().bind(state.visible);
+        vertex.mouseTransparentProperty().bind(state.visible.not());
     }
 
     private boolean isValidIndex(int index) {
@@ -512,5 +555,25 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                 0.0, height / 2 // left
         );
         return hex;
+    }
+
+    public void switchToBUILDSETTLEMENTPHASE() {
+        viewModel.switchToBuildSettlementState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToBUILDCITYPHASE() {
+        viewModel.switchToBuildCityState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToROLLDICEPHASE() {
+        viewModel.switchToRollDiceState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void nextPlayer() {
+        viewModel.nextPlayer();
+        System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
     }
 }
