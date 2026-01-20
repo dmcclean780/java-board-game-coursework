@@ -353,6 +353,10 @@ public class Roads {
         return false;
     }
 
+    public boolean isVertexLinkedByRoad(int vertex, int playerID){
+        return true; // TODO: Implement road linkage check
+    }
+
 
     // the two vertices that each road connects; 72 roads total
     public static final int[][] roadConnections = {
