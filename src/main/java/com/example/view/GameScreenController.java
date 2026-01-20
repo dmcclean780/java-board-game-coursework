@@ -49,10 +49,13 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML
     private Polygon mainPentagon;
     @FXML
-    private Pane rootPane, catanBoardPane;
+    private Label player1Display, player2Display, player3Display, currentPlayerDisplay;
     @FXML
-    private Rectangle bottomBackground;
-    
+    private Pane rootPane, catanBoardPane;
+
+    @FXML private Pane playerColumnPane;
+
+    @FXML private Rectangle bottomBackground;
     @FXML private StackPane currentPlayerPane;
     @FXML private StackPane player1Pane;
     @FXML private StackPane player2Pane;
@@ -70,6 +73,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
+
+    // Static holder for names before screen loads
     private int[] vertexToPort = new int[54]; // -1 = not a port
     private Shape[] portDecorations = new Shape[54];
     private Shape[] roadNodes = new Shape[72];
@@ -193,10 +198,20 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     private void bindVertex(int id, VertexViewState state) {
         state.type.addListener((obs, old, type) -> {
-            setVertex(id, state.owner.get(), type.intValue());
+            setVertex(id, state.owner.get(), type);
+            bindVertexVisibility(vertexNodes[id], state);
+            attachVertexClickHandler(vertexNodes[id], id);
+        });
+
+        state.owner.addListener((obs, old, owner) -> {
+            setVertex(id, owner.intValue(), state.type.get());
+            bindVertexVisibility(vertexNodes[id], state);
+            attachVertexClickHandler(vertexNodes[id], id);
         });
 
         setVertex(id, state.owner.get(), state.type.get());
+        attachVertexClickHandler(vertexNodes[id], id);
+        bindVertexVisibility(vertexNodes[id], state);
     }
 
     private void bindRoad(int id, RoadViewState roadState) 
@@ -209,7 +224,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         // Initialize road with current owner
         setRoad(id, roadState.owner.get());
     }
-
 
     private Color resolveColor(String type) {
         return switch (type) {
@@ -225,7 +239,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     public void initialize() {
-
         // Load Oswald font from classpath
         InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
         if (fontStream != null) {
@@ -416,17 +429,12 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             avgY /= corners.size();
 
             // Create vertex shape (default Circle for now)
-            Shape vertex = new Circle(7);
-            vertex.setFill(Color.GREY);
-            vertex.setStroke(Color.WHITE);
-            vertex.setStrokeWidth(2);
-            vertex.setLayoutX(avgX);
-            vertex.setLayoutY(avgY);
+            Shape vertex = createCircleVertex(Color.GREY, avgX, avgY);
 
             vertexNodes[vertexId] = vertex;
             vertexPane.getChildren().add(vertex);
 
-            // // Add vertex ID label above
+            // Add vertex ID label above
             // Text label = new Text(String.valueOf(vertexId));
             // label.setFill(Color.INDIGO);
             // label.setFont(Font.font(12));
@@ -572,53 +580,33 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         tile.getChildren().add(pips);
     }
 
-    private void setVertex(int vertexId, int playerOwner, int contains)
-    {
+    private void setVertex(int vertexId, int playerOwner, String type) {
         if (vertexId < 0 || vertexId >= vertexNodes.length || vertexNodes[vertexId] == null) {
             return;
         }
 
-        double x = vertexNodes[vertexId].getLayoutX();
-        double y = vertexNodes[vertexId].getLayoutY();
-
+        // Remove old node (circle or rectangle)
         vertexPane.getChildren().remove(vertexNodes[vertexId]);
 
-        Color[] playerColors = {
-            Color.GRAY,
-            Color.RED,
-            Color.BLUE,
-            Color.GREEN,
-            Color.YELLOW
-        };
-
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length)
-                ? playerColors[playerOwner]
+        // Determine color based on owner
+        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
+        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) ? playerColors[playerOwner]
                 : Color.GRAY;
 
-        Shape baseNode;
-
-        if (contains == 1) {
-            double size = 25;
-            Rectangle city = new Rectangle(size, size);
-            city.setFill(fillColor);
-            city.setStroke(Color.BLACK);
-            city.setStrokeWidth(2);
-            city.setLayoutX(x - size / 2);
-            city.setLayoutY(y - size / 2);
-            baseNode = city;
+        // Create new node depending on type
+        double layoutX = vertexNodes[vertexId].getLayoutX();
+        double layoutY = vertexNodes[vertexId].getLayoutY();
+        Shape newVertex;
+        if (type == "player_infrastructure.city") { // city = square
+            newVertex = createSquareVertex(fillColor, layoutX, layoutY);
+        } else if (type == "player_infrastructure.settlement") { // settlement = circle
+            newVertex = createCircleVertex(fillColor, layoutX, layoutY);
         } else {
-            double radius = 10;
-            Circle settlement = new Circle(radius);
-            settlement.setFill(fillColor);
-            settlement.setStroke(Color.BLACK);
-            settlement.setStrokeWidth(2);
-            settlement.setLayoutX(x);
-            settlement.setLayoutY(y);
-            baseNode = settlement;
+            newVertex = createCircleVertex(Color.GREY, layoutX, layoutY); // unowned = grey circle
         }
 
-        vertexNodes[vertexId] = baseNode;
-        vertexPane.getChildren().add(baseNode);
+        vertexNodes[vertexId] = newVertex;
+        vertexPane.getChildren().add(newVertex);
 
         // Remove old decoration if present
         if (portDecorations[vertexId] != null) {
@@ -631,13 +619,58 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             portRing.setFill(Color.TRANSPARENT);
             portRing.setStroke(Color.CRIMSON);
             portRing.setStrokeWidth(3);
-            portRing.setLayoutX(x);
-            portRing.setLayoutY(y);
+            portRing.setLayoutX(layoutX);
+            portRing.setLayoutY(layoutY);
             portRing.setMouseTransparent(true);
 
             portDecorations[vertexId] = portRing;
             vertexPane.getChildren().add(portRing);
         }
+    }
+
+    private Shape createCircleVertex(Color fillColor, double layoutX, double layoutY) {
+        double radius = 12;
+        Circle circle = new Circle(radius);
+        circle.setFill(fillColor);
+        circle.setStroke(Color.BLACK);
+        circle.setStrokeWidth(1);
+        circle.setLayoutX(layoutX);
+        circle.setLayoutY(layoutY);
+        return circle;
+    }
+
+    private Shape createSquareVertex(Color fillColor, double layoutX, double layoutY) {
+        double size = 25;
+        Rectangle square = new Rectangle(size, size);
+        square.setFill(fillColor);
+        square.setStroke(Color.BLACK);
+        square.setStrokeWidth(2);
+        square.setLayoutX(layoutX - size / 2);
+        square.setLayoutY(layoutY - size / 2);        
+        return square;
+    }
+
+    private void attachVertexClickHandler(Shape vertex, int vertexId) {
+        vertex.setOnMouseClicked(event -> {
+            event.consume(); // prevents clicks falling through
+
+            // Example: tell ViewModel
+            viewModel.onVertexClicked(vertexId);
+
+            // Optional visual feedback
+            vertex.setStroke(Color.GOLD);
+            vertex.setStrokeWidth(3);
+        });
+
+        // Optional hover feedback
+        vertex.setOnMouseEntered(e -> vertex.setOpacity(0.8));
+        vertex.setOnMouseExited(e -> vertex.setOpacity(1.0));
+    }
+
+    private void bindVertexVisibility(Shape vertex, VertexViewState state) {
+
+        vertex.visibleProperty().bind(state.visible);
+        vertex.mouseTransparentProperty().bind(state.visible.not());
     }
 
 
@@ -700,7 +733,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         int id = 0;
 
         // --- Background ---
-        Polygon background = createFlatTopHex(hexWidth * 8.2, totalHeight - 40);
+        Polygon background = createFlatTopHex(hexWidth * 7.60, totalHeight - 130);
 
         // I Will want to bring this back at some point, just having a bit of a layering issue
         background.setFill(Color.rgb(57, 69, 147));
@@ -757,8 +790,9 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         double centerY = centerTileBounds.getMinY() + centerTileBounds.getHeight() / 2;
 
         background.setLayoutX(centerX - bgBounds.getWidth() / 2);
-        background.setLayoutY(centerY - bgBounds.getHeight() / 2 + 21);
+        background.setLayoutY(centerY - bgBounds.getHeight() / 2 + 12);
 
+        background.setLayoutY(centerY - bgBounds.getHeight() / 2 + 21);
         System.out.println("Catan board created with 19 tile views.");
     }
 
@@ -787,6 +821,26 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                 0.0, height / 2 // left
         );
         return hex;
+    }
+
+    public void switchToBUILDSETTLEMENTPHASE() {
+        viewModel.switchToBuildSettlementState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToBUILDCITYPHASE() {
+        viewModel.switchToBuildCityState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToROLLDICEPHASE() {
+        viewModel.switchToRollDiceState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void nextPlayer() {
+        viewModel.nextPlayer();
+        System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
     }
 
     public void setCurrentPlayer(int currentPlayerIndex) 
@@ -854,7 +908,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
                 rootPane.getChildren().add(btn);
             }
+
         });
     }
-
 }

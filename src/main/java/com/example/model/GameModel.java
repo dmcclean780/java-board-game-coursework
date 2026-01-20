@@ -45,7 +45,44 @@ public class GameModel {
         return tiles.getTiles();
     }
 
+    public Settlement[] getSettlements() {
+        return settlements.getAllSettlements();
+    }
+
+    public String getSettlmentType(int index) {
+        return settlements.getAllSettlements()[index].getSettlementType();
+    }
+
+    public int getSettlmentOwner(int index) {
+        return settlements.getAllSettlements()[index].getPlayerID();
+    }
+
+    public boolean settlementValid(int vertex, int playerIndex) {
+        int playerID = players.get(playerIndex).getId();
+        boolean settlementDistanceValid = settlements.nearbySettlement(vertex);
+        boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID);
+        boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
+        return settlementDistanceValid && linkedByRoad && unowned;
+    }
+
+    public boolean cityValid(int vertex, int playerIndex) {
+        int playerID = players.get(playerIndex).getId();
+        boolean isOwner = getSettlmentOwner(vertex) == playerID;
+        boolean notAlreadyCity = !settlements.getAllSettlements()[vertex].isCity();
+        return isOwner && notAlreadyCity;
+    }
+
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public boolean buildSettlement(int vertex, int playerID) {
+        // REMOVE RESOUCES FROM PLAYER HERE
+        return settlements.buildSettlement(vertex, playerID);
+    }
+
+    public boolean buildCity(int vertex, int playerID) {
+        // REMOVE RESOUCES FROM PLAYER HERE
+        return settlements.upgradeSettlement(vertex, playerID);
     }
 }
