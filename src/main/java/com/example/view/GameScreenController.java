@@ -908,6 +908,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
                 rootPane.getChildren().add(btn);
             }
+
         });
     }
 }

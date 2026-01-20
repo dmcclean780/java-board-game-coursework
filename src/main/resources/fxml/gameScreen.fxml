@@ -133,7 +133,20 @@
             <Label fx:id="currentPlayerDisplay"
                 text="Current Player"
                 styleClass="current-player-label"/>
-        </StackPane>
+
+            <VBox fx:id="currentPlayerResourcesBox"
+                  alignment="CENTER"
+                  spacing="5.0"
+                  layoutY="90.0">
+                <!-- Resource labels will be added here dynamically -->
+                <Button fx:id="primaryButton" text="BUILD_SETTLEMENT" onAction="#switchToBUILDSETTLEMENTPHASE"/>
+                <Button fx:id="primaryButton" text="BUILD_CITY" onAction="#switchToBUILDCITYPHASE"/>
+                <Button fx:id="primaryButton" text="ROLL_DICE" onAction="#switchToROLLDICEPHASE"/>
+                <Button fx:id="primaryButton" text="NEXT PLAYER" onAction="#nextPlayer"/>
+            </VBox>
+            </StackPane>
 
     </Pane>
+
+    
 </Pane>
