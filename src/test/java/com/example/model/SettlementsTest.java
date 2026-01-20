@@ -1,0 +1,140 @@
+package com.example.model;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class SettlementsTest {
+
+    private Settlements settlements;
+
+    @BeforeEach
+    public void setUp(){
+        settlements = new Settlements();
+    }
+
+    //Settlements()
+
+    @Test
+    public void testConstructor_initialState(){
+        Settlements s = new Settlements();
+
+        assertEquals(Settlements.NUMBER_OF_VERTICES, s.getAllSettlements().length + (Settlements.NUMBER_OF_VERTICES - s.getAllSettlements().length));
+
+        for (int i = 0; i < Settlements.NUMBER_OF_VERTICES; i++) {
+            assertEquals(Settlements.UNOWNED_SETTLEMENT_ID, s.ownedByPlayer(i));
+        }
+
+        assertEquals(0, s.getAllSettlements().length);
+
+    }
+
+    //buildSettlement()
+
+    @Test
+    public void testBuildSettlement_valid(){
+        boolean result = settlements.buildSettlement(5, 1);
+        assertTrue(result);
+        assertEquals(1, settlements.ownedByPlayer(5));
+    }
+
+    @Test
+    public void testBuildSettlement_invalidVertex(){
+        assertFalse(settlements.buildSettlement(-1, 1));
+        assertFalse(settlements.buildSettlement(100, 1));
+    }
+
+    @Test
+    public void testBuildSettlement_alreadyOwned() {
+        settlements.buildSettlement(10, 1);
+        boolean result = settlements.buildSettlement(10, 2);
+        assertFalse(result);
+        assertEquals(1, settlements.ownedByPlayer(10));
+
+    }
+
+    //ownedByPlayer()
+
+    @Test
+    void testOwnedByPlayer_unowned() {
+        assertEquals(Settlements.UNOWNED_SETTLEMENT_ID, settlements.ownedByPlayer(3));
+    }
+
+    @Test
+    void testOwnedByPlayer_invalidVertexThrows() {
+        assertThrows(IndexOutOfBoundsException.class, () -> settlements.ownedByPlayer(-5));
+        assertThrows(IndexOutOfBoundsException.class, () -> settlements.ownedByPlayer(200));
+    }
+
+    //upgradeSettlement()
+
+    @Test
+    void testUpgradeSettlement_success() {
+        settlements.buildSettlement(7, 2);
+        boolean result = settlements.upgradeSettlement(7, 2);
+        assertTrue(result);
+    }
+
+    @Test
+    void testUpgradeSettlement_wrongPlayer() {
+        settlements.buildSettlement(8, 1);
+        assertFalse(settlements.upgradeSettlement(8, 2));
+    }
+
+    @Test
+    void testUpgradeSettlement_invalidVertex() {
+        assertFalse(settlements.upgradeSettlement(-1, 1));
+        assertFalse(settlements.upgradeSettlement(100, 1));
+    }
+
+    //getAllSettlements()
+
+    @Test
+    void testGetAllSettlements() {
+        settlements.buildSettlement(1, 1);
+        settlements.buildSettlement(2, 1);
+        settlements.buildSettlement(3, 2);
+
+        Settlement[] owned = settlements.getAllSettlements();
+
+        assertEquals(3, owned.length);
+        assertTrue(owned[0].getPlayerID() != Settlements.UNOWNED_SETTLEMENT_ID);
+    }
+
+    @Test
+    void testGetAllSettlements_noneOwned() {
+        Settlement[] owned = settlements.getAllSettlements();
+        assertEquals(0, owned.length);
+    }
+
+    //getVictoryPoints()
+
+    @Test
+    void testGetVictoryPoints() {
+        settlements.buildSettlement(4, 1);
+        settlements.buildSettlement(5, 1);
+
+        int points = settlements.getVictoryPoints(1);
+
+        assertTrue(points >= 2);
+    }
+
+    @Test
+    void testGetVictoryPointsNoSettlements() {
+        assertEquals(0, settlements.getVictoryPoints(99));
+    }
+
+    //isValidVertex()
+
+    @Test
+    void testIsValidVertex() {
+        assertTrue(Settlements.isValidVertex(0));
+        assertTrue(Settlements.isValidVertex(Settlements.NUMBER_OF_VERTICES - 1));
+        assertFalse(Settlements.isValidVertex(-1));
+        assertFalse(Settlements.isValidVertex(100));
+    }
+
+}
