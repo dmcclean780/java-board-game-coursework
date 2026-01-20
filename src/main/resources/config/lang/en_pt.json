@@ -30,5 +30,11 @@
     "tile.mountains.name": "High Peaks",
     "tile.fields.name": "Fields o' Grain",
     "tile.pasture.name": "Grazin' Pastures",
-    "tile.desert.name": "Barren Sands"
+    "tile.desert.name": "Barren Sands",
+
+    "_comment": "Title Screen:",
+    
+    "playText": "Hoist the Sails",
+    "settingsText": "Adjust Yer Compass",
+    "exitText": "Walk the Plank"
 }

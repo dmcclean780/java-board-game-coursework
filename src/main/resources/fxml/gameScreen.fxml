@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.geometry.Pos?>
+<?import java.lang.Double?>
+
+<Pane fx:id="rootPane"
+      prefHeight="864.0"
+      prefWidth="1536.0"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.view.GameScreenV">
+
+    <!-- Large left-side pentagon -->
+    <Polygon fx:id="mainPentagon"
+             fill="rgb(5, 0, 88)"
+             stroke="BLACK"
+             strokeWidth="4"
+             layoutX="0"
+             layoutY="0">
+        <points>
+            <!-- Top-left corner -->
+            <Double fx:value="0.0"/><Double fx:value="0.0"/>
+            <!-- Bottom-left corner -->
+            <Double fx:value="0.0"/><Double fx:value="864.0"/>
+            <!-- Bottom-center -->
+            <Double fx:value="868.0"/><Double fx:value="864.0"/>
+            <!-- Top-center -->
+            <Double fx:value="988.0"/><Double fx:value="432.0"/>
+            <!-- Middle point slightly right -->
+            <Double fx:value="868.0"/><Double fx:value="0.0"/>
+
+        </points>
+
+    </Polygon>
+
+    <!-- Main board pane with tiles -->
+    <Pane fx:id="borderPane" prefWidth="1000" prefHeight="800"/>
+
+    <!-- Main board pane with tiles -->
+    <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800"/>
+
+    <!-- Pane for vertices, automatically on top -->
+    <Pane fx:id="vertexPane" pickOnBounds="false"/>
+
+    <!-- Container for current player + player boxes -->
+    <VBox layoutX="1100"
+        layoutY="220"
+        alignment="TOP_RIGHT"
+        spacing="25">
+
+        <!-- CURRENT PLAYER DISPLAY -->
+        <StackPane fx:id="currentPlayerPane" alignment="CENTER">
+            <Polygon fx:id="currentPlayerBox"
+                    fill="#5050A0"
+                    stroke="black"
+                    strokeWidth="4"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="20.0"/>   <Double fx:value="0.0"/>
+                    <Double fx:value="300.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="280.0"/>  <Double fx:value="70.0"/>
+                    <Double fx:value="0.0"/>    <Double fx:value="70.0"/>
+                </points>
+            </Polygon>
+            <Label fx:id="currentPlayerDisplay"
+                text="Current Player"
+                styleClass="player-label"/>
+        </StackPane>
+
+        <!-- PLAYER BOXES -->
+        <StackPane fx:id="player1Pane" alignment="CENTER">
+            <Polygon fx:id="player1Box"
+                    fill="#323232"
+                    stroke="black"
+                    strokeWidth="4"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="20.0"/>   <Double fx:value="0.0"/>
+                    <Double fx:value="270.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="250.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="0.0"/>    <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+            <Label fx:id="player1Display" text="Player 1" styleClass="player-label"/>
+        </StackPane>
+
+        <StackPane fx:id="player2Pane" alignment="CENTER">
+            <Polygon fx:id="player2Box"
+                    fill="#323232"
+                    stroke="black"
+                    strokeWidth="4"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="20.0"/>   <Double fx:value="0.0"/>
+                    <Double fx:value="270.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="250.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="0.0"/>    <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+            <Label fx:id="player2Display" text="Player 2" styleClass="player-label"/>
+        </StackPane>
+
+        <StackPane fx:id="player3Pane" alignment="CENTER">
+            <Polygon fx:id="player3Box"
+                    fill="#323232"
+                    stroke="black"
+                    strokeWidth="4"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="20.0"/>   <Double fx:value="0.0"/>
+                    <Double fx:value="270.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="250.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="0.0"/>    <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+            <Label fx:id="player3Display" text="Player 3" styleClass="player-label"/>
+        </StackPane>
+
+    </VBox>
+
+</Pane>

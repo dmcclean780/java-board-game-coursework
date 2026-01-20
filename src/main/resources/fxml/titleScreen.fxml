@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.Double?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.StackPane?>
+
+<Pane fx:id="rootPane" prefHeight="864.0" prefWidth="1536.0"
+      xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.view.TitleScreenV">
+
+    <children>
+        <!-- Background hex canvas -->
+        <Canvas fx:id="hexCanvas" width="1536.0" height="864.0"/>
+
+        <!-- Title -->
+        <HBox fx:id="titleMainText" spacing="0" alignment="BOTTOM_LEFT">
+            <children>
+                <!-- T -->
+                <Label text="T" styleClass="title-t"/>
+                
+                <!-- Indstrializers of Text -->
+                <Label text="Industrialists of" styleClass="title-accent"/>
+                
+                <!-- empra -->
+                <Label text="empra" styleClass="title-rest"/>
+            </children>
+        </HBox>
+
+        <!-- Menu box -->
+        <VBox fx:id="menuBox" layoutX="1040.0" layoutY="450.0"
+        spacing="40"
+        styleClass="menu-box">     
+            <children>
+                <!-- Play group -->
+                <HBox fx:id="playHBox" spacing="20" alignment="CENTER_LEFT" styleClass="menu-item" onMouseClicked="#switchToSetup">
+                    <Polygon fx:id="playHex" styleClass="hexagon" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE">
+                        <points>
+                            <Double fx:value="0"/><Double fx:value="-25"/>
+                            <Double fx:value="21.65"/><Double fx:value="-12.5"/>
+                            <Double fx:value="21.65"/><Double fx:value="12.5"/>
+                            <Double fx:value="0"/><Double fx:value="25"/>
+                            <Double fx:value="-21.65"/><Double fx:value="12.5"/>
+                            <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
+                        </points>
+                    </Polygon>
+                    <Label fx:id="playText" styleClass="menu-label"/>
+                </HBox>
+
+                <!-- Settings group -->
+                <HBox fx:id="settingsHBox" spacing="20" alignment="CENTER_LEFT" styleClass="menu-item" onMouseClicked="#switchToSettings">
+                    <Polygon fx:id="settingsHex" styleClass="hexagon" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE">
+                        <points>
+                            <Double fx:value="0"/><Double fx:value="-25"/>
+                            <Double fx:value="21.65"/><Double fx:value="-12.5"/>
+                            <Double fx:value="21.65"/><Double fx:value="12.5"/>
+                            <Double fx:value="0"/><Double fx:value="25"/>
+                            <Double fx:value="-21.65"/><Double fx:value="12.5"/>
+                            <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
+                        </points>
+                    </Polygon>
+                    <Label fx:id="settingsText" styleClass="menu-label"/>
+                </HBox>
+
+                <!-- Exit group -->
+                <HBox fx:id="exitHBox" spacing="20" alignment="CENTER_LEFT" styleClass="menu-item" onMouseClicked="#switchToPrimary">
+                    <Polygon fx:id="exitHex" styleClass="hexagon" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE">
+                        <points>
+                            <Double fx:value="0"/><Double fx:value="-25"/>
+                            <Double fx:value="21.65"/><Double fx:value="-12.5"/>
+                            <Double fx:value="21.65"/><Double fx:value="12.5"/>
+                            <Double fx:value="0"/><Double fx:value="25"/>
+                            <Double fx:value="-21.65"/><Double fx:value="12.5"/>
+                            <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
+                        </points>
+                    </Polygon>
+                    <Label fx:id="exitText" styleClass="menu-label"/>
+                </HBox>
+
+            </children>
+        </VBox>
+    </children>
+</Pane>

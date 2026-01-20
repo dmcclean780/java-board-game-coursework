@@ -37,8 +37,6 @@ public class Gameboard {
     public void setStructures(ArrayList<Structure> _structures){structures = _structures;}
     public void setRoads(ArrayList<Road> _roads){roads = _roads;}
 
-
-
     //generate ports
     private void GeneratePorts(String jsonPath) throws IOException {
 
