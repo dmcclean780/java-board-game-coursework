@@ -18,7 +18,6 @@ public class Settlements {
         for (int i = 0; i < NUMBER_OF_VERTICES; i++){
             settlements[i] = new Settlement(UNOWNED_SETTLEMENT_ID, i);
         }
-
     }
 
     public boolean buildSettlement(int vertex, int playerID){
@@ -69,7 +68,7 @@ public class Settlements {
 
     }
 
-    public Settlement[] getAllSettlements(){
+    public Settlement[] getAllOwnedSettlements(){
 
         int count = 0;
 
@@ -92,6 +91,10 @@ public class Settlements {
 
     }
 
+    public Settlement[] getAllSettlements(){
+        return settlements;
+    }
+
     public int getVictoryPoints(int playerID){
 
         int points = 0;
@@ -108,6 +111,10 @@ public class Settlements {
 
     public static boolean isValidVertex(int vertex){
         return vertex >= 0 && vertex < NUMBER_OF_VERTICES;
+    }
+
+    public boolean validDistanceFromOtherSettlements(int vertex){
+        return true; // TODO: Implement distance rule check
     }
 
 }

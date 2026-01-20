@@ -47,4 +47,8 @@ public class Settlement {
         return thisConfig.victoryPoints;
     }
 
+    public boolean isCity(){
+        return this.settlementID.equals("player_infrastructure.city");
+    }
+
 }
