@@ -13,14 +13,6 @@ public class Tile {
     //default constructor
     public Tile() {}
 
-    //paramaterised constructor
-    public Tile(String _tileID, int _number,  int[] _adjVertices, boolean _isBlocked){
-        tileID = _tileID;
-        number = _number;
-        adjVertices = _adjVertices;
-        isBlocked = _isBlocked;
-    }
-
     //getters
     public String getTileID(){ return this.tileID; }
     public int getNumber(){ return this.number; }
