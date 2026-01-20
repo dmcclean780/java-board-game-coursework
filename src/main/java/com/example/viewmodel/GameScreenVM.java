@@ -2,8 +2,7 @@ package com.example.viewmodel;
 
 import com.example.model.Tile;
 import com.example.model.Tiles;
-
-
+import com.example.model.AdjacencyMaps;
 import com.example.model.Player;
 import com.example.view.GameScreenV;
 
@@ -111,7 +110,7 @@ public final class GameScreenVM {
     }
 
     public int[][] getTileVertices() {
-        return Tiles.getTileVertices();
+        return AdjacencyMaps.TileVertices;
     }
 }
 

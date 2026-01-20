@@ -33,7 +33,7 @@ public class GameModel {
     }
 
     public int getNumberOfVertices() {
-        int[][] vertexPerTile = tiles.getTileVertices();
+        int[][] vertexPerTile = AdjacencyMaps.TileVertices;
         int vertixCount = 0;
         for (int[] vertices : vertexPerTile) {
             vertixCount += vertices.length;

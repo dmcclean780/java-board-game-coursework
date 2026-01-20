@@ -2,12 +2,10 @@ package com.example.viewmodel;
 
 import java.util.ArrayList;
 
+import com.example.model.AdjacencyMaps;
 import com.example.model.GameModel;
 import com.example.model.Player;
-import com.example.model.Ports;
-import com.example.model.Roads;
 import com.example.model.Tile;
-import com.example.model.Tiles;
 import com.example.service.NavigationService;
 
 import javafx.collections.FXCollections;
@@ -57,7 +55,7 @@ public final class GameViewModel {
         }
 
         // Initialize RoadViewStates
-        int[][] roadConnections = Roads.getRoadConnections();
+        int[][] roadConnections = AdjacencyMaps.RoadConnections;
         for (int i = 0; i < roadConnections.length; i++) {
             roads.add(new RoadViewState());  // owner defaults to -1
         }
@@ -84,14 +82,14 @@ public final class GameViewModel {
     }
 
     public int[][] getTileVertices() {
-        return Tiles.getTileVertices();
+        return AdjacencyMaps.TileVertices;
     }
 
     public int[][] getRoads(){
-        return Roads.getRoadConnections();
+        return AdjacencyMaps.RoadConnections;
     }
 
     public int[][] getPorts(){
-        return Ports.getPorts();
+        return AdjacencyMaps.PortVertices;
     }
 }

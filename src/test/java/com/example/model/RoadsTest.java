@@ -24,7 +24,7 @@ public class RoadsTest {
     @Test
     public void testConstructor() {
         assertNotNull(roads);
-        assertEquals(Roads.NUMBER_OF_ROADS, Roads.roadConnections.length);
+        assertEquals(Roads.NUMBER_OF_ROADS, AdjacencyMaps.RoadConnections.length);
     }
 
     @Test
