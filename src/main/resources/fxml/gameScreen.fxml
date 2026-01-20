@@ -17,8 +17,7 @@
       fx:controller="com.example.view.GameScreenController">
 
     <!-- Bottom-half background -->
-    <Rectangle fx:id="bottomBackground"
-               fill="#394593"/>
+    <Rectangle fx:id="bottomBackground"/>
 
     <!-- Large left-side pentagon -->
     <Polygon fx:id="mainPentagon"
@@ -33,11 +32,11 @@
             <!-- Bottom-left corner -->
             <Double fx:value="0.0"/><Double fx:value="864.0"/>
             <!-- Bottom-center -->
-            <Double fx:value="828.0"/><Double fx:value="864.0"/>
+            <Double fx:value="715.0"/><Double fx:value="864.0"/>
             <!-- Top-center -->
-            <Double fx:value="958.0"/><Double fx:value="433.0"/>
+            <Double fx:value="715.0"/><Double fx:value="433.0"/>
             <!-- Middle point slightly right -->
-            <Double fx:value="828.0"/><Double fx:value="0.0"/>
+            <Double fx:value="715.0"/><Double fx:value="0.0"/>
 
         </points>
 
@@ -50,6 +49,12 @@
     <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800"/>
 
     <!-- Pane for vertices, automatically on top -->
+    <Pane fx:id="roadsPane" pickOnBounds="false"/>
+
+    <!-- Pane for vertices, automatically on top -->
+    <Pane fx:id="portsPane" pickOnBounds="false"/>
+
+    <!-- Pane for vertices, automatically on top -->
     <Pane fx:id="vertexPane" pickOnBounds="false"/>
 
     <Pane fx:id="playerColumnPane" layoutX="960" prefHeight="864">
@@ -60,8 +65,8 @@
                 <points>
                     <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
                     <Double fx:value="250.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="270.0"/>  <Double fx:value="60.0"/>
-                    <Double fx:value="20.0"/>   <Double fx:value="60.0"/>
+                    <Double fx:value="285.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
                 </points>
             </Polygon>
 
@@ -76,8 +81,8 @@
                 <points>
                     <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
                     <Double fx:value="250.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="270.0"/>  <Double fx:value="60.0"/>
-                    <Double fx:value="20.0"/>   <Double fx:value="60.0"/>
+                    <Double fx:value="285.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
                 </points>
             </Polygon>
 
@@ -92,8 +97,8 @@
                 <points>
                     <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
                     <Double fx:value="250.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="270.0"/>  <Double fx:value="60.0"/>
-                    <Double fx:value="20.0"/>   <Double fx:value="60.0"/>
+                    <Double fx:value="285.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
                 </points>
             </Polygon>
 
@@ -104,14 +109,20 @@
 
         <!-- repeat for player2Pane / player3Pane -->
 
+
+        <Label fx:id="currentPlayerText"
+                text="Current Player:"
+                styleClass="current-player-text"/>
+
         <StackPane fx:id="currentPlayerPane" alignment="CENTER">
             <Polygon fx:id="currentPlayerBox"
+                    styleClass="parallelogram"
                     fill="#5050A0"
                     stroke="black"
-                    strokeWidth="4">
+                    strokeWidth="8">
                 <points>
-                    <Double fx:value="23.0"/>   <Double fx:value="0.0"/>
-                    <Double fx:value="343.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="45.0"/>   <Double fx:value="0.0"/>
+                    <Double fx:value="365.0"/>  <Double fx:value="0.0"/>
                     <Double fx:value="320.0"/>  <Double fx:value="80.0"/>
                     <Double fx:value="0.0"/>    <Double fx:value="80.0"/>
                 </points>

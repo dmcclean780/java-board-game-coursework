@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.example.model.GameModel;
 import com.example.model.Player;
+import com.example.model.Ports;
+import com.example.model.Roads;
 import com.example.model.Tile;
 import com.example.model.Tiles;
 import com.example.service.NavigationService;
@@ -22,8 +24,11 @@ public final class GameViewModel {
     private NavigationService navigationService;
 
     private final ObservableList<TileViewState> tiles = FXCollections.observableArrayList();
+    private final ObservableList<RoadViewState> roads = FXCollections.observableArrayList();
     private final ObservableList<VertexViewState> vertices = FXCollections.observableArrayList();
     private final ObservableList<PlayerViewState> players = FXCollections.observableArrayList();
+    private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
+
 
     public GameViewModel(GameModel gameModel, NavigationService navigationService) {
         this.gameModel = gameModel;
@@ -50,6 +55,12 @@ public final class GameViewModel {
             playerState.idProperty().set(i);
             players.add(playerState);
         }
+
+        // Initialize RoadViewStates
+        int[][] roadConnections = Roads.getRoadConnections();
+        for (int i = 0; i < roadConnections.length; i++) {
+            roads.add(new RoadViewState());  // owner defaults to -1
+        }
     }
 
     public ObservableList<TileViewState> tilesProperty() {
@@ -64,7 +75,23 @@ public final class GameViewModel {
         return players;
     }
 
+    public ObservableList<RoadViewState> roadsProperty(){
+        return roads;
+    }
+
+    public ObservableList<PortViewState> portsProperty(){
+        return ports;
+    }
+
     public int[][] getTileVertices() {
         return Tiles.getTileVertices();
+    }
+
+    public int[][] getRoads(){
+        return Roads.getRoadConnections();
+    }
+
+    public int[][] getPorts(){
+        return Ports.getPorts();
     }
 }

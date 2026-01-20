@@ -57,10 +57,9 @@ public class GameScreenV
         Color.TRANSPARENT,           // index 0 unused
         Color.web("#e43b29"),        // player 1 red
         Color.web("#4fa6eb"),        // player 2 blue
-        Color.web("#f0ad00"),        // player 3 yellow/orange
+        Color.web("#f0ad00"),        // player 3 yellow
         Color.web("#517d19")         // player 4 green
     };
-
 
     // Static holder for names before screen loads
     private static String[] playerNames;
@@ -396,8 +395,6 @@ public class GameScreenV
         mainPentagon.setTranslateX(-rootPane.getWidth()/2);
         mainPentagon.setTranslateY(-rootPane.getHeight()/2);
 
-        createPlayerNames();
-
         System.out.println("GameScreenV initialized"); // Debug
         if (playerNames != null) {
             // player1Display.setText(playerNames[0]);
@@ -412,7 +409,7 @@ public class GameScreenV
 
         createCatanBoard(rootPane);
         
-        setCurrentPlayer(1); 
+        //setCurrentPlayer(1); 
 
         GameScreenVM vm = new GameScreenVM(this);
         vm.pushInitialStateToView();
@@ -545,68 +542,7 @@ public class GameScreenV
         return hex;
     }
 
-    private void createPlayerNames()
-    {
-        Platform.runLater(() -> {
-
-            double centerY = rootPane.getHeight() / 2.0;
-            double currentHeight = currentPlayerPane.getBoundsInParent().getHeight();
-
-            double currentYOffset = 70;   // ↓ move current player down
-            double normalGap = 85;
-            double firstGap  = 130;
-            double slantX = -26;
-
-            currentPlayerPane.setLayoutX(-14);
-            currentPlayerPane.setLayoutY(centerY - currentHeight / 2 + currentYOffset);
-
-            player1Pane.setLayoutY(currentPlayerPane.getLayoutY() - firstGap);
-            player1Pane.setLayoutX(slantX + 10);
-
-            player2Pane.setLayoutY(player1Pane.getLayoutY() - normalGap);
-            player2Pane.setLayoutX(slantX * 2 + 10);
-
-            player3Pane.setLayoutY(player2Pane.getLayoutY() - normalGap);
-            player3Pane.setLayoutX(slantX * 3 + 10);
-        });
-    }
-
-    public void setCurrentPlayer(int playerIndex) 
-    {
-        if (playerIndex < 1 || playerIndex > 4) return;
-
-        Platform.runLater(() -> {
-            // --- Set bottom background and box color ---
-            bottomBackground.setFill(PLAYER_COLORS[playerIndex]);
-            currentPlayerBox.setFill(PLAYER_COLORS[playerIndex]);
-
-            // --- Get the player name from the proper pane ---
-            StackPane sourcePane;
-            switch (playerIndex) {
-                case 1 -> sourcePane = player1Pane;
-                case 2 -> sourcePane = player2Pane;
-                case 3 -> sourcePane = player3Pane;
-                case 4 -> sourcePane = currentPlayerPane; // if player 4 is static, adjust accordingly
-                default -> sourcePane = currentPlayerPane;
-            }
-
-            // Ensure the pane has at least one Text node
-            if (!sourcePane.getChildren().isEmpty() && sourcePane.getChildren().get(0) instanceof Text t) {
-                ((Text) currentPlayerPane.getChildren().get(0)).setText(t.getText());
-            }
-
-            // --- Update text color inside currentPlayerBox ---
-            String textColor = switch (playerIndex) {
-                case 1 -> "#e43b29";
-                case 2 -> "#4fa6eb";
-                case 3 -> "#f0ad00";
-                case 4 -> "#517d19";
-                default -> "#FFFFFF";
-            };
-            currentPlayerBox.setStyle("-fx-text-fill: " + textColor + ";");
-        });
-    }
-
+    
 
 
 
