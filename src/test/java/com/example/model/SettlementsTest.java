@@ -6,10 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import com.example.model.config.ConfigManager;
 
 public class SettlementsTest {
 
     private Settlements settlements;
+
+    @BeforeAll
+    public static void setUpAll(){
+        ConfigManager.loadAll();
+    }
 
     @BeforeEach
     public void setUp(){
