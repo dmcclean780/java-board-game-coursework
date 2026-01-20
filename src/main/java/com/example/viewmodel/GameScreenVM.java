@@ -1,10 +1,10 @@
 package com.example.viewmodel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.model.Tile;
 import com.example.model.Tiles;
+
+
+import com.example.model.Player;
 import com.example.view.GameScreenV;
 
 import javafx.application.Platform;
@@ -19,7 +19,7 @@ public final class GameScreenVM {
     private final GameScreenV view;
     private final Tiles tilesModel;
     private final Tile[] tiles;
-
+    private final Player[] players = new Player[4];
 
     public GameScreenVM(GameScreenV view) {
         this.view = view;
@@ -70,6 +70,15 @@ public final class GameScreenVM {
         Platform.runLater(() -> view.setVertex(vertexId, playerOwner, contains));
     }
 
+    public Player[] assignPlayers(String[] names)
+    {
+        players[0].setName(names[0]); 
+        players[1].setName(names[1]); 
+        players[2].setName(names[2]);
+        players[3].setName(names[3]); 
+
+        return players;
+    }
     
     public void populateBoard() 
     {

@@ -9,5 +9,7 @@ module com.example {
 
     // [ Josh Added this to link ViewModel and View ]
     exports com.example.viewmodel;
+    exports com.example.model;
+    exports com.example.service;
     opens com.example.viewmodel to javafx.fxml;
 }

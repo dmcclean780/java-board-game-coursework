@@ -13,7 +13,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
-import javafx.scene.control.Label;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -40,10 +39,27 @@ public class GameScreenV
     private Polygon mainPentagon;
 
     @FXML
-    private Pane rootPane, catanBoardPane;
+    private Rectangle bottomBackground;
 
     @FXML
-    private Label player1Display, player2Display, player3Display, currentPlayerDisplay;
+    private Pane rootPane, catanBoardPane;
+
+    @FXML private Pane playerColumnPane;
+
+    @FXML private StackPane currentPlayerPane;
+    @FXML private StackPane player1Pane;
+    @FXML private StackPane player2Pane;
+    @FXML private StackPane player3Pane;
+
+    @FXML private Polygon currentPlayerBox;
+
+    private static final Color[] PLAYER_COLORS = {
+        Color.TRANSPARENT,           // index 0 unused
+        Color.web("#e43b29"),        // player 1 red
+        Color.web("#4fa6eb"),        // player 2 blue
+        Color.web("#f0ad00"),        // player 3 yellow
+        Color.web("#517d19")         // player 4 green
+    };
 
     // Static holder for names before screen loads
     private static String[] playerNames;
@@ -363,15 +379,28 @@ public class GameScreenV
             oswaldFont = Font.font(20);
         }
 
+        Platform.runLater(() -> {
+            // Full width
+            bottomBackground.widthProperty().bind(rootPane.widthProperty());
+
+            // Half height
+            bottomBackground.heightProperty().bind(rootPane.heightProperty().divide(2));
+
+            // Position at halfway point
+            bottomBackground.yProperty().bind(rootPane.heightProperty().divide(2));
+
+            bottomBackground.toBack();
+        });
+    
         mainPentagon.setTranslateX(-rootPane.getWidth()/2);
         mainPentagon.setTranslateY(-rootPane.getHeight()/2);
 
         System.out.println("GameScreenV initialized"); // Debug
         if (playerNames != null) {
-            player1Display.setText(playerNames[0]);
-            player2Display.setText(playerNames[1]);
-            player3Display.setText(playerNames[2]);
-            currentPlayerDisplay.setText(playerNames[3] != null ? playerNames[3] : "N/A");
+            // player1Display.setText(playerNames[0]);
+            // player2Display.setText(playerNames[1]);
+            // player3Display.setText(playerNames[2]);
+            // currentPlayerDisplay.setText(playerNames[3] != null ? playerNames[3] : "N/A");
             System.out.println("Player names set.");
             playerNames = null;
         } else {
@@ -380,6 +409,8 @@ public class GameScreenV
 
         createCatanBoard(rootPane);
         
+        //setCurrentPlayer(1); 
+
         GameScreenVM vm = new GameScreenVM(this);
         vm.pushInitialStateToView();
 
@@ -510,4 +541,9 @@ public class GameScreenV
         );
         return hex;
     }
+
+    
+
+
+
 }
