@@ -4,12 +4,14 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import com.example.model.GameModel;
 import com.example.model.config.ConfigManager;
+import com.example.service.NavigationService;
+import com.example.viewmodel.TitleViewModel;
 /**
  * JavaFX App
  */
@@ -19,13 +21,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
-        stage.setFullScreen(true);
-        Font.loadFont(getClass().getResourceAsStream("/fonts/Oswald.ttf"), 20);
-        scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+        GameModel model = new GameModel();
 
-        stage.setScene(scene);
-        stage.show();
+        NavigationService navigationService = new NavigationService(stage);
+
+        // Start with the first screen, passing the model
+        TitleViewModel titleVM = new TitleViewModel(model, navigationService);
+        navigationService.navigateTo("titleScreen", titleVM);
+
     }
 
     static void setRoot(String fxml) throws IOException {

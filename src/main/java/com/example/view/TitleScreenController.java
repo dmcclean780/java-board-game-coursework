@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.model.config.LangManager;
+import com.example.view.components.Hex;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
@@ -22,45 +23,27 @@ import javafx.util.Duration;
 import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 
-public class TitleScreenV {
+import com.example.viewmodel.TitleViewModel;
 
+public class TitleScreenController implements ViewModelAware<TitleViewModel> {
+
+    private TitleViewModel viewModel;
     @FXML
     private Polygon playHex, settingsHex, exitHex;
-
     @FXML
     private Label playText, settingsText, exitText;
-
     @FXML
     private HBox playHBox, settingsHBox, exitHBox;
-
     @FXML
     private Canvas hexCanvas;
-
     private double r = 75; // hex radius
-
-    // Create Hex object for use in background animation
-    private static class Hex {
-        double[] xPoints;
-        double[] yPoints;
-        double distanceToCenter;
-
-        Hex(double x, double y, double r, double centerX, double centerY) {
-
-            xPoints = new double[6];
-            yPoints = new double[6];
-            for (int i = 0; i < 6; i++) {
-                double angleRad = Math.toRadians(60 * i);
-                xPoints[i] = x + r * Math.cos(angleRad);
-                yPoints[i] = y + r * Math.sin(angleRad);
-            }
-            double dx = x - centerX;
-            double dy = y - centerY;
-            distanceToCenter = Math.sqrt(dx * dx + dy * dy);
-        }
-    }
-
     private final List<Hex> hexes = new ArrayList<>();
     private WritableImage staticBackground;
+
+    @Override
+    public void setViewModel(TitleViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
 
     @FXML
     public void initialize() {
@@ -93,31 +76,19 @@ public class TitleScreenV {
     // Added to the Exit 'Button'
     @FXML
     private void switchToPrimary(MouseEvent event) throws IOException {
-        try {
-            App.setRoot("primary");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        viewModel.exitGame();
     }
 
     // Added to Settings 'Button'
     @FXML
     private void switchToSettings(MouseEvent event) throws IOException {
-        try {
-            App.setRoot("settings");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        viewModel.openSettings();
     }
 
     // Added to the Play 'Button'
     @FXML
     private void switchToSetup(MouseEvent event) throws IOException {
-        try {
-            App.setRoot("setupScreen");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        viewModel.startNewGame();
     }
 
     // Tie Hovering to All Elements in HBoxes
