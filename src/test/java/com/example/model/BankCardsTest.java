@@ -1,20 +1,34 @@
 package com.example.model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.example.model.config.ConfigManager;
 import com.example.model.config.DevCardConfig;
 import com.example.model.config.DisasterCardConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.service.ConfigService;
 
-import java.util.Collection;
-
 
 public class BankCardsTest {
 
     private BankCards bankCards;
+
+    @BeforeAll
+    public static void setUpAll() {
+        try {
+            ConfigManager.loadAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load configuration", e);
+        }
+    }
 
     @BeforeEach
     public void setUp() {
@@ -105,8 +119,9 @@ public class BankCardsTest {
 
     @Test
     public void giveDevelopmentCard_initiallyAvailable() {
-        boolean result = bankCards.giveDevelopmentCard();
-        assertTrue(result, "Development card should be available initially");
+        String result = bankCards.giveDevelopmentCard();
+        assertFalse(result.isEmpty(), "Development card should be available initially");
+        assertNotNull(result, "Development card should not be null");
     }
 
     @Test
@@ -119,19 +134,20 @@ public class BankCardsTest {
 
         // Give all development cards
         for (int i = 0; i < expectedCount; i++) {
-            boolean result = bankCards.giveDevelopmentCard();
-            assertTrue(result, "Should be able to give development card " + (i + 1));
+            String result = bankCards.giveDevelopmentCard();
+            assertFalse(result.isEmpty(), "Should be able to give development card " + (i + 1));
         }
 
         // Try to give one more when empty
-        boolean result = bankCards.giveDevelopmentCard();
-        assertFalse(result, "Should return false when no development cards left");
+        String result = bankCards.giveDevelopmentCard();
+        assertEquals("", result, "Should return empty string when no development cards left");
     }
 
     @Test
     public void giveDisasterCard_initiallyAvailable() {
-        boolean result = bankCards.giveDisasterCard();
-        assertTrue(result, "Disaster card should be available initially");
+        String result = bankCards.giveDisasterCard();
+        assertFalse(result.isEmpty(), "Disaster card should be available initially");
+        assertNotNull(result, "Disaster card should not be null");
     }
 
     @Test
@@ -144,13 +160,13 @@ public class BankCardsTest {
 
         // Give all disaster cards
         for (int i = 0; i < expectedCount; i++) {
-            boolean result = bankCards.giveDisasterCard();
-            assertTrue(result, "Should be able to give disaster card " + (i + 1));
+            String result = bankCards.giveDisasterCard();
+            assertFalse(result.isEmpty(), "Should be able to give disaster card " + (i + 1));
         }
 
         // Try to give one more when empty
-        boolean result = bankCards.giveDisasterCard();
-        assertFalse(result, "Should return false when no disaster cards left");
+        String result = bankCards.giveDisasterCard();
+        assertEquals("", result, "Should return empty string when no disaster cards left");
     }
 
     @Test
@@ -196,8 +212,7 @@ public class BankCardsTest {
 
     @Test
     public void getResourceCount_nonexistentResource_returnsZero() {
-        ResourceConfig fakeResource = new ResourceConfig();
-        fakeResource.id = "nonexistent.resource";
+        ResourceConfig fakeResource = new ResourceConfig("nonexistent.resource", "path/to/texture", 0);
 
         int count = bankCards.getResourceCount(fakeResource);
 
@@ -209,6 +224,9 @@ public class BankCardsTest {
      */
     private ResourceConfig getFirstResource() {
         Collection<ResourceConfig> resources = ConfigService.getAllResources();
+        if (resources.isEmpty()) {
+            throw new RuntimeException("No resources available in ConfigService");
+        }
         return resources.iterator().next();
     }
 }
