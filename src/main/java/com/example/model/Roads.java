@@ -24,7 +24,7 @@ public class Roads {
         roads = new Road[NUMBER_OF_ROADS];
 
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            roads[i] = new Road(Roads.UNOWNED_ROAD_ID, Roads.roadConnections[i], 0);
+            roads[i] = new Road(Roads.UNOWNED_ROAD_ID, AdjacencyMaps.RoadConnections[i], 0);
         }
     }
     
@@ -130,6 +130,26 @@ public class Roads {
     public boolean isRoadOwned(int vertex1, int vertex2) {
         int index = getRoadIndex(vertex1, vertex2);
         return isRoadOwned(index);
+    }
+
+
+    /**
+     * Checks if the specified vertex is connected by the given player
+     * @param vertex vertex to check
+     * @param playerID ID of the player
+     * @return true if the vertex is connected by the player; false otherwise
+     */ 
+    public boolean isVertexConnectedByPlayer(int vertex, int playerID) {
+        for (int i = 0; i < NUMBER_OF_ROADS; i++) {
+            Road r = roads[i];
+            if (r.getPlayerID() == playerID) {
+                int[] v = r.getVertices();
+                if (v[0] == vertex || v[1] == vertex) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -323,7 +343,7 @@ public class Roads {
             vertex2 = temp;
         }
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            int[] roadVertices = Roads.roadConnections[i];
+            int[] roadVertices = AdjacencyMaps.RoadConnections[i];
             if ((roadVertices[0] == vertex1 && roadVertices[1] == vertex2)) {
                 return i;
             }
@@ -345,7 +365,7 @@ public class Roads {
             vertex2 = temp;
         }
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            int[] roadVertices = roadConnections[i];
+            int[] roadVertices = AdjacencyMaps.RoadConnections[i];
             if ((roadVertices[0] == vertex1 && roadVertices[1] == vertex2)) {
                 return true;
             }
@@ -353,28 +373,4 @@ public class Roads {
         return false;
     }
 
-    public boolean isVertexLinkedByRoad(int vertex, int playerID){
-        return true; // TODO: Implement road linkage check
-    }
-
-
-    // the two vertices that each road connects; 72 roads total
-    public static final int[][] roadConnections = {
-        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, // 1st line
-        {0, 8}, {2, 10}, {4, 12}, {6, 14}, // 1st verticals
-        {7, 8}, {8, 9}, {9, 10}, {10, 11}, {11, 12}, {12, 13}, {13, 14}, {14, 15}, // 2nd line
-        {7, 17}, {9, 19}, {11, 21}, {13, 23}, {15, 25}, // 2nd verticals
-        {16, 17}, {17, 18}, {18, 19}, {19, 20}, {20, 21}, {21, 22}, {22, 23}, {23, 24}, {24, 25}, {25, 26}, // 3rd line
-        {16, 27}, {18, 29}, {20, 31}, {22, 33}, {24, 35}, {26, 37}, // 3rd verticals
-        {27, 28}, {28, 29}, {29, 30}, {30, 31}, {31, 32}, {32, 33}, {33, 34}, {34, 35}, {35, 36}, {36, 37}, // 4th line
-        {28, 38}, {30, 40}, {32, 42}, {34, 44}, {36, 46}, // 4th verticals
-        {38, 39}, {39, 40}, {40, 41}, {41, 42}, {42, 43}, {43, 44}, {44, 45}, {45, 46}, // 5th line
-        {39, 47}, {41, 49}, {43, 51}, {45, 53},  // 5th verticals
-        {47, 48}, {48, 49}, {49, 50}, {50, 51}, {51, 52}, {52, 53}  // 6th (final) line
-    };
-
-    public static int[][] getRoadConnections()
-    {
-        return roadConnections;
-    }
 }
