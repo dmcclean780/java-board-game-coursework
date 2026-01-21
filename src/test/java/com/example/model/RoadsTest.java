@@ -24,7 +24,7 @@ public class RoadsTest {
     @Test
     public void testConstructor() {
         assertNotNull(roads);
-        assertEquals(Roads.NUMBER_OF_ROADS, Roads.roadConnections.length);
+        assertEquals(Roads.NUMBER_OF_ROADS, AdjacencyMaps.RoadConnections.length);
     }
 
     @Test
@@ -62,6 +62,18 @@ public class RoadsTest {
         roads.buildRoad(0, 1, 3);
         assertEquals(3, roads.ownedByPlayer(0, 1));
     }
+
+    @Test
+    public void testIsVertexConnectedByPlayer() {
+        roads.buildRoad(0, 1, 4);
+        assertTrue(roads.isVertexConnectedByPlayer(0, 4));
+        assertFalse(roads.isVertexConnectedByPlayer(0, 5));
+
+        assertTrue(roads.isVertexConnectedByPlayer(1, 4));
+        assertFalse(roads.isVertexConnectedByPlayer(0, 5));
+
+        assertFalse(roads.isVertexConnectedByPlayer(2, 4));
+    }   
 
     @Test
     public void testOwnedByPlayerInvalidIndex() {
