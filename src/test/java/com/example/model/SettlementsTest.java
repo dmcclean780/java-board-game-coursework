@@ -144,4 +144,20 @@ public class SettlementsTest {
         assertFalse(Settlements.isValidVertex(100));
     }
 
+    //nearbySettlement()
+
+    @Test
+    void testNearbySettlement() {
+        settlements.buildSettlement(10, 1);
+        settlements.buildSettlement(20, 2);
+
+        // Checked to match expected by AdjacencyMaps.RoadConnections
+        assertTrue(settlements.nearbySettlement(11)); // adjacent to 10
+        assertTrue(settlements.nearbySettlement(9));  // adjacent to 10
+        assertTrue(settlements.nearbySettlement(19)); // adjacent to 20
+        assertTrue(settlements.nearbySettlement(21)); // adjacent to 20
+
+        assertFalse(settlements.nearbySettlement(15)); // not near any settlement
+    }
+
 }

@@ -47,27 +47,12 @@ public class Ports {
 
     //sets all the vertices where ports are to be generated
     private static ArrayList<Port> setAdjVerticesForEachPort(ArrayList<Port> ports){
-        for (int i = 0; i < VERTICES.length; i++){
-            ports.get(i).setAdjVertices(VERTICES[i]);
+        for (int i = 0; i < AdjacencyMaps.PortVertices.length; i++){
+            ports.get(i).setAdjVertices(AdjacencyMaps.PortVertices[i]);
         }
         
         return ports;
     }
 
-    private static final int[][] VERTICES = {
-        {0, 1},     // port 0
-        {5, 6},     // port 1
-        {14, 15},   // port 2
-        {26, 37},   // port 3
-        {45, 46},   // port 4
-        {50, 51},   // port 5
-        {47, 48},   // port 6
-        {28, 38},   // port 7
-        {7, 17}     // port 8
-    };
 
-    public static int[][] getPorts()
-    {
-        return VERTICES;
-    }
 }

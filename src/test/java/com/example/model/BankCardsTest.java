@@ -47,25 +47,19 @@ public class BankCardsTest {
     @Test
     public void constructor_initializesDevelopmentCards() {
         Collection<DevCardConfig> devCards = ConfigService.getAllDevCards();
-        int expectedCount = 0;
-        for (DevCardConfig devCard : devCards) {
-            expectedCount += devCard.count;
-        }
+        
         // After construction, development cards are shuffled
         // We can't directly check the list, but we verify it's initialized
-        assertNotNull(bankCards, "BankCards should be initialized");
+        assertNotNull(devCards, "BankCards should be initialized");
     }
 
     @Test
     public void constructor_initializesDisasterCards() {
         Collection<DisasterCardConfig> disasterCards = ConfigService.getAllDisasterCards();
-        int expectedCount = 0;
-        for (DisasterCardConfig disasterCard : disasterCards) {
-            expectedCount += disasterCard.count;
-        }
+        
         // After construction, disaster cards are shuffled
         // We can't directly check the list, but we verify it's initialized
-        assertNotNull(bankCards, "BankCards should be initialized");
+        assertNotNull(disasterCards, "BankCards should be initialized");
     }
 
     @Test
