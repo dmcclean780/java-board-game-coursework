@@ -19,6 +19,10 @@ public class ResourceConfig implements IdentifiableConfig {
         this.maxQuantity = maxQuantity;
     }
 
+    public int toHashCode() {
+        return id.hashCode();
+    }
+
     @Override
     public String getId() {
         return this.id; 
