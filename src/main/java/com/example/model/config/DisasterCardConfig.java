@@ -3,7 +3,7 @@ package com.example.model.config;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DisasterCardConfig implements IdentifiableConfig {
+public class DisasterCardConfig extends IdentifiableConfig {
     public final String id;
     public final String texturePath;
 
