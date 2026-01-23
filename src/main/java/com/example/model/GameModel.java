@@ -10,6 +10,7 @@ public class GameModel {
     private Settlements settlements;
     private Dice dice;
     private BankCards bankCards;
+    private ClimateTracker climateTracker;
 
     public GameModel() {
         this.players = new ArrayList<>();
@@ -19,6 +20,7 @@ public class GameModel {
         this.settlements = new Settlements();
         this.dice = new Dice();
         this.bankCards = new BankCards();
+        this.climateTracker = new ClimateTracker();
     }
 
     public void initializePlayers(ArrayList<String> playerNames) {
@@ -77,11 +79,43 @@ public class GameModel {
 
     public boolean buildSettlement(int vertex, int playerID) {
         // REMOVE RESOUCES FROM PLAYER HERE
-        return settlements.buildSettlement(vertex, playerID);
+        boolean success = settlements.buildSettlement(vertex, playerID);
+        if (success) {
+            increaseClimateAndDistributeDisasterCards();
+        }
+        return success;
     }
 
     public boolean buildCity(int vertex, int playerID) {
         // REMOVE RESOUCES FROM PLAYER HERE
         return settlements.upgradeSettlement(vertex, playerID);
+    }
+
+    /*
+    also need to call this function:
+            when settlements get resources
+                -is resource distribution being done yet??
+                -if not i can do it
+            when certain devcards are played
+                (trading frenzy, highway madness, monopoly)
+                -need to check which devcard before calling
+                -are devcards distribution done?
+                -again i can do this if not
+    */
+    //also where should tile restoration be implemented
+    public void increaseClimateAndDistributeDisasterCards() {
+        climateTracker.increaseClimate();
+        
+        if (climateTracker.shouldGiveDisasterCard()) {
+            int numCards = climateTracker.disasterCardNum();
+            for (int i = 0; i < numCards; i++) {
+                String disasterCard = bankCards.giveDisasterCard();
+                if (!disasterCard.isEmpty()) {
+                    //give disaster card
+                    //idk how yet
+                }
+                //do nothing if no cards are left??
+            }
+        }
     }
 }
