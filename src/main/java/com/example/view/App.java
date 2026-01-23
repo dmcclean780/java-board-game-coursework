@@ -12,6 +12,8 @@ import com.example.model.GameModel;
 import com.example.model.config.ConfigManager;
 import com.example.service.NavigationService;
 import com.example.viewmodel.TitleViewModel;
+import com.example.viewmodel.StatsViewModel;
+
 /**
  * JavaFX App
  */
@@ -26,8 +28,8 @@ public class App extends Application {
         NavigationService navigationService = new NavigationService(stage);
 
         // Start with the first screen, passing the model
-        TitleViewModel titleVM = new TitleViewModel(model, navigationService);
-        navigationService.navigateTo("titleScreen", titleVM);
+        StatsViewModel statsVM = new StatsViewModel(model, navigationService);
+        navigationService.navigateTo("stats", statsVM); 
 
     }
 
