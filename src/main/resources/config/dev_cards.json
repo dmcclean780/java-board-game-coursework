@@ -1,8 +1,8 @@
 [
     {
-        "id": "dev_card.knight",
-        "texturePath": "textures/dev_cards/knight.png",
-        "actionType": "KNIGHT",
+        "id": "dev_card.eco_conference",
+        "texturePath": "textures/dev_cards/eco_conference.png",
+        "actionType": "ECO_CONFERENCE",
         "count": 14
     },
     {
@@ -12,15 +12,15 @@
         "count": 5
     },
     {
-        "id": "dev_card.road_building",
-        "texturePath": "textures/dev_cards/road_building.png",
-        "actionType": "ROAD_BUILDING",
+        "id": "dev_card.highway_madness",
+        "texturePath": "textures/dev_cards/highway_madness.png",
+        "actionType": "HIGHWAY_MADNESS",
         "count": 2
     },
     {
-        "id": "dev_card.year_of_plenty",
-        "texturePath": "textures/dev_cards/year_of_plenty.png",
-        "actionType": "YEAR_OF_PLENTY",
+        "id": "dev_card.trading_frenzy",
+        "texturePath": "textures/dev_cards/trading_frenzy.png",
+        "actionType": "TRADING_FRENZY",
         "count": 2
     },
     {
