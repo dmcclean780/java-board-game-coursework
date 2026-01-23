@@ -161,7 +161,7 @@
 
 .number-option:hover {
     -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
-    -fx-cursor: hand;
+    -fx-cursor: hand; 
 }
 
 .name-label {
