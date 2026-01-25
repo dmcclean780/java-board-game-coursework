@@ -14,7 +14,7 @@ import com.example.model.config.service.ConfigService;
 public class BankCards {
 
     //store how many of each resource card are left and how many dev cards
-    private Map<String, Integer> resourceCards;
+    public Map<String, Integer> resourceCards;
     private ArrayList<String> developmentCards;
     private ArrayList<String> disasterCards;
 
