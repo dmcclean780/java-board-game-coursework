@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DevCardConfig extends IdentifiableConfig {
-    public final String id;
     public final String texturePath;
 
     public final String actionType;
@@ -22,8 +21,4 @@ public class DevCardConfig extends IdentifiableConfig {
         this.count = count;
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
 }

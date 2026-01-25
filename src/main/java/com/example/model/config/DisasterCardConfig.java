@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DisasterCardConfig extends IdentifiableConfig {
-    public final String id;
     public final String texturePath;
 
     public final String tileAffected;
@@ -22,8 +21,4 @@ public class DisasterCardConfig extends IdentifiableConfig {
         this.count = count;
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
 }
