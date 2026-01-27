@@ -139,10 +139,15 @@
                   spacing="5.0"
                   layoutY="90.0">
                 <!-- Resource labels will be added here dynamically -->
-                <Button fx:id="primaryButton" text="BUILD_SETTLEMENT" onAction="#switchToBUILDSETTLEMENTPHASE"/>
-                <Button fx:id="primaryButton" text="BUILD_CITY" onAction="#switchToBUILDCITYPHASE"/>
-                <Button fx:id="primaryButton" text="ROLL_DICE" onAction="#switchToROLLDICEPHASE"/>
-                <Button fx:id="primaryButton" text="NEXT PLAYER" onAction="#nextPlayer"/>
+                <Button fx:id="buildSettlementButton" text="BUILD_SETTLEMENT" onAction="#switchToBUILDSETTLEMENTPHASE"/>
+                <Button fx:id="buildCityButton" text="BUILD_CITY" onAction="#switchToBUILDCITYPHASE"/>
+                <Button fx:id="buildRoadButton" text="BUILD_ROAD" onAction="#switchToBUILDROADPHASE"/>
+                <Button fx:id="rollDiceButton" text="ROLL_DICE" onAction="#switchToROLLDICEPHASE"/>
+                <Button fx:id="buildPhaseButton" text="BUILD PHASE" onAction="#switchToBUILDINGPHASE"/>
+                <Button fx:id="nextPlayerButton" text="NEXT PLAYER" onAction="#nextPlayer"/>
+                <Button fx:id="giveSettlementResourcesButton" text="GIVE SETTLEMENT RESOURCES" onAction="#giveSettlementResources"/>
+                <Button fx:id="giveCityResourcesButton" text="GIVE CITY RESOURCES" onAction="#giveCityResources"/>
+                <Button fx:id="giveRoadResourcesButton" text="GIVE ROAD RESOURCES" onAction="#giveRoadResources"/>
             </VBox>
             </StackPane>
 
