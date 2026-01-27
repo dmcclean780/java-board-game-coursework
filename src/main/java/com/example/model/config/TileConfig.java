@@ -1,9 +1,18 @@
+
+
+
+
+
+
+
+
+
+
 package com.example.model.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TileConfig implements IdentifiableConfig {
-    public final String id;
+public class TileConfig extends IdentifiableConfig {
     public final String texturePath;
 
     public final boolean hasRobberDefault;
@@ -23,8 +32,4 @@ public class TileConfig implements IdentifiableConfig {
         this.maxQuantity = maxQuantity;
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
 }
