@@ -3,8 +3,7 @@ package com.example.model.config;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ResourceConfig implements IdentifiableConfig {
-    public final String id;
+public class ResourceConfig extends IdentifiableConfig {
     public final String texturePath;
 
     public final int maxQuantity;
@@ -17,10 +16,5 @@ public class ResourceConfig implements IdentifiableConfig {
         this.id = id;
         this.texturePath = texturePath;
         this.maxQuantity = maxQuantity;
-    }
-
-    @Override
-    public String getId() {
-        return this.id; 
     }
 }

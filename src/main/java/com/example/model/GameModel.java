@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+
+import com.example.model.config.PlayerInfrastructureConfig;
+
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
@@ -68,7 +71,7 @@ public class GameModel {
         boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is valid when *NOT* a nearby settlement
         boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID);
         boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
-        return settlementDistanceValid && linkedByRoad && unowned;
+        return settlementDistanceValid && linkedByRoad && unowned || true;
     }
 
     public boolean cityValid(int vertex, int playerIndex) {
@@ -76,6 +79,14 @@ public class GameModel {
         boolean isOwner = getSettlmentOwner(vertex) == playerID;
         boolean notAlreadyCity = !settlements.getAllSettlements()[vertex].isCity();
         return isOwner && notAlreadyCity;
+    }
+
+    public boolean roadValid(int edgeIndex, int playerIndex) {
+        int playerID = players.get(playerIndex).getId();
+        //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID); TODO
+        //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID); TODO
+        boolean unowned = roads.isRoadOwned(edgeIndex) == false;
+        return /*(connectedToSettlement || connectedToRoad) &&*/ unowned || true;
     }
 
     public ArrayList<Player> getPlayers() {
@@ -91,14 +102,43 @@ public class GameModel {
         return null;
     }
 
-    public boolean buildSettlement(int vertex, int playerID) {
-        // REMOVE RESOUCES FROM PLAYER HERE
-        return settlements.buildSettlement(vertex, playerID);
+    public boolean buildSettlement(int vertex, int playerIndex) {
+        int playerID = players.get(playerIndex).getId();
+        boolean success_build = settlements.buildSettlement(vertex, playerID);
+        String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
+        boolean success_resources = players.get(playerIndex).deductStructureResources(structureID);
+        return success_resources && success_build;
     }
 
-    public boolean buildCity(int vertex, int playerID) {
-        // REMOVE RESOUCES FROM PLAYER HERE
-        return settlements.upgradeSettlement(vertex, playerID);
+    public boolean playerHasSettlementResources(int playerIndex) {
+        Player player = players.get(playerIndex);
+        return player.hasEnoughResourcesForStructure("player_infrastructure.settlement");
+    }
+
+    public boolean buildCity(int vertex, int playerIndex) {
+        int playerID = players.get(playerIndex).getId();
+        boolean success_upgrade = settlements.upgradeSettlement(vertex, playerID);
+        String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
+        boolean success_resources = players.get(playerIndex).deductStructureResources(structureID);
+        return success_resources && success_upgrade;
+    }
+
+    public boolean playerHasCityResources(int playerIndex) {
+        Player player = players.get(playerIndex);
+        return player.hasEnoughResourcesForStructure("player_infrastructure.city");
+    }
+
+    public boolean buildRoad(int edgeIndex, int playerIndex) {
+        int playerID = players.get(playerIndex).getId();
+        boolean success_build = roads.buildRoad(edgeIndex, playerID);
+        String structureID = roads.getAllRoads()[edgeIndex].getRoadType();
+        boolean success_resources = players.get(playerIndex).deductStructureResources(structureID);
+        return success_resources && success_build;
+    }
+
+    public boolean playerHasRoadResources(int playerIndex) {
+        Player player = players.get(playerIndex);
+        return player.hasEnoughResourcesForStructure("player_infrastructure.road");
     }
 
 
@@ -205,7 +245,6 @@ public class GameModel {
 
 
 
-
     //method to give players resources based on the dice roll
     public void GiveResourcesToPlayers(int diceroll){
         for (Tile tile : tiles.GetTilesFromDiceroll(diceroll)){
@@ -253,4 +292,43 @@ public class GameModel {
         //failed
         return null;
     }
+
+
+    public Road[] getRoads() {
+        return roads.getAllRoads();
+    }
+
+    // TESTING METHODS
+    public void giveSettlementResources(int playerIndex) {
+        Player player = players.get(playerIndex);
+        PlayerInfrastructureConfig config = ConfigService.getInfrastructure("player_infrastructure.settlement");
+        for (String resourceID : config.constructionCosts.keySet()) {
+            ResourceConfig resourceConfig = ConfigService.getResource(resourceID);
+            int amount = config.constructionCosts.get(resourceID);
+            player.changeResourceCount(resourceConfig, amount);
+        }
+    }
+
+    // TESTING METHOD
+    public void giveCityResources(int playerIndex) {
+        Player player = players.get(playerIndex);
+        PlayerInfrastructureConfig config = ConfigService.getInfrastructure("player_infrastructure.city");
+        for (String resourceID : config.constructionCosts.keySet()) {
+            ResourceConfig resourceConfig = ConfigService.getResource(resourceID);
+            int amount = config.constructionCosts.get(resourceID);
+            player.changeResourceCount(resourceConfig, amount);
+        }
+    }
+
+    // TESTING METHOD
+    public void giveRoadResources(int playerIndex) {
+        Player player = players.get(playerIndex);
+        PlayerInfrastructureConfig config = ConfigService.getInfrastructure("player_infrastructure.road");
+        for (String resourceID : config.constructionCosts.keySet()) {
+            ResourceConfig resourceConfig = ConfigService.getResource(resourceID);
+            int amount = config.constructionCosts.get(resourceID);
+            player.changeResourceCount(resourceConfig, amount);
+        }
+    }
 }
+
