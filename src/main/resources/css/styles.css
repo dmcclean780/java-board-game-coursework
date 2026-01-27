@@ -1,12 +1,12 @@
 /* Register the Oswald font */
 @font-face {
     font-family: "Oswald-Regular";
-    src: url("fonts/Oswald-Regular.ttf");
+    src: url("../fonts/Oswald-Regular.ttf");
 }
 
 @font-face {
     font-family: "Oswald-Italic";
-    src: url("fonts/Oswald-Italic.ttf");
+    src: url("../fonts/Oswald-Italic.ttf");
 }
 
 /* ------------------*/
