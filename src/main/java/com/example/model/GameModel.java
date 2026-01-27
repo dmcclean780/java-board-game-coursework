@@ -81,7 +81,7 @@ public class GameModel {
         int playerID = players.get(playerIndex).getId();
         //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID); TODO
         //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID); TODO
-        boolean unowned = roads.getAllRoads()[edgeIndex].getPlayerID() == Roads.UNOWNED_ROAD_ID;
+        boolean unowned = roads.isRoadOwned(edgeIndex) == false;
         return /*(connectedToSettlement || connectedToRoad) &&*/ unowned || true;
     }
 
