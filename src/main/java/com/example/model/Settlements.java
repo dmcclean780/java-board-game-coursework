@@ -8,12 +8,10 @@ public class Settlements {
     public static final int UNOWNED_SETTLEMENT_ID = -1;
 
     private Settlement[] settlements;
-    private ArrayList<Integer> trackedPlayerIDs;
 
     public Settlements(){
 
         settlements = new Settlement[NUMBER_OF_VERTICES];
-        trackedPlayerIDs = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_VERTICES; i++){
             settlements[i] = new Settlement(UNOWNED_SETTLEMENT_ID, i);
@@ -31,10 +29,6 @@ public class Settlements {
         }
 
         settlements[vertex].setPlayerID(playerID);
-
-        if (!trackedPlayerIDs.contains(playerID)){
-            trackedPlayerIDs.add(playerID);
-        }
 
         return true;
 
@@ -113,8 +107,50 @@ public class Settlements {
         return vertex >= 0 && vertex < NUMBER_OF_VERTICES;
     }
 
-    public boolean validDistanceFromOtherSettlements(int vertex){
-        return true; // TODO: Implement distance rule check
-    }
+    /**
+     * (Added by 40452739)
+     * Checks whether a potential settlement (at a vertex) is near another settlement.
+     * @param vertex vertex to check
+     * @return whether there are any settlements near the vertex with a range of one edge
+     */
+    public boolean nearbySettlement(int vertex){
 
+        if (!isValidVertex(vertex)){
+            return false;
+        }
+
+        for (Settlement s : settlements) {
+            if (s.getPlayerID() == Settlements.UNOWNED_SETTLEMENT_ID) {
+                continue;
+            }
+            if (s.getVertex() == vertex) {
+                continue; // skip if it is the current vertex
+            }
+
+            int svertex = s.getVertex();
+
+            for (int[] adj : AdjacencyMaps.RoadConnections) {
+                if ((adj[0] == vertex || adj[1] == vertex) && (adj[0] == svertex || adj[1] == svertex)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+    }
+   
+    //returns all the settlements on the tile
+    public Settlement GetSettlementFromVertex(int vertex){
+        Settlement[] ownedSettlements = getAllOwnedSettlements();
+        for (int i = 0; i < ownedSettlements.length; i++){
+            if (ownedSettlements[i].getVertex() == vertex){
+                //settlement exists on vertex
+                return ownedSettlements[i];
+            }
+        }
+
+        //no settlement
+        return null;
+    }
 }

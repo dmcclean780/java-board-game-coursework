@@ -72,6 +72,15 @@ public class ConfigService {
         return PlayerInfrastructureRegistry.getInstance().all();
     }
 
+    public static ArrayList<String> getAllInfrastructureIDs(){
+        Collection<PlayerInfrastructureConfig> infrastructureConfigs = ConfigService.getAllInfrastructure();
+        ArrayList<String> infrastructureIDs = new ArrayList<String>();
+        for (PlayerInfrastructureConfig infrastructureConfig : infrastructureConfigs){
+            infrastructureIDs.add(infrastructureConfig.id);
+        }
+        return infrastructureIDs;
+    }
+
     // -------------------------
     //  Tile Config
     // -------------------------

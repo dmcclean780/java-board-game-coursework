@@ -3,6 +3,11 @@ package com.example.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.example.model.config.PlayerInfrastructureConfig;
+import com.example.model.config.ResourceConfig;
+import com.example.model.config.registry.ResourceRegistry;
+import com.example.model.config.service.ConfigService;
+
 /**
  * Player Class; stores per player info
  * @author 40452739
@@ -14,7 +19,7 @@ public class Player {
     private String name;
 
     // This data structures should be changed as necessary
-    private HashMap<String, Integer> resources;
+    private HashMap<ResourceConfig, Integer> resources;
     private ArrayList<String> devCards;
     private HashMap<String, Integer> structuresRemaining;
 
@@ -29,20 +34,19 @@ public class Player {
         this.name = (name != null ? name : "");
 
         this.resources = new HashMap<>();
-        String[] types = {"resource.wood", "resource.brick", "resource.sheep", "resource.wheat", "resource.ore"}; // needs replaced to json version
-        for (String t: types) {
+        for (ResourceConfig t: ResourceRegistry.getInstance().all()) {
             this.resources.put(t, 0);
         }
 
         this.devCards = new ArrayList<>();
 
         // Replace with global version
-        String[] structureTypes = {"player_infrastructure.road", "player_infrastructure.settlement", "player_infrastructure.city", "player_infrastructure.dev_card"};
-        int startingStructures[] = {15, 5, 4, 50};
+        ArrayList<String> structureTypes = ConfigService.getAllInfrastructureIDs();
 
         this.structuresRemaining = new HashMap<>();
-        for (int i = 0, n = structureTypes.length; i < n; i++) {
-            this.structuresRemaining.put(structureTypes[i], startingStructures[i]);
+        for (int i = 0, n = structureTypes.size(); i < n; i++) {
+            int startingCount = ConfigService.getInfrastructure(structureTypes.get(i)).maxQuantity;
+            this.structuresRemaining.put(structureTypes.get(i), startingCount);
         }
     }
 
@@ -80,7 +84,7 @@ public class Player {
      * @param type  the type being set
      * @return resource count
      */
-    public int getResourceCount(String type) {
+    public int getResourceCount(ResourceConfig type) {
         if (this.resources.containsKey(type)) {
             return this.resources.get(type);
         } else {
@@ -95,7 +99,7 @@ public class Player {
     public int getTotalResources() {
         int total = 0;
         
-        for (String type : this.resources.keySet()) {
+        for (ResourceConfig type : this.resources.keySet()) {
             total += this.resources.get(type);
         }
 
@@ -108,7 +112,7 @@ public class Player {
      * @param count number of this resource
      * @return success of the operation
      */
-    public boolean setResourceCount(String type, int count) {
+    public boolean setResourceCount(ResourceConfig type, int count) {
         if (this.resources.containsKey(type)) {
             this.resources.put(type, count);
             return true;
@@ -123,7 +127,7 @@ public class Player {
      * @param change the amount of change; can be negative or positive
      * @return success of the operation
      */
-    public boolean changeResourceCount(String type, int change) {
+    public boolean changeResourceCount(ResourceConfig type, int change) {
         if (!this.resources.containsKey(type)) {
             return false;
         }
@@ -296,5 +300,31 @@ public class Player {
     @Override
     public String toString() {
         return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", devCards=" + this.devCards + ", structuresRemaining=" + this.structuresRemaining + " }";
+    }
+
+    public boolean hasEnoughResourcesForStructure(String structureType) {
+        PlayerInfrastructureConfig structureConfig = ConfigService.getInfrastructure(structureType);
+        for (String resource : structureConfig.constructionCosts.keySet()) {
+            ResourceConfig resourceConfig = ConfigService.getResource(resource);
+            int cost = structureConfig.constructionCosts.get(resource);
+            if (this.getResourceCount(resourceConfig) < cost) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public boolean deductStructureResources(String structureType) {
+        boolean success = true;
+        PlayerInfrastructureConfig structureConfig = ConfigService.getInfrastructure(structureType);
+        System.out.println("Deducting resources for structure: " + structureType);
+        for (String resource : structureConfig.constructionCosts.keySet()) {
+            ResourceConfig resourceConfig = ConfigService.getResource(resource);
+            int cost = structureConfig.constructionCosts.get(resource);
+            System.out.println(" - " + cost + " of " + resource);
+            System.out.println("   Current amount: " + this.getResourceCount(resourceConfig));
+            success = success && this.changeResourceCount(resourceConfig, -cost);
+        }
+        return success;
     }
 }
