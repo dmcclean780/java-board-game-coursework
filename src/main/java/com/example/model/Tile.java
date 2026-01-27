@@ -1,4 +1,10 @@
 package com.example.model;
+
+import java.util.Collection;
+
+import com.example.model.config.ResourceConfig;
+import com.example.model.config.service.ConfigService;
+
 public class Tile {
 
     //the id of the tile
@@ -24,4 +30,16 @@ public class Tile {
     public void setNumber(int _number){ this.number = _number;}
     public void setAdjVertices(int[] _adjVertices){ this.adjVertices = _adjVertices;}
     public void setIsBlocked(boolean _isBlocked){ this.isBlocked = _isBlocked;}
+
+    public ResourceConfig getResourceFromTileID(){
+        Collection<ResourceConfig> allResources = ConfigService.getAllResources();
+        for (ResourceConfig resource : allResources){
+            if (resource.id.equals(tileID)){
+                //found resource
+                return resource;
+            }
+        }
+        //failed
+        return null;
+    }
 }
