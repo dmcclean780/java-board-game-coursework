@@ -15,8 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IdentifiableConfigRegistryTest {
 
-    private static class TestConfig implements IdentifiableConfig {
-        private String id;
+    private static class TestConfig extends IdentifiableConfig {
         private String name;
 
         @Override
@@ -35,7 +34,7 @@ class IdentifiableConfigRegistryTest {
             if (!(o instanceof TestConfig))
                 return false;
             TestConfig that = (TestConfig) o;
-            return id == that.id && Objects.equals(name, that.name);
+            return id.equals(that.id) && Objects.equals(name, that.name);
         }
 
         @Override

@@ -6,8 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PlayerInfrastructureConfig implements IdentifiableConfig {
-    public final String id;
+public class PlayerInfrastructureConfig extends IdentifiableConfig {
     public final String texturePath;
 
     public final HashMap<String, Integer> constructionCosts; // resourceID -> quantity
@@ -28,8 +27,4 @@ public class PlayerInfrastructureConfig implements IdentifiableConfig {
         this.victoryPoints = victoryPoints;
     }
 
-    @Override
-    public String getId() {
-        return this.id; 
-    }
 }
