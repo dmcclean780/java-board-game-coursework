@@ -142,5 +142,24 @@ public class Tiles {
         return tiles;
     }
 
+
+
+    //Find tiles based off of a diceroll
+    public ArrayList<Tile> GetTilesFromDiceroll(int diceroll){
+        ArrayList<Tile> tilesWithDiceroll = new ArrayList<Tile>();
+        Tile[] allTiles = getTiles();
+
+        //check if each tile has diceroll value (And isn't blocked)
+        for (int i = 0; i < allTiles.length; i++){
+            if (allTiles[i].getNumber() == diceroll){
+                //tile has the desired value
+                if (!allTiles[i].getIsBlocked())
+                    tilesWithDiceroll.add(allTiles[i]);
+            }
+        }
+
+        return tilesWithDiceroll;
+    }
+
     
 }

@@ -1,5 +1,7 @@
 package com.example.model;
 
+import java.util.ArrayList;
+
 public class Settlements {
 
     public static final int NUMBER_OF_VERTICES = 54;
@@ -137,5 +139,18 @@ public class Settlements {
         return false;
 
     }
+   
+    //returns all the settlements on the tile
+    public Settlement GetSettlementFromVertex(int vertex){
+        Settlement[] ownedSettlements = getAllOwnedSettlements();
+        for (int i = 0; i < ownedSettlements.length; i++){
+            if (ownedSettlements[i].getVertex() == vertex){
+                //settlement exists on vertex
+                return ownedSettlements[i];
+            }
+        }
 
+        //no settlement
+        return null;
+    }
 }

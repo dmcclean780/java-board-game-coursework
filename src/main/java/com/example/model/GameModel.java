@@ -1,8 +1,12 @@
 package com.example.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+
 
 import com.example.model.config.PlayerInfrastructureConfig;
+
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
@@ -239,6 +243,57 @@ public class GameModel {
         return true;
     }
 
+
+
+    //method to give players resources based on the dice roll
+    public void GiveResourcesToPlayers(int diceroll){
+        for (Tile tile : tiles.GetTilesFromDiceroll(diceroll)){
+            //get resource of rolled tile
+            ResourceConfig resource = tile.getResourceFromTileID();
+
+            //get all vertices on that tile
+            for (int vertex : tile.getAdjVertices()){
+
+                //check if there's a settlement on that vertex
+                Settlement currentSettlement = settlements.GetSettlementFromVertex(vertex);
+                if (currentSettlement == null){
+                    continue; //no settlement found, skip the rest of this method
+                }
+
+                //find the player who owns the settlement
+                Player player = getPlayerFromID(currentSettlement.getPlayerID());
+                if (player == null) {throw new IllegalStateException("Player not found for settlement");}
+
+                int production = 1;
+                if (currentSettlement.isCity()) { production++; }
+
+                //for loop accounts for cities giving two resources, whilst still ensuring
+                //that when only one resource is left, a city will still produce one
+                for (int i = 0; i < production; i++){
+                    //check if there is a free resource left in the bank
+                    if (bankCards.giveResourceCard(resource, 1)){
+                        player.changeResourceCount(resource, 1);
+                    }
+                    //bank empty, stop giving out resources
+                    else{break;}
+                }
+                
+            }
+        }
+    }
+
+    public Player getPlayerFromID(int ID){
+        for (Player player : players){
+            if (player.getId() == ID){
+                //found player
+                return player;
+            }
+        }
+        //failed
+        return null;
+    }
+
+
     public Road[] getRoads() {
         return roads.getAllRoads();
     }
@@ -276,3 +331,4 @@ public class GameModel {
         }
     }
 }
+
