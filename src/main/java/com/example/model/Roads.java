@@ -32,7 +32,7 @@ public class Roads {
      * Gets all roads that are currently owned by players
      * @return array of owned Road objects
      */
-    public Road[] getAllRoads() {
+    public Road[] getAllOwnedRoads() {
         // Only returns owned roads
         int NUMBER_OF_OWNED_ROADS = 0;
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
@@ -47,6 +47,11 @@ public class Roads {
             }
         }
         return ownedRoads;
+    }
+
+    public Road[] getAllRoads() {
+        // Only returns owned roads
+        return roads;
     }
 
     /**
