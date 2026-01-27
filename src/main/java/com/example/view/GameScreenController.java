@@ -160,7 +160,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
         // ---- CURRENT PLAYER ----
         PlayerViewState current = players.get(currentPlayerIndex);
-        getLabelFromPane(currentPlayerPane).setText(current.nameProperty().get());
+        String currentPlayerName = current.nameProperty().get();
+        getLabelFromPane(currentPlayerPane).setText(currentPlayerName);
 
         Color currentColor = PLAYER_COLORS[currentPlayerIndex];
         bottomBackground.setFill(currentColor);
