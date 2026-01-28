@@ -81,6 +81,48 @@
             <Label fx:id="player1Display"
                 text="Player 1"
                 styleClass="player-label"/>
+
+            <Polygon fx:id="player1Score"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="100.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="135.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player1ScoreDisplay"
+                text="§0"
+                styleClass="player-label"/>
+
+            <Polygon fx:id="player1LongRoad"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="60.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="95.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player1LongRoadDisplay"
+                text="X"
+                styleClass="player-label"/>
+
+            <Polygon fx:id="player1CleanEnviro"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="60.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="95.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player1CleanEnviroDisplay"
+                text="X"
+                styleClass="player-label"/>
         </StackPane>
 
         <StackPane fx:id="player2Pane" alignment="CENTER">
@@ -97,7 +139,50 @@
             <Label fx:id="player2Display"
                 text="Player 2"
                 styleClass="player-label"/>
+
+            <Polygon fx:id="player2Score"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="100.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="135.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player2ScoreDisplay"
+                text="§0"
+                styleClass="player-label"/>
+
+            <Polygon fx:id="player2LongRoad"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="60.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="95.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player2LongRoadDisplay"
+                text="X"
+                styleClass="player-label"/>
+
+            <Polygon fx:id="player2CleanEnviro"
+                styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="60.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="95.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player2CleanEnviroDisplay"
+                text="X"
+                styleClass="player-label"/>
         </StackPane>
+
 
         <StackPane fx:id="player3Pane" alignment="CENTER">
             <Polygon fx:id="player3Box"
@@ -113,11 +198,52 @@
             <Label fx:id="player3Display"
                 text="Player 3"
                 styleClass="player-label"/>
+
+            <Polygon fx:id="player3Score"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="100.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="135.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player3ScoreDisplay"
+                text="§0"
+                styleClass="player-label"/>
+
+            <Polygon fx:id="player3LongRoad"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="60.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="95.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player3LongRoadDisplay"
+                text="X"
+                styleClass="player-label"/>
+
+            <Polygon fx:id="player3CleanEnviro"
+                    styleClass="parallelogram">
+                <points>
+                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
+                    <Double fx:value="60.0"/>  <Double fx:value="0.0"/>
+                    <Double fx:value="95.0"/>  <Double fx:value="60.0"/>
+                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
+                </points>
+            </Polygon>
+
+            <Label fx:id="player3CleanEnviroDisplay"
+                text="X"
+                styleClass="player-label"/>
         </StackPane>
 
+
         <!-- repeat for player2Pane / player3Pane -->
-
-
         <Label fx:id="currentPlayerText"
                 text="Current Player:"
                 styleClass="current-player-text"/>

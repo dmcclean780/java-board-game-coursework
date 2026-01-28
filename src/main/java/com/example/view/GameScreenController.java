@@ -48,42 +48,69 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML
     private Polygon mainPentagon;
     @FXML
-    private Label player1Display, player2Display, player3Display, currentPlayerDisplay;
-    @FXML
     private Pane rootPane, catanBoardPane;
 
     @FXML
     private Pane playerColumnPane;
 
-    @FXML
-    private Rectangle bottomBackground;
-    @FXML
-    private StackPane currentPlayerPane;
-    @FXML
-    private StackPane player1Pane;
-    @FXML
-    private StackPane player2Pane;
-    @FXML
-    private StackPane player3Pane;
-    @FXML
-    private Polygon currentPlayerBox;
+    @FXML private Rectangle bottomBackground;
+    @FXML private StackPane currentPlayerPane;
+    @FXML private StackPane player1Pane;
+    @FXML private StackPane player2Pane;
+    @FXML private StackPane player3Pane;
+    @FXML private Polygon currentPlayerBox;
 
-    @FXML
-    private Label currentPlayerText;
+    @FXML private Label player1Display;
+    @FXML private Label player2Display;
+    @FXML private Label player3Display;
 
-    @FXML
-    private Button buildSettlementButton;
-    @FXML
-    private Button buildCityButton;
-    @FXML
-    private Button buildRoadButton;
+    @FXML private Label player1ScoreDisplay;
+    @FXML private Label player2ScoreDisplay;
+    @FXML private Label player3ScoreDisplay;
 
-    private static final Color[] PLAYER_COLORS = {
-            Color.web("#e43b29"), // player 1 red
-            Color.web("#4fa6eb"), // player 2 blue
-            Color.web("#f0ad00"), // player 3 yellow
-            Color.web("#517d19") // player 4 green
+    @FXML private Polygon player1Score;
+    @FXML private Polygon player2Score;
+    @FXML private Polygon player3Score;
+
+    @FXML private Label player1LongRoadDisplay;
+    @FXML private Label player2LongRoadDisplay;
+    @FXML private Label player3LongRoadDisplay;
+
+    @FXML private Polygon player1LongRoad;
+    @FXML private Polygon player2LongRoad;
+    @FXML private Polygon player3LongRoad;
+
+    @FXML private Polygon player1CleanEnviro;
+    @FXML private Polygon player2CleanEnviro;
+    @FXML private Polygon player3CleanEnviro;
+
+    @FXML private Label player1CleanEnviroDisplay;
+    @FXML private Label player2CleanEnviroDisplay;
+    @FXML private Label player3CleanEnviroDisplay;
+
+    @FXML private Button buildSettlementButton;
+    @FXML private Button buildCityButton;
+    @FXML private Button buildRoadButton;
+
+
+    @FXML private Label currentPlayerDisplay;
+
+    @FXML private Label currentPlayerText;
+
+    private static final Color[] PLAYER_COLOURS = {
+        Color.web("#e43b29"),       // player 1 red
+        Color.web("#4fa6eb"),       // player 2 blue
+        Color.web("#f0ad00"),       // player 3 yellow
+        Color.web("#517d19")        // player 4 green
     };
+
+    private static final Color UNOWNED_COLOR = Color.GRAY;
+
+    private Color getPlayerColor(int owner) {
+        return (owner >= 0 && owner < PLAYER_COLOURS.length)
+            ? PLAYER_COLOURS[owner]
+            : UNOWNED_COLOR;
+    }
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
@@ -173,34 +200,37 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         if (players.isEmpty())
             return;
 
-        currentPlayerIndex = currentPlayerIndex % players.size();
+        currentPlayerIndex %= players.size();
 
         // ---- CURRENT PLAYER ----
         PlayerViewState current = players.get(currentPlayerIndex);
-        String currentPlayerName = current.nameProperty().get();
-        getLabelFromPane(currentPlayerPane).setText(currentPlayerName);
+        currentPlayerDisplay.setText(current.nameProperty().get());
 
-        Color currentColor = PLAYER_COLORS[currentPlayerIndex];
+        Color currentColor = PLAYER_COLOURS[currentPlayerIndex];
         bottomBackground.setFill(currentColor);
         bottomBackground.setStroke(Color.rgb(7, 4, 60));
         bottomBackground.setStrokeWidth(3);
         currentPlayerBox.setFill(currentColor);
 
         // ---- OTHER PLAYERS ----
-        for (int i = 1; i <= 3; i++) {
-            int playerIndex = (currentPlayerIndex + i) % players.size();
-            PlayerViewState player = players.get(playerIndex);
+        PlayerViewState p1 = players.get((currentPlayerIndex + 1) % players.size());
+        PlayerViewState p2 = players.get((currentPlayerIndex + 2) % players.size());
+        PlayerViewState p3 = players.get((currentPlayerIndex + 3) % players.size());
 
-            StackPane pane;
-            switch (i) {
-                case 1 -> pane = player1Pane;
-                case 2 -> pane = player2Pane;
-                default -> pane = player3Pane;
-            }
+        player1Display.setText(p1.nameProperty().get());
+        player2Display.setText(p2.nameProperty().get());
+        player3Display.setText(p3.nameProperty().get());
 
-            getLabelFromPane(pane).setText(player.nameProperty().get());
-            getBoxFromPane(pane).setFill(PLAYER_COLORS[playerIndex]);
-        }
+        getBoxFromPane(player1Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
+        getBoxFromPane(player2Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 2) % players.size()]);
+        getBoxFromPane(player3Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
+
+        player1Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
+        player2Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 2) % players.size()]);
+        player3Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
+
+        player1LongRoad.setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
+        player3LongRoad.setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
     }
 
     private void bindTile(int index, TileViewState state) {
@@ -278,8 +308,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bottomBackground.yProperty().bind(rootPane.heightProperty().divide(2));
 
             // Set fill AFTER sizing
-            bottomBackground.setFill(PLAYER_COLORS[0]);
-            currentPlayerBox.setFill(PLAYER_COLORS[0]);
+            bottomBackground.setFill(PLAYER_COLOURS[0]);
+            currentPlayerBox.setFill(PLAYER_COLOURS[0]);
 
             bottomBackground.toBack();
         });
@@ -288,6 +318,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         mainPentagon.setTranslateY(-rootPane.getHeight() / 2);
 
         createPlayerNames();
+        spaceScore();
 
         // Defer setting the current player until UI is ready
         Platform.runLater(() -> {
@@ -606,9 +637,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         vertexPane.getChildren().remove(vertexNodes[vertexId]);
 
         // Determine color based on owner
-        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) ? playerColors[playerOwner]
-                : Color.GRAY;
+        Color fillColor = getPlayerColor(playerOwner);
 
         // Create new node depending on type
         double layoutX = vertexNodes[vertexId].getLayoutX();
@@ -695,10 +724,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             return;
         }
 
-        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length)
-                ? playerColors[playerOwner]
-                : Color.GRAY;
+        Color fillColor = getPlayerColor(playerOwner);
 
         Shape roadShape = roadNodes[roadId];
         if (roadShape instanceof Rectangle rect) {
@@ -946,6 +972,44 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             player3Pane.setLayoutX(slantX * 3 + 10);
         });
     }
+
+    public void spaceScore()
+    {
+        Platform.runLater(() -> 
+        {
+            double spacing = 205;
+            double padding = 110;
+            double secondPadding = 85;
+
+            player1Score.setTranslateX(spacing);
+            player1ScoreDisplay.setTranslateX(spacing);
+
+            player2Score.setTranslateX(spacing);
+            player2ScoreDisplay.setTranslateX(spacing);
+
+            player3Score.setTranslateX(spacing);
+            player3ScoreDisplay.setTranslateX(spacing);
+
+            player1LongRoad.setTranslateX(spacing + padding);
+            player1LongRoadDisplay.setTranslateX(spacing + padding);
+
+            player2LongRoad.setTranslateX(spacing + padding);
+            player2LongRoadDisplay.setTranslateX(spacing + padding);
+
+            player3LongRoad.setTranslateX(spacing + padding);
+            player3LongRoadDisplay.setTranslateX(spacing + padding);
+
+            player1CleanEnviro.setTranslateX(spacing + padding + secondPadding);
+            player1CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
+
+            player2CleanEnviro.setTranslateX(spacing + padding + secondPadding);
+            player2CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
+
+            player3CleanEnviro.setTranslateX(spacing + padding + secondPadding);
+            player3CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
+        });
+    }
+
 
     // TEMP TEST CODE
     private void addPlayerSwitchButtons() {
