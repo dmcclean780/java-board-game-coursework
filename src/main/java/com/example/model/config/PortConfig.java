@@ -3,8 +3,7 @@ package com.example.model.config;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PortConfig implements IdentifiableConfig {
-    public final String id;
+public class PortConfig extends IdentifiableConfig {
     public final String texturePath;
 
     public final String resourceID; // -1 for any
@@ -28,8 +27,4 @@ public class PortConfig implements IdentifiableConfig {
         this.occurrences = occurrences;
     }
 
-    @Override
-    public String getId() {
-        return this.id; 
-    }
 }

@@ -10,6 +10,8 @@ public class Road {
     //array of the two vertices the road connects
     private int[] vertices;
 
+    private String roadType;
+
     //default constructor
     public Road(){}
 
@@ -18,6 +20,7 @@ public class Road {
         this.playerID = _playerID;
         this.vertices = _vertices;
         this.buildID = _buildID;
+        this.roadType = "player_infrastructure.road";
     }
 
     //getters
@@ -32,5 +35,6 @@ public class Road {
     public void setVertices(int[] _vertices){this.vertices = _vertices;}
 
     public void setBuildID(int _buildID){this.buildID = _buildID;}
+    public String getRoadType() { return roadType; }
 
 }

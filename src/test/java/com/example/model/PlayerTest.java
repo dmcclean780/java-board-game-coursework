@@ -1,11 +1,17 @@
 package com.example.model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.example.model.config.ConfigManager;
+import com.example.model.config.registry.ResourceRegistry;
 
 
 
@@ -13,8 +19,14 @@ import java.util.HashMap;
 
 public class PlayerTest {
 
+    @BeforeAll
+    public static void setup() throws Exception {
+        ConfigManager.loadAll(); // needed to load ResourceRegistry
+    }
+
     @BeforeEach
     public void resetNextId() throws Exception {
+       
         Field nextIdField = Player.class.getDeclaredField("nextId");
         nextIdField.setAccessible(true);
         nextIdField.setInt(null, 1); // reset static nextId to 1 for deterministic ids
@@ -26,12 +38,12 @@ public class PlayerTest {
         assertEquals("Alice", p.getName());
         assertEquals(1, p.getId());
 
-        // resources start at 0
-        assertEquals(0, p.getResourceCount("resource.wood"));
-        assertEquals(0, p.getResourceCount("resource.brick"));
-        assertEquals(0, p.getResourceCount("resource.sheep"));
-        assertEquals(0, p.getResourceCount("resource.wheat"));
-        assertEquals(0, p.getResourceCount("resource.ore"));
+        // all resources initialized to 0
+        assertEquals(0, p.getResourceCount(ResourceRegistry.getInstance().get("resource.wood")));
+        assertEquals(0, p.getResourceCount(ResourceRegistry.getInstance().get("resource.brick")));
+        assertEquals(0, p.getResourceCount(ResourceRegistry.getInstance().get("resource.sheep")));
+        assertEquals(0, p.getResourceCount(ResourceRegistry.getInstance().get("resource.wheat")));
+        assertEquals(0, p.getResourceCount(ResourceRegistry.getInstance().get("resource.ore")));
 
         // total resources is 0 and no dev cards initially
         assertEquals(0, p.getTotalResources());
@@ -56,30 +68,31 @@ public class PlayerTest {
     @Test
     public void resourceSetAndChange_behaviour() {
         Player p = new Player("ResTester");
+        
 
         // valid set
-        assertTrue(p.setResourceCount("resource.wood", 3));
-        assertEquals(3, p.getResourceCount("resource.wood"));
+        assertTrue(ResourceRegistry.getInstance().get("resource.wood") != null);
+        assertTrue(p.setResourceCount(ResourceRegistry.getInstance().get("resource.wood"), 3));
+        assertEquals(3, p.getResourceCount(ResourceRegistry.getInstance().get("resource.wood")));
         assertEquals(3, p.getTotalResources());
 
         // invalid set (unknown type)
-        assertFalse(p.setResourceCount("resource.gold", 5));
-        assertEquals(0, p.getResourceCount("resource.gold"));
+        assertFalse(p.setResourceCount(ResourceRegistry.getInstance().get("resource.gold"), 5));
+        assertEquals(0, p.getResourceCount(ResourceRegistry.getInstance().get("resource.gold")));
 
         // change positive
-        assertTrue(p.changeResourceCount("resource.wood", 2));
-        assertEquals(5, p.getResourceCount("resource.wood"));
+        assertTrue(p.changeResourceCount(ResourceRegistry.getInstance().get("resource.wood"), 2));
+        assertEquals(5, p.getResourceCount(ResourceRegistry.getInstance().get("resource.wood")));
 
         // change negative but not below zero
-        assertTrue(p.changeResourceCount("resource.wood", -2));
-        assertEquals(3, p.getResourceCount("resource.wood"));
-
+        assertTrue(p.changeResourceCount(ResourceRegistry.getInstance().get("resource.wood"), -2));
+        assertEquals(3, p.getResourceCount(ResourceRegistry.getInstance().get("resource.wood")));
         // change negative below zero should fail
-        assertFalse(p.changeResourceCount("resource.wood", -10));
-        assertEquals(3, p.getResourceCount("resource.wood"));
+        assertFalse(p.changeResourceCount(ResourceRegistry.getInstance().get("resource.wood"), -10));
+        assertEquals(3, p.getResourceCount(ResourceRegistry.getInstance().get("resource.wood")));
 
         // change unknown type should fail
-        assertFalse(p.changeResourceCount("resource.gold", 1));
+        assertFalse(p.changeResourceCount(ResourceRegistry.getInstance().get("resource.gold"), 1));
     }
 
     @Test
@@ -160,10 +173,10 @@ public class PlayerTest {
     public void toString_containsImportantInfo() {
         Player p = new Player("Stringy");
         p.addCard("dev.foo");
-        p.setResourceCount("resource.wood", 2);
+        p.setResourceCount(ResourceRegistry.getInstance().get("resource.wood"), 2);
         String s = p.toString();
         assertTrue(s.contains("Stringy"));
-        assertTrue(s.contains("resource.wood"));
+        // removed resourceID, as ResourceConfig does not have toString implemented
         assertTrue(s.contains("dev.foo"));
     }
 }

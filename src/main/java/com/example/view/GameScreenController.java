@@ -18,6 +18,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Circle;
@@ -29,6 +30,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.Group;
+import javafx.beans.binding.Bindings;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
@@ -46,11 +48,10 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML
     private Polygon mainPentagon;
     @FXML
-    private Label player1Display, player2Display, player3Display, currentPlayerDisplay;
-    @FXML
     private Pane rootPane, catanBoardPane;
 
-    @FXML private Pane playerColumnPane;
+    @FXML
+    private Pane playerColumnPane;
 
     @FXML private Rectangle bottomBackground;
     @FXML private StackPane currentPlayerPane;
@@ -58,15 +59,58 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML private StackPane player2Pane;
     @FXML private StackPane player3Pane;
     @FXML private Polygon currentPlayerBox;
-     
+
+    @FXML private Label player1Display;
+    @FXML private Label player2Display;
+    @FXML private Label player3Display;
+
+    @FXML private Label player1ScoreDisplay;
+    @FXML private Label player2ScoreDisplay;
+    @FXML private Label player3ScoreDisplay;
+
+    @FXML private Polygon player1Score;
+    @FXML private Polygon player2Score;
+    @FXML private Polygon player3Score;
+
+    @FXML private Label player1LongRoadDisplay;
+    @FXML private Label player2LongRoadDisplay;
+    @FXML private Label player3LongRoadDisplay;
+
+    @FXML private Polygon player1LongRoad;
+    @FXML private Polygon player2LongRoad;
+    @FXML private Polygon player3LongRoad;
+
+    @FXML private Polygon player1CleanEnviro;
+    @FXML private Polygon player2CleanEnviro;
+    @FXML private Polygon player3CleanEnviro;
+
+    @FXML private Label player1CleanEnviroDisplay;
+    @FXML private Label player2CleanEnviroDisplay;
+    @FXML private Label player3CleanEnviroDisplay;
+
+    @FXML private Button buildSettlementButton;
+    @FXML private Button buildCityButton;
+    @FXML private Button buildRoadButton;
+
+
+    @FXML private Label currentPlayerDisplay;
+
     @FXML private Label currentPlayerText;
 
-    private static final Color[] PLAYER_COLORS = {
-        Color.web("#e43b29"),        // player 1 red
-        Color.web("#4fa6eb"),        // player 2 blue
-        Color.web("#f0ad00"),        // player 3 yellow
-        Color.web("#517d19")         // player 4 green
+    private static final Color[] PLAYER_COLOURS = {
+        Color.web("#e43b29"),       // player 1 red
+        Color.web("#4fa6eb"),       // player 2 blue
+        Color.web("#f0ad00"),       // player 3 yellow
+        Color.web("#517d19")        // player 4 green
     };
+
+    private static final Color UNOWNED_COLOR = Color.GRAY;
+
+    private Color getPlayerColor(int owner) {
+        return (owner >= 0 && owner < PLAYER_COLOURS.length)
+            ? PLAYER_COLOURS[owner]
+            : UNOWNED_COLOR;
+    }
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
@@ -77,26 +121,19 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private Shape[] roadNodes = new Shape[72];
 
     @Override
-    public void setViewModel(GameViewModel viewModel) 
-    {
+    public void setViewModel(GameViewModel viewModel) {
         this.viewModel = viewModel;
 
         bindViewModel();
     }
 
-    private void bindViewModel()
-    {
+    private void bindViewModel() {
         // --- Tiles ---
         for (int i = 0; i < tileGroup.length; i++) {
             bindTile(i, viewModel.tilesProperty().get(i));
         }
 
-        // --- Roads ---
-        for (int i = 0; i < roadNodes.length; i++) {
-            bindRoad(i, viewModel.roadsProperty().get(i));
-        }
-
-        // --- Ports FIRST ---
+         // --- Ports FIRST ---
         mapPortsToVertices(viewModel.getPorts());
 
         // --- Vertex positions FIRST ---
@@ -110,11 +147,19 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         // --- Roads geometry ---
         setupAllRoads(viewModel.getRoads());
 
+        // --- Roads ---
+        for (int i = 0; i < roadNodes.length; i++) {
+            bindRoad(i, viewModel.roadsProperty().get(i));
+        }
+
+       
+        
         // --- Players ---
         ObservableList<PlayerViewState> players = viewModel.playersProperty();
         for (PlayerViewState player : players) {
             // optional: listen for name changes and update UI if needed
-            player.nameProperty().addListener((obs, oldName, newName) -> { });
+            player.nameProperty().addListener((obs, oldName, newName) -> {
+            });
         }
 
         // --- Initialize UI with first current player ---
@@ -122,67 +167,70 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             setCurrentPlayer(0);
         }
 
-        // Make road 0 owned by player 1 (index 0 for red)
-        if (!viewModel.roadsProperty().isEmpty()) {
-            RoadViewState firstRoad = viewModel.roadsProperty().get(0);
-            firstRoad.owner.set(0); // player 1 is index 0 → red
-        }
+        buildSettlementButton.disableProperty().bind(
+                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildSettlement").not());
+
+        buildCityButton.disableProperty().bind(
+                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildCity").not());
+
+        buildRoadButton.disableProperty().bind(
+                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildRoad").not());
     }
 
-    private Label getLabelFromPane(StackPane pane) 
-    {
+    private Label getLabelFromPane(StackPane pane) {
         return pane.getChildren()
                 .stream()
                 .filter(n -> n instanceof Label)
                 .map(n -> (Label) n)
                 .findFirst()
-                .orElseThrow(() ->
-                    new IllegalStateException("StackPane does not contain a Label"));
+                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Label"));
     }
 
-    private Polygon getBoxFromPane(StackPane pane) 
-    {
+    private Polygon getBoxFromPane(StackPane pane) {
         return pane.getChildren()
                 .stream()
                 .filter(n -> n instanceof Polygon)
                 .map(n -> (Polygon) n)
                 .findFirst()
-                .orElseThrow(() ->
-                    new IllegalStateException("StackPane does not contain a Polygon"));
+                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Polygon"));
     }
 
-    private void assignPlayersToPanes(int currentPlayerIndex) 
-    {
+    private void assignPlayersToPanes(int currentPlayerIndex) {
         ObservableList<PlayerViewState> players = viewModel.playersProperty();
-        if (players.isEmpty()) return;
+        if (players.isEmpty())
+            return;
 
-        currentPlayerIndex = currentPlayerIndex % players.size();
+        currentPlayerIndex %= players.size();
 
         // ---- CURRENT PLAYER ----
         PlayerViewState current = players.get(currentPlayerIndex);
-        getLabelFromPane(currentPlayerPane).setText(current.nameProperty().get());
+        currentPlayerDisplay.setText(current.nameProperty().get());
 
-        Color currentColor = PLAYER_COLORS[currentPlayerIndex];
+        Color currentColor = PLAYER_COLOURS[currentPlayerIndex];
         bottomBackground.setFill(currentColor);
         bottomBackground.setStroke(Color.rgb(7, 4, 60));
         bottomBackground.setStrokeWidth(3);
         currentPlayerBox.setFill(currentColor);
 
         // ---- OTHER PLAYERS ----
-        for (int i = 1; i <= 3; i++) {
-            int playerIndex = (currentPlayerIndex + i) % players.size();
-            PlayerViewState player = players.get(playerIndex);
+        PlayerViewState p1 = players.get((currentPlayerIndex + 1) % players.size());
+        PlayerViewState p2 = players.get((currentPlayerIndex + 2) % players.size());
+        PlayerViewState p3 = players.get((currentPlayerIndex + 3) % players.size());
 
-            StackPane pane;
-            switch (i) {
-                case 1 -> pane = player1Pane;
-                case 2 -> pane = player2Pane;
-                default -> pane = player3Pane;
-            }
+        player1Display.setText(p1.nameProperty().get());
+        player2Display.setText(p2.nameProperty().get());
+        player3Display.setText(p3.nameProperty().get());
 
-            getLabelFromPane(pane).setText(player.nameProperty().get());
-            getBoxFromPane(pane).setFill(PLAYER_COLORS[playerIndex]);
-        }
+        getBoxFromPane(player1Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
+        getBoxFromPane(player2Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 2) % players.size()]);
+        getBoxFromPane(player3Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
+
+        player1Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
+        player2Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 2) % players.size()]);
+        player3Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
+
+        player1LongRoad.setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
+        player3LongRoad.setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
     }
 
     private void bindTile(int index, TileViewState state) {
@@ -211,15 +259,18 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         bindVertexVisibility(vertexNodes[id], state);
     }
 
-    private void bindRoad(int id, RoadViewState roadState) 
-    {
+    private void bindRoad(int id, RoadViewState roadState) {
         // Listen for changes to the road owner and update UI
         roadState.owner.addListener((obs, oldOwner, newOwner) -> {
             setRoad(id, newOwner.intValue());
+            bindRoadVisibility(roadNodes[id], roadState);
+            attachRoadClickHandler(roadNodes[id], id);
         });
 
         // Initialize road with current owner
         setRoad(id, roadState.owner.get());
+        bindRoadVisibility(roadNodes[id], roadState);
+        attachRoadClickHandler(roadNodes[id], id);
     }
 
     private Color resolveColor(String type) {
@@ -245,7 +296,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             System.out.println("Failed to load Oswald font, using default.");
             oswaldFont = Font.font(20);
         }
-                
+
         Platform.runLater(() -> {
             // Full width
             bottomBackground.widthProperty().bind(rootPane.widthProperty());
@@ -257,8 +308,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bottomBackground.yProperty().bind(rootPane.heightProperty().divide(2));
 
             // Set fill AFTER sizing
-            bottomBackground.setFill(PLAYER_COLORS[0]);
-            currentPlayerBox.setFill(PLAYER_COLORS[0]);
+            bottomBackground.setFill(PLAYER_COLOURS[0]);
+            currentPlayerBox.setFill(PLAYER_COLOURS[0]);
 
             bottomBackground.toBack();
         });
@@ -267,6 +318,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         mainPentagon.setTranslateY(-rootPane.getHeight() / 2);
 
         createPlayerNames();
+        spaceScore();
 
         // Defer setting the current player until UI is ready
         Platform.runLater(() -> {
@@ -282,8 +334,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         addPlayerSwitchButtons();
     }
 
-    private void mapPortsToVertices(int[][] ports)
-    {
+    private void mapPortsToVertices(int[][] ports) {
         Arrays.fill(vertexToPort, -1);
 
         for (int portId = 0; portId < ports.length; portId++) {
@@ -294,7 +345,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             vertexToPort[v2] = portId;
         }
     }
-
 
     private Group[] tileGroup = new Group[19];
 
@@ -441,11 +491,11 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         }
     }
 
-    private void setupAllRoads(int[][] roadVertices) 
-    {
+    private void setupAllRoads(int[][] roadVertices) {
         roadsPane.toFront(); // Ensure road layer is above everything
 
-        if (roadVertices == null || roadVertices.length == 0 || vertexNodes == null) return;
+        if (roadVertices == null || roadVertices.length == 0 || vertexNodes == null)
+            return;
 
         roadNodes = new Shape[roadVertices.length];
 
@@ -458,7 +508,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             Shape vertex1 = vertexNodes[v1];
             Shape vertex2 = vertexNodes[v2];
 
-            if (vertex1 == null || vertex2 == null) continue;
+            if (vertex1 == null || vertex2 == null)
+                continue;
 
             double x1 = vertex1.getLayoutX();
             double y1 = vertex1.getLayoutY();
@@ -586,9 +637,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         vertexPane.getChildren().remove(vertexNodes[vertexId]);
 
         // Determine color based on owner
-        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) ? playerColors[playerOwner]
-                : Color.GRAY;
+        Color fillColor = getPlayerColor(playerOwner);
 
         // Create new node depending on type
         double layoutX = vertexNodes[vertexId].getLayoutX();
@@ -643,7 +692,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         square.setStroke(Color.BLACK);
         square.setStrokeWidth(2);
         square.setLayoutX(layoutX - size / 2);
-        square.setLayoutY(layoutY - size / 2);        
+        square.setLayoutY(layoutY - size / 2);
         return square;
     }
 
@@ -670,22 +719,40 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         vertex.mouseTransparentProperty().bind(state.visible.not());
     }
 
-
-    private void setRoad(int roadId, int playerOwner) 
-    {
+    private void setRoad(int roadId, int playerOwner) {
         if (roadId < 0 || roadId >= roadNodes.length || roadNodes[roadId] == null) {
             return;
         }
 
-        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) 
-                        ? playerColors[playerOwner] 
-                        : Color.GRAY;
+        Color fillColor = getPlayerColor(playerOwner);
 
         Shape roadShape = roadNodes[roadId];
         if (roadShape instanceof Rectangle rect) {
             rect.setFill(fillColor);
         }
+    }
+
+    private void attachRoadClickHandler(Shape road, int roadId) {
+        road.setOnMouseClicked(event -> {
+            event.consume(); // prevents clicks falling through
+
+            // Example: tell ViewModel
+            viewModel.onRoadClicked(roadId);
+
+            // Optional visual feedback
+            road.setStroke(Color.GOLD);
+            road.setStrokeWidth(3);
+        });
+
+        // Optional hover feedback
+        road.setOnMouseEntered(e -> road.setOpacity(0.8));
+        road.setOnMouseExited(e -> road.setOpacity(1.0));
+    }
+
+    private void bindRoadVisibility(Shape road, RoadViewState state) {
+
+        road.visibleProperty().bind(state.visible);
+        road.mouseTransparentProperty().bind(state.visible.not());
     }
 
     private boolean isValidIndex(int index) {
@@ -732,7 +799,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         // --- Background ---
         Polygon background = createFlatTopHex(hexWidth * 7.60, totalHeight - 130);
 
-        // I Will want to bring this back at some point, just having a bit of a layering issue
+        // I Will want to bring this back at some point, just having a bit of a layering
+        // issue
         background.setFill(Color.rgb(57, 69, 147));
         background.setStroke(Color.rgb(7, 4, 60));
         background.setStrokeWidth(3);
@@ -825,6 +893,11 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         System.out.println(viewModel.getTurnState());
     }
 
+    public void switchToBUILDROADPHASE() {
+        viewModel.switchToBuildRoadState();
+        System.out.println(viewModel.getTurnState());
+    }
+
     public void switchToBUILDCITYPHASE() {
         viewModel.switchToBuildCityState();
         System.out.println(viewModel.getTurnState());
@@ -835,38 +908,53 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         System.out.println(viewModel.getTurnState());
     }
 
+    public void switchToBUILDINGPHASE() {
+        viewModel.switchToBuildState();
+        System.out.println(viewModel.getTurnState());
+    }
+
     public void nextPlayer() {
         viewModel.nextPlayer();
         System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
     }
 
-    public void setCurrentPlayer(int currentPlayerIndex) 
-    {
+    public void setCurrentPlayer(int currentPlayerIndex) {
         // then update UI
         assignPlayersToPanes(currentPlayerIndex);
     }
 
-    private void setPaneColor(StackPane pane, Color color) 
-    {
-        pane.setBackground(new javafx.scene.layout.Background(
-            new javafx.scene.layout.BackgroundFill(
-                color,
-                new javafx.scene.layout.CornerRadii(8),
-                javafx.geometry.Insets.EMPTY
-            )
-        ));
+    public void giveSettlementResources() {
+        viewModel.giveSettlementResources();
+        System.out.println("Gave settlement resources to current player.");
     }
 
-    private void createPlayerNames()
-    {
+    public void giveCityResources() {
+        viewModel.giveCityResources();
+        System.out.println("Gave city resources to current player.");
+    }
+
+    public void giveRoadResources() {
+        viewModel.giveRoadResources();
+        System.out.println("Gave road resources to current player.");
+    }
+
+    private void setPaneColor(StackPane pane, Color color) {
+        pane.setBackground(new javafx.scene.layout.Background(
+                new javafx.scene.layout.BackgroundFill(
+                        color,
+                        new javafx.scene.layout.CornerRadii(8),
+                        javafx.geometry.Insets.EMPTY)));
+    }
+
+    private void createPlayerNames() {
         Platform.runLater(() -> {
 
             double centerY = rootPane.getHeight() / 2.0;
             double currentHeight = currentPlayerPane.getBoundsInParent().getHeight();
 
-            double currentYOffset = 90;   // ↓ move current player down
+            double currentYOffset = 90; // ↓ move current player down
             double normalGap = 85;
-            double firstGap  = 140;
+            double firstGap = 140;
             double slantX = -50;
 
             currentPlayerPane.setLayoutX(-50);
@@ -884,6 +972,44 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             player3Pane.setLayoutX(slantX * 3 + 10);
         });
     }
+
+    public void spaceScore()
+    {
+        Platform.runLater(() -> 
+        {
+            double spacing = 205;
+            double padding = 110;
+            double secondPadding = 85;
+
+            player1Score.setTranslateX(spacing);
+            player1ScoreDisplay.setTranslateX(spacing);
+
+            player2Score.setTranslateX(spacing);
+            player2ScoreDisplay.setTranslateX(spacing);
+
+            player3Score.setTranslateX(spacing);
+            player3ScoreDisplay.setTranslateX(spacing);
+
+            player1LongRoad.setTranslateX(spacing + padding);
+            player1LongRoadDisplay.setTranslateX(spacing + padding);
+
+            player2LongRoad.setTranslateX(spacing + padding);
+            player2LongRoadDisplay.setTranslateX(spacing + padding);
+
+            player3LongRoad.setTranslateX(spacing + padding);
+            player3LongRoadDisplay.setTranslateX(spacing + padding);
+
+            player1CleanEnviro.setTranslateX(spacing + padding + secondPadding);
+            player1CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
+
+            player2CleanEnviro.setTranslateX(spacing + padding + secondPadding);
+            player2CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
+
+            player3CleanEnviro.setTranslateX(spacing + padding + secondPadding);
+            player3CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
+        });
+    }
+
 
     // TEMP TEST CODE
     private void addPlayerSwitchButtons() {
