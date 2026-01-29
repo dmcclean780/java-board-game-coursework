@@ -91,18 +91,21 @@ public class GameModel {
         return settlements.upgradeSettlement(vertex, playerID);
     }
 
+    public boolean tileRestore(int tileIndex) {
+        // REMOVE RESOURCES FROM PLAYER HERE
+        return tiles.restoreTile(tileIndex);
+    }
+
     /*
     also need to call this function:
             when settlements get resources
-                -is resource distribution being done yet??
-                -if not i can do it
             when certain devcards are played
                 (trading frenzy, highway madness, monopoly)
                 -need to check which devcard before calling
-                -are devcards distribution done?
-                -again i can do this if not
     */
     //also where should tile restoration be implemented
+    //need resources to be done before i can do tile restoration
+    //for restore tile i need unique id for each tile to know which one to restore
     public void increaseClimateAndDistributeDisasterCards() {
         climateTracker.increaseClimate();
         
@@ -113,6 +116,8 @@ public class GameModel {
                 if (!disasterCard.isEmpty()) {
                     //give disaster card
                     //idk how yet
+                    //destroy tile
+                    tiles.destroyTile(disasterCard);
                 }
                 //do nothing if no cards are left??
             }

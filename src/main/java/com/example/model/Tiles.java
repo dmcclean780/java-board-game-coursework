@@ -3,8 +3,6 @@ package com.example.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-
 import java.util.Map;
 import java.util.Random;
 
@@ -71,6 +69,7 @@ public class Tiles {
                 tile.setNumber(0); // desert has no number
             } else {
                 tile.setIsBlocked(false);
+                tile.setIsDestroyed(false);
                 tile.setNumber(numberSequence[numberIndex]);
                 numberIndex++;
             }
@@ -142,5 +141,30 @@ public class Tiles {
         return tiles;
     }
 
-    
+    //need to make sure its not destroying the same tile every time
+    public boolean destroyTile(String tileID){
+        ArrayList<Tile> canDestroy = new ArrayList<>();
+        for (Tile tile : tiles) {
+            if (tile.getTileID().equals(tileID) && !tile.getIsDestroyed()) {
+                canDestroy.add(tile);
+            }
+        }
+        if (!canDestroy.isEmpty()) {
+            Random rand = new Random();
+            int index = rand.nextInt(canDestroy.size());
+            canDestroy.get(index).setIsDestroyed(true);
+            return true;
+        }
+        return false;
+    }
+
+    //fix to be tile index instead of id
+    public boolean restoreTile(int tileIndex){
+        if (tileIndex >= 0 && tileIndex < tiles.length && tiles[tileIndex].getIsDestroyed()) {
+            tiles[tileIndex].setIsDestroyed(false);
+            return true;
+        }
+        return false;
+    }
+
 }
