@@ -1,21 +1,12 @@
-/* Register the Oswald font */
-@font-face {
-    font-family: "Oswald-Regular";
-    src: url("../fonts/Oswald-Regular.ttf");
-}
-
-@font-face {
-    font-family: "Oswald-Italic";
-    src: url("../fonts/Oswald-Italic.ttf");
-}
 
 /* ------------------*/
 /* |  TITLE SCREEN  |*/
 /* ------------------*/
 
-/* Apply Oswald to the entire UI */
+/* Apply Noto Sans to the entire UI */
 .rootPane {
-    -fx-font-family: "Oswald-Regular"; /* cascades to all children */
+    -fx-font-family: "Noto Sans"; /* cascades to all children */
+    -fx-font-style: normal;
     -fx-font-weight: bold;
     -fx-background-color: black;
 }
@@ -38,9 +29,9 @@
     -fx-effect: dropshadow(one-pass-box, #ffffffff, 10, 1.0, 0, 0);
 }
 
-/* Make all menu labels Oswald, size 40, bold */
+/* Make all menu labels Noto Sans, size 40, bold */
 .menu-label {
-    -fx-font-family: "Oswald-Regular";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 40;
     -fx-font-weight: bold;
     -fx-text-fill: rgb(207, 207, 207);
@@ -91,11 +82,12 @@
 }
 
 .title-text {
-    -fx-font-family: "Oswald-Italic";
+    -fx-font-family: "Noto Sans";
+    -fx-font-style: italic;
 }
 
 .title-t {
-    -fx-font-family: "Oswald-Italic";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 100pt;
     -fx-text-fill: #e5b727;
     -fx-font-weight: bold;
@@ -106,7 +98,7 @@
 }
 
 .title-rest {
-    -fx-font-family: "Oswald-Italic";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 75pt;
     -fx-text-fill: #e5b727;
     -fx-font-weight: bold;
@@ -116,7 +108,7 @@
 }
 
 .title-accent {
-    -fx-font-family: "Oswald-Italic";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 22pt;
     -fx-text-fill: grey;
     -fx-font-weight: bold;
@@ -131,7 +123,7 @@
 /* ------------------*/
 
 .prompt-text-large {
-    -fx-font-family: "Oswald-Regular";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 60;
     -fx-font-weight: bold;
     -fx-text-fill: rgb(207, 207, 207);
@@ -142,7 +134,7 @@
 }
 
 .prompt-text-small {
-    -fx-font-family: "Oswald-Regular";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 45;
     -fx-font-weight: bold;
     -fx-text-fill: rgb(207, 207, 207);
@@ -153,7 +145,7 @@
 }
 
 .number-option {
-    -fx-font-family: "Oswald-Regular";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 60;
     -fx-font-weight: bold;
     -fx-text-fill: rgb(207, 207, 207);
@@ -165,7 +157,7 @@
 }
 
 .name-label {
-    -fx-font-family: "Oswald-Regular";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 40;
     -fx-font-weight: bold;
     -fx-text-fill: rgb(207, 207, 207);
@@ -210,7 +202,7 @@
     -fx-border-style: solid;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 2, 1.0, 2, 2);
     -fx-padding: 0 0 5 0;
-    -fx-font-family: "Oswald-Regular";
+    -fx-font-family: "Noto Sans";
     -fx-font-size: 25;
     -fx-font-weight: bold;
 }
@@ -222,7 +214,7 @@
 .player-label {
     -fx-text-fill: white;
     -fx-font-size: 26px;
-    -fx-font-family: 'Oswald-Regular';
+    -fx-font-family: 'Noto Sans';
     -fx-font-weight: bold;
     -fx-effect: dropshadow(one-pass-box, black, 10, 1.0, 0, 0);;
 }
@@ -230,7 +222,7 @@
 .current-player-label {
     -fx-text-fill: white;
     -fx-font-size: 35px;
-    -fx-font-family: 'Oswald-Regular';
+    -fx-font-family: 'Noto Sans';
     -fx-font-weight: bold;
     -fx-effect: dropshadow(one-pass-box, black, 10, 1.0, 0, 0);;
 }
@@ -238,7 +230,7 @@
 .current-player-text {
     -fx-text-fill: white;
     -fx-font-size: 20px;
-    -fx-font-family: 'Oswald-Regular';
+    -fx-font-family: 'Noto Sans';
     -fx-font-weight: bold;
     -fx-effect: dropshadow(one-pass-box, black, 10, 1.0, 0, 0);;
 }
@@ -282,7 +274,7 @@
 .stat-label {
     -fx-text-fill: white;
     -fx-font-size: 18px;
-    -fx-font-family: 'Oswald-Regular';
+    -fx-font-family: 'Noto Sans';
     -fx-font-weight: bold;
     -fx-effect: dropshadow(one-pass-box, black, 6, 1.0, 0, 0);
 }

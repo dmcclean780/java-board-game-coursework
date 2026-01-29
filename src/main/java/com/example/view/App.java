@@ -1,7 +1,6 @@
 package com.example.view;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.example.model.GameModel;
 import com.example.model.config.ConfigManager;
@@ -12,7 +11,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 /**
  * JavaFX App
@@ -27,26 +25,11 @@ public class App extends Application {
 
         NavigationService navigationService = new NavigationService(stage);
 
-        InputStream fontStream =
-            App.class.getClassLoader().getResourceAsStream("fonts/Oswald-Regular.ttf");
-
-        if (fontStream == null) {
-            throw new IllegalStateException("Font resource not found on classpath");
-        }
-
-        Font bundledFont = Font.loadFont(fontStream, 16);
-
-        if (bundledFont == null) {
-            throw new IllegalStateException("JavaFX failed to load font");
-        }
-
-        System.out.println("Loaded font: " + bundledFont.getName());
-        System.out.println("Family: " + bundledFont.getFamily());
-
         // Start with the first screen, passing the model
         TitleViewModel titleVM = new TitleViewModel(model, navigationService);
         navigationService.navigateTo("titleScreen", titleVM);
 
+        // Font.getFamilies().forEach(System.out::println);
     }
 
     static void setRoot(String fxml) throws IOException {

@@ -1,6 +1,5 @@
 package com.example.view;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,35 +7,35 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.viewmodel.GameViewModel;
+import com.example.viewmodel.PlayerViewState;
+import com.example.viewmodel.RoadViewState;
 import com.example.viewmodel.TileViewState;
 import com.example.viewmodel.VertexViewState;
-import com.example.viewmodel.RoadViewState;
-import com.example.viewmodel.PlayerViewState;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.shape.Shape;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.Group;
-import javafx.beans.binding.Bindings;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
 
     @FXML
-    private Font oswaldFont;
+    private Font mainFont;
     @FXML
     private Pane vertexPane;
     @FXML
@@ -84,7 +83,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             Color.web("#f0ad00"), // player 3 yellow
             Color.web("#517d19") // player 4 green
     };
-
+    
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
 
@@ -257,14 +256,13 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     public void initialize() {
-        // Load Oswald font from classpath
-        InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
-        if (fontStream != null) {
-            oswaldFont = Font.loadFont(fontStream, 20); // set font size
-            System.out.println("Oswald font loaded successfully.");
-        } else {
-            System.out.println("Failed to load Oswald font, using default.");
-            oswaldFont = Font.font(20);
+
+        // Load font from classpath
+        try {
+            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 10);
+            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 10);
+        } catch (Exception e) {
+            throw new IllegalStateException("JavaFX failed to load font:  Noto Sans");
         }
 
         Platform.runLater(() -> {
@@ -337,7 +335,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         }
 
         Text outlineText = new Text(displayStr);
-        outlineText.setFont(Font.loadFont(getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf"), 50));
+        outlineText.setFont(mainFont);
         outlineText.setFill(Color.BLACK);
         outlineText.setStroke(Color.BLACK);
         outlineText.setStrokeWidth(6);
