@@ -259,8 +259,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
         // Load font from classpath
         try {
-            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 10);
-            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 10);
+            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 20);
+            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 20);
         } catch (Exception e) {
             throw new IllegalStateException("JavaFX failed to load font:  Noto Sans");
         }
