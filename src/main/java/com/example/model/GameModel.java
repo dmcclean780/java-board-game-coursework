@@ -278,6 +278,10 @@ public class GameModel {
                     //check if there is a free resource left in the bank
                     if (bankCards.giveResourceCard(resource, 1)){
                         player.changeResourceCount(resource, 1);
+                        // Only settlements (not cities) cause climate to increase / disaster cards to be considered.
+                        if (!currentSettlement.isCity()) {
+                            increaseClimateAndDistributeDisasterCards();
+                        }
                     }
                     //bank empty, stop giving out resources
                     else{break;}
@@ -301,6 +305,77 @@ public class GameModel {
 
     public Road[] getRoads() {
         return roads.getAllRoads();
+    }
+
+    //need to do front end stuff to chose tile to destroy
+    //asks for same resource as tile atm - need to fix
+    public boolean tileRestore(int tileIndex, int playerId) {
+        Tile[] allTiles = tiles.getTiles();
+        if (tileIndex < 0 || tileIndex >= allTiles.length) {
+            return false;
+        }
+        Tile tile = allTiles[tileIndex];
+        ResourceConfig resource = tile.getResourceFromTileID();
+        if (resource == null) {
+            return false; // desert or no-resource tile cannot be restored
+        }
+        if (!tile.getIsDestroyed()) {
+            return false; // nothing to restore
+        }
+
+        Player player = getPlayer(playerId);
+        if (player == null) {
+            return false;
+        }
+
+        // require the player to have at least 3 of the resource
+        if (player.getResourceCount(resource) < 3) {
+            return false;
+        }
+
+        // deduct from player first (failsafe)
+        boolean deducted = player.changeResourceCount(resource, -3);
+        if (!deducted) {
+            return false;
+        }
+
+        // attempt restore; if it fails, revert the deduction
+        boolean restored = tiles.restoreTile(tileIndex);
+        if (!restored) {
+            // best-effort revert
+            player.changeResourceCount(resource, +3);
+            return false;
+        }
+
+        // return the resources to the bank
+        bankCards.returnResourceCard(resource, 3);
+        return true;
+    }
+
+    /*
+    also need to call this function:
+            when settlements get resources
+            when certain devcards are played
+                (trading frenzy, highway madness, monopoly)
+                -need to check which devcard before calling
+    */
+    //also where should tile restoration be implemented
+    //for restore tile i need unique id for each tile to know which one to restore
+    public void increaseClimateAndDistributeDisasterCards() {
+        climateTracker.increaseClimate();
+        
+        if (climateTracker.shouldGiveDisasterCard()) {
+            int numCards = climateTracker.disasterCardNum();
+            for (int i = 0; i < numCards; i++) {
+                String disasterCard = bankCards.giveDisasterCard();
+                if (!disasterCard.isEmpty()) {
+                    //give disaster card
+                    //destroy tile
+                    tiles.destroyTile(disasterCard);
+                }
+                //do nothing if no cards are left??
+            }
+        }
     }
 
     // TESTING METHODS
@@ -336,37 +411,5 @@ public class GameModel {
         }
     }
 
-    public boolean tileRestore(int tileIndex) {
-        // REMOVE RESOURCES FROM PLAYER HERE
-        return tiles.restoreTile(tileIndex);
-    }
-
-    /*
-    also need to call this function:
-            when settlements get resources
-            when certain devcards are played
-                (trading frenzy, highway madness, monopoly)
-                -need to check which devcard before calling
-    */
-    //also where should tile restoration be implemented
-    //need resources to be done before i can do tile restoration
-    //for restore tile i need unique id for each tile to know which one to restore
-    public void increaseClimateAndDistributeDisasterCards() {
-        climateTracker.increaseClimate();
-        
-        if (climateTracker.shouldGiveDisasterCard()) {
-            int numCards = climateTracker.disasterCardNum();
-            for (int i = 0; i < numCards; i++) {
-                String disasterCard = bankCards.giveDisasterCard();
-                if (!disasterCard.isEmpty()) {
-                    //give disaster card
-                    //idk how yet
-                    //destroy tile
-                    tiles.destroyTile(disasterCard);
-                }
-                //do nothing if no cards are left??
-            }
-        }
-    }
 }
 
