@@ -1,5 +1,6 @@
 package com.example.view;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +15,12 @@ import com.example.viewmodel.RoadViewState;
 import com.example.viewmodel.PlayerViewState;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -27,10 +28,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.Group;
-import javafx.beans.binding.Bindings;
+import javafx.scene.Node;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
@@ -49,68 +51,14 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private Polygon mainPentagon;
     @FXML
     private Pane rootPane, catanBoardPane;
-
     @FXML
     private Pane playerColumnPane;
 
-    @FXML private Rectangle bottomBackground;
-    @FXML private StackPane currentPlayerPane;
-    @FXML private StackPane player1Pane;
-    @FXML private StackPane player2Pane;
-    @FXML private StackPane player3Pane;
-    @FXML private Polygon currentPlayerBox;
+    @FXML
+    private VBox playerList;
 
-    @FXML private Label player1Display;
-    @FXML private Label player2Display;
-    @FXML private Label player3Display;
-
-    @FXML private Label player1ScoreDisplay;
-    @FXML private Label player2ScoreDisplay;
-    @FXML private Label player3ScoreDisplay;
-
-    @FXML private Polygon player1Score;
-    @FXML private Polygon player2Score;
-    @FXML private Polygon player3Score;
-
-    @FXML private Label player1LongRoadDisplay;
-    @FXML private Label player2LongRoadDisplay;
-    @FXML private Label player3LongRoadDisplay;
-
-    @FXML private Polygon player1LongRoad;
-    @FXML private Polygon player2LongRoad;
-    @FXML private Polygon player3LongRoad;
-
-    @FXML private Polygon player1CleanEnviro;
-    @FXML private Polygon player2CleanEnviro;
-    @FXML private Polygon player3CleanEnviro;
-
-    @FXML private Label player1CleanEnviroDisplay;
-    @FXML private Label player2CleanEnviroDisplay;
-    @FXML private Label player3CleanEnviroDisplay;
-
-    @FXML private Button buildSettlementButton;
-    @FXML private Button buildCityButton;
-    @FXML private Button buildRoadButton;
-
-
-    @FXML private Label currentPlayerDisplay;
-
-    @FXML private Label currentPlayerText;
-
-    private static final Color[] PLAYER_COLOURS = {
-        Color.web("#e43b29"),       // player 1 red
-        Color.web("#4fa6eb"),       // player 2 blue
-        Color.web("#f0ad00"),       // player 3 yellow
-        Color.web("#517d19")        // player 4 green
-    };
-
-    private static final Color UNOWNED_COLOR = Color.GRAY;
-
-    private Color getPlayerColor(int owner) {
-        return (owner >= 0 && owner < PLAYER_COLOURS.length)
-            ? PLAYER_COLOURS[owner]
-            : UNOWNED_COLOR;
-    }
+    @FXML
+    private Pane bottomPane;
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
@@ -133,7 +81,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bindTile(i, viewModel.tilesProperty().get(i));
         }
 
-         // --- Ports FIRST ---
+        // --- Ports FIRST ---
         mapPortsToVertices(viewModel.getPorts());
 
         // --- Vertex positions FIRST ---
@@ -152,85 +100,65 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bindRoad(i, viewModel.roadsProperty().get(i));
         }
 
-       
-        
         // --- Players ---
         ObservableList<PlayerViewState> players = viewModel.playersProperty();
-        for (PlayerViewState player : players) {
-            // optional: listen for name changes and update UI if needed
-            player.nameProperty().addListener((obs, oldName, newName) -> {
-            });
+
+        // Initial load
+        for (int i = 0; i < players.size(); i++) {
+            addPlayerRow(players.get(i), i);
         }
 
-        // --- Initialize UI with first current player ---
-        if (!players.isEmpty()) {
-            setCurrentPlayer(0);
+        // Listen for changes
+        players.addListener((ListChangeListener<PlayerViewState>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (PlayerViewState p : change.getAddedSubList()) {
+                        int index = players.indexOf(p);
+                        addPlayerRow(p, index);
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (PlayerViewState p : change.getRemoved()) {
+                        removePlayerRow(p);
+                    }
+                }
+            }
+        });
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/currentPlayer.fxml"));
+            Node node = loader.load();
+
+            CurrentPlayerController ctrl = loader.getController();
+            ctrl.bindCurrentPlayer(viewModel);
+            bottomPane.getChildren().add(node);
+            
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        buildSettlementButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildSettlement").not());
-
-        buildCityButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildCity").not());
-
-        buildRoadButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildRoad").not());
     }
 
-    private Label getLabelFromPane(StackPane pane) {
-        return pane.getChildren()
-                .stream()
-                .filter(n -> n instanceof Label)
-                .map(n -> (Label) n)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Label"));
+    private void addPlayerRow(PlayerViewState player, int index) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/player.fxml"));
+            Node row = loader.load();
+            PlayerController ctrl = loader.getController();
+            ctrl.bind(player);
+
+            row.setTranslateX(60 * index);
+            row.setUserData(player); // store reference for removal
+            playerList.getChildren().add(row);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private Polygon getBoxFromPane(StackPane pane) {
-        return pane.getChildren()
-                .stream()
-                .filter(n -> n instanceof Polygon)
-                .map(n -> (Polygon) n)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Polygon"));
-    }
-
-    private void assignPlayersToPanes(int currentPlayerIndex) {
-        ObservableList<PlayerViewState> players = viewModel.playersProperty();
-        if (players.isEmpty())
-            return;
-
-        currentPlayerIndex %= players.size();
-
-        // ---- CURRENT PLAYER ----
-        PlayerViewState current = players.get(currentPlayerIndex);
-        currentPlayerDisplay.setText(current.nameProperty().get());
-
-        Color currentColor = PLAYER_COLOURS[currentPlayerIndex];
-        bottomBackground.setFill(currentColor);
-        bottomBackground.setStroke(Color.rgb(7, 4, 60));
-        bottomBackground.setStrokeWidth(3);
-        currentPlayerBox.setFill(currentColor);
-
-        // ---- OTHER PLAYERS ----
-        PlayerViewState p1 = players.get((currentPlayerIndex + 1) % players.size());
-        PlayerViewState p2 = players.get((currentPlayerIndex + 2) % players.size());
-        PlayerViewState p3 = players.get((currentPlayerIndex + 3) % players.size());
-
-        player1Display.setText(p1.nameProperty().get());
-        player2Display.setText(p2.nameProperty().get());
-        player3Display.setText(p3.nameProperty().get());
-
-        getBoxFromPane(player1Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
-        getBoxFromPane(player2Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 2) % players.size()]);
-        getBoxFromPane(player3Pane).setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
-
-        player1Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
-        player2Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 2) % players.size()]);
-        player3Score.setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
-
-        player1LongRoad.setFill(PLAYER_COLOURS[(currentPlayerIndex + 1) % players.size()]);
-        player3LongRoad.setFill(PLAYER_COLOURS[(currentPlayerIndex + 3) % players.size()]);
+    private void removePlayerRow(PlayerViewState player) {
+        playerList.getChildren().removeIf(node -> node.getUserData() == player);
     }
 
     private void bindTile(int index, TileViewState state) {
@@ -238,7 +166,12 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             setTile(index, val.intValue(), resolveColor(state.resource.get()));
         });
 
+        state.blocked.addListener((obs, old, val) -> {
+            setTileDisabled(index, val);
+        });
+
         setTile(index, state.number.get(), resolveColor(state.resource.get()));
+        setTileDisabled(index, state.blocked.get());
     }
 
     private void bindVertex(int id, VertexViewState state) {
@@ -297,41 +230,15 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             oswaldFont = Font.font(20);
         }
 
-        Platform.runLater(() -> {
-            // Full width
-            bottomBackground.widthProperty().bind(rootPane.widthProperty());
-
-            // Half height
-            bottomBackground.heightProperty().bind(rootPane.heightProperty().divide(2));
-
-            // Position at halfway point
-            bottomBackground.yProperty().bind(rootPane.heightProperty().divide(2));
-
-            // Set fill AFTER sizing
-            bottomBackground.setFill(PLAYER_COLOURS[0]);
-            currentPlayerBox.setFill(PLAYER_COLOURS[0]);
-
-            bottomBackground.toBack();
-        });
-
         mainPentagon.setTranslateX(-rootPane.getWidth() / 2);
         mainPentagon.setTranslateY(-rootPane.getHeight() / 2);
-
-        createPlayerNames();
-        spaceScore();
-
-        // Defer setting the current player until UI is ready
-        Platform.runLater(() -> {
-            if (!viewModel.playersProperty().isEmpty()) {
-                setCurrentPlayer(3);
-            }
-        });
 
         System.out.println("GameScreenV initialized"); // Debug
 
         createCatanBoard(rootPane);
+        playerColumnPane.toBack();
+        mainPentagon.toBack();
 
-        addPlayerSwitchButtons();
     }
 
     private void mapPortsToVertices(int[][] ports) {
@@ -637,7 +544,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         vertexPane.getChildren().remove(vertexNodes[vertexId]);
 
         // Determine color based on owner
-        Color fillColor = getPlayerColor(playerOwner);
+        Color fillColor = viewModel.getPlayerColor(playerOwner);
 
         // Create new node depending on type
         double layoutX = vertexNodes[vertexId].getLayoutX();
@@ -724,7 +631,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             return;
         }
 
-        Color fillColor = getPlayerColor(playerOwner);
+        Color fillColor = viewModel.getPlayerColor(playerOwner);
 
         Shape roadShape = roadNodes[roadId];
         if (roadShape instanceof Rectangle rect) {
@@ -759,7 +666,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         return index >= 0 && index < tileGroup.length && tileGroup[index] != null;
     }
 
-    public void highlightTile(int index, boolean highlight) {
+    private void highlightTile(int index, boolean highlight) {
         if (!isValidIndex(index))
             return;
 
@@ -770,7 +677,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         });
     }
 
-    public void setTileDisabled(int index, boolean disabled) {
+    private void setTileDisabled(int index, boolean disabled) {
         if (!isValidIndex(index))
             return;
 
@@ -888,39 +795,9 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         return hex;
     }
 
-    public void switchToBUILDSETTLEMENTPHASE() {
-        viewModel.switchToBuildSettlementState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDROADPHASE() {
-        viewModel.switchToBuildRoadState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDCITYPHASE() {
-        viewModel.switchToBuildCityState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToROLLDICEPHASE() {
-        viewModel.switchToRollDiceState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDINGPHASE() {
-        viewModel.switchToBuildState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void nextPlayer() {
-        viewModel.nextPlayer();
-        System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
-    }
-
     public void setCurrentPlayer(int currentPlayerIndex) {
         // then update UI
-        assignPlayersToPanes(currentPlayerIndex);
+        // assignPlayersToPanes(currentPlayerIndex);
     }
 
     public void giveSettlementResources() {
@@ -936,102 +813,5 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     public void giveRoadResources() {
         viewModel.giveRoadResources();
         System.out.println("Gave road resources to current player.");
-    }
-
-    private void setPaneColor(StackPane pane, Color color) {
-        pane.setBackground(new javafx.scene.layout.Background(
-                new javafx.scene.layout.BackgroundFill(
-                        color,
-                        new javafx.scene.layout.CornerRadii(8),
-                        javafx.geometry.Insets.EMPTY)));
-    }
-
-    private void createPlayerNames() {
-        Platform.runLater(() -> {
-
-            double centerY = rootPane.getHeight() / 2.0;
-            double currentHeight = currentPlayerPane.getBoundsInParent().getHeight();
-
-            double currentYOffset = 90; // ↓ move current player down
-            double normalGap = 85;
-            double firstGap = 140;
-            double slantX = -50;
-
-            currentPlayerPane.setLayoutX(-50);
-            currentPlayerPane.setLayoutY(centerY - currentHeight / 2 + currentYOffset);
-            currentPlayerText.setLayoutX(10);
-            currentPlayerText.setLayoutY(centerY - currentHeight / 2 + currentYOffset - 35);
-
-            player1Pane.setLayoutY(currentPlayerPane.getLayoutY() - firstGap);
-            player1Pane.setLayoutX(slantX + 10);
-
-            player2Pane.setLayoutY(player1Pane.getLayoutY() - normalGap);
-            player2Pane.setLayoutX(slantX * 2 + 10);
-
-            player3Pane.setLayoutY(player2Pane.getLayoutY() - normalGap);
-            player3Pane.setLayoutX(slantX * 3 + 10);
-        });
-    }
-
-    public void spaceScore()
-    {
-        Platform.runLater(() -> 
-        {
-            double spacing = 205;
-            double padding = 110;
-            double secondPadding = 85;
-
-            player1Score.setTranslateX(spacing);
-            player1ScoreDisplay.setTranslateX(spacing);
-
-            player2Score.setTranslateX(spacing);
-            player2ScoreDisplay.setTranslateX(spacing);
-
-            player3Score.setTranslateX(spacing);
-            player3ScoreDisplay.setTranslateX(spacing);
-
-            player1LongRoad.setTranslateX(spacing + padding);
-            player1LongRoadDisplay.setTranslateX(spacing + padding);
-
-            player2LongRoad.setTranslateX(spacing + padding);
-            player2LongRoadDisplay.setTranslateX(spacing + padding);
-
-            player3LongRoad.setTranslateX(spacing + padding);
-            player3LongRoadDisplay.setTranslateX(spacing + padding);
-
-            player1CleanEnviro.setTranslateX(spacing + padding + secondPadding);
-            player1CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
-
-            player2CleanEnviro.setTranslateX(spacing + padding + secondPadding);
-            player2CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
-
-            player3CleanEnviro.setTranslateX(spacing + padding + secondPadding);
-            player3CleanEnviroDisplay.setTranslateX(spacing + padding + secondPadding);
-        });
-    }
-
-
-    // TEMP TEST CODE
-    private void addPlayerSwitchButtons() {
-        Platform.runLater(() -> {
-            double buttonWidth = 80;
-            double buttonHeight = 30;
-            double startX = 20;
-            double startY = 20;
-            double gap = 10;
-
-            for (int i = 0; i < 4; i++) {
-                int playerIndex = i;
-                javafx.scene.control.Button btn = new javafx.scene.control.Button("Player " + (i + 1));
-                btn.setLayoutX(startX);
-                btn.setLayoutY(startY + i * (buttonHeight + gap));
-                btn.setPrefSize(buttonWidth, buttonHeight);
-
-                btn.setOnAction(e -> setCurrentPlayer(playerIndex));
-
-                rootPane.getChildren().add(btn);
-            }
-
-        });
     }
 }
