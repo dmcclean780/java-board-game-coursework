@@ -1,7 +1,6 @@
 package com.example.view;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.viewmodel.GameViewModel;
+import com.example.viewmodel.PlayerViewState;
+import com.example.viewmodel.RoadViewState;
 import com.example.viewmodel.TileViewState;
 import com.example.viewmodel.VertexViewState;
-import com.example.viewmodel.RoadViewState;
-import com.example.viewmodel.PlayerViewState;
 
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
@@ -26,19 +25,19 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.Group;
 import javafx.scene.Node;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
 
     @FXML
-    private Font oswaldFont;
+    private Font mainFont;
     @FXML
     private Pane vertexPane;
     @FXML
@@ -220,14 +219,13 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     public void initialize() {
-        // Load Oswald font from classpath
-        InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
-        if (fontStream != null) {
-            oswaldFont = Font.loadFont(fontStream, 20); // set font size
-            System.out.println("Oswald font loaded successfully.");
-        } else {
-            System.out.println("Failed to load Oswald font, using default.");
-            oswaldFont = Font.font(20);
+
+        // Load font from classpath
+        try {
+            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 20);
+            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 20);
+        } catch (Exception e) {
+            throw new IllegalStateException("JavaFX failed to load font:  Noto Sans");
         }
 
         mainPentagon.setTranslateX(-rootPane.getWidth() / 2);
@@ -275,7 +273,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         }
 
         Text outlineText = new Text(displayStr);
-        outlineText.setFont(Font.loadFont(getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf"), 50));
+        outlineText.setFont(mainFont);
         outlineText.setFill(Color.BLACK);
         outlineText.setStroke(Color.BLACK);
         outlineText.setStrokeWidth(6);
