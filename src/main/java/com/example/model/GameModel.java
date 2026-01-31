@@ -378,6 +378,115 @@ public class GameModel {
         }
     }
 
+    public boolean buyDevelopmentCard(int playerId) {
+        Player player = getPlayer(playerId);
+        if (player == null) return false;
+
+        // check & deduct cost
+        if (!player.hasEnoughResourcesForStructure("player_infrastructure.dev_card")) {
+            return false;
+        }
+        boolean deducted = player.deductStructureResources("player_infrastructure.dev_card");
+        if (!deducted) return false;
+
+        // attempt to draw from bank
+        String devCardId = bankCards.giveDevelopmentCard();
+        if (devCardId == null || devCardId.isEmpty()) {
+            // refund resources
+            PlayerInfrastructureConfig cfg = ConfigService.getInfrastructure("player_infrastructure.dev_card");
+            for (String resourceID : cfg.constructionCosts.keySet()) {
+                ResourceConfig r = ConfigService.getResource(resourceID);
+                int amount = cfg.constructionCosts.get(resourceID);
+                player.changeResourceCount(r, amount);
+            }
+            return false;
+        }
+
+        // deliver the card (handles victory-point semantics)
+        handleReceivedDevelopmentCard(playerId, devCardId);
+        return true;
+    }
+
+    private void handleReceivedDevelopmentCard(int playerId, String devCardId) {
+        Player player = getPlayer(playerId);
+        if (player == null) return;
+
+        com.example.model.config.DevCardConfig cfg = ConfigService.getDevCard(devCardId);
+        if (cfg == null) {
+            // unknown card: treat as no-op
+            return;
+        }
+
+        String action = cfg.actionType == null ? "" : cfg.actionType;
+        if ("VICTORY_POINT".equals(action)) {
+            // award invisible VP immediately and do NOT add the card to hand
+            player.addInvisibleVictoryPoints(1);
+            return;
+        }
+
+        // other dev-cards are added to the player's hand and may be played
+        player.addCard(devCardId);
+    }
+
+    public boolean playDevCard(int playerId, String devCardId) {
+        Player player = getPlayer(playerId);
+        if (player == null) return false;
+
+        if (!player.hasCard(devCardId)) return false;
+
+        com.example.model.config.DevCardConfig cfg = ConfigService.getDevCard(devCardId);
+        if (cfg == null) return false;
+
+        String action = cfg.actionType == null ? "" : cfg.actionType;
+        if ("VICTORY_POINT".equals(action)) {
+            // cannot be played
+            return false;
+        }
+
+        // remove the card from the player's hand (played)
+        boolean removed = player.removeCard(devCardId);
+        if (!removed) return false;
+
+        // dispatch to the appropriate effect handler
+        switch (action) {
+            case "ECO_CONFERENCE" -> applyEcoConference(playerId);
+            case "HIGHWAY_MADNESS" -> applyHighwayMadness(playerId);
+            case "TRADING_FRENZY" -> applyTradingFrenzy(playerId);
+            case "MONOPOLY" -> applyMonopoly(playerId);
+            default -> {
+                // unknown action: no-op for now
+            }
+        }
+
+        return true;
+    }
+
+    public int getPlayerVictoryPoints(int playerId) {
+        Player p = getPlayer(playerId);
+        int points = p.getVictoryPoints(playerId);
+        if (p != null) points += p.getInvisibleVictoryPoints();
+        return points;
+    }
+
+    public void applyEcoConference(int playerId) {
+        // TODO: implement ECO_CONFERENCE effect
+    }
+
+    public void applyHighwayMadness(int playerId) {
+        // TODO: implement HIGHWAY_MADNESS effect
+        //also increase climate tracker
+    }
+
+    public void applyTradingFrenzy(int playerId) {
+        // TODO: implement TRADING_FRENZY effect
+        //also increase climate tracker
+    }
+
+    public void applyMonopoly(int playerId) {
+        // TODO: implement MONOPOLY effect
+        //also increase climate tracker
+    }
+
     // TESTING METHODS
     public void giveSettlementResources(int playerIndex) {
         Player player = players.get(playerIndex);
