@@ -66,23 +66,20 @@ public class GameModel {
         return settlements.getAllSettlements()[index].getPlayerID();
     }
 
-    public boolean settlementValid(int vertex, int playerIndex) {
-        int playerID = players.get(playerIndex).getId();
+    public boolean settlementValid(int vertex, int playerID) {
         boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is valid when *NOT* a nearby settlement
         boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID);
         boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
         return settlementDistanceValid && linkedByRoad && unowned || true;
     }
 
-    public boolean cityValid(int vertex, int playerIndex) {
-        int playerID = players.get(playerIndex).getId();
+    public boolean cityValid(int vertex, int playerID) {
         boolean isOwner = getSettlmentOwner(vertex) == playerID;
         boolean notAlreadyCity = !settlements.getAllSettlements()[vertex].isCity();
         return isOwner && notAlreadyCity;
     }
 
-    public boolean roadValid(int edgeIndex, int playerIndex) {
-        int playerID = players.get(playerIndex).getId();
+    public boolean roadValid(int edgeIndex, int playerID) {
         //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID); TODO
         //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID); TODO
         boolean unowned = roads.isRoadOwned(edgeIndex) == false;
@@ -102,42 +99,51 @@ public class GameModel {
         return null;
     }
 
-    public boolean buildSettlement(int vertex, int playerIndex) {
-        int playerID = players.get(playerIndex).getId();
+    public int nextPlayer(int currentPlayerId){
+        int currentIndex = -1;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId() == currentPlayerId) {
+                currentIndex = i;
+                break;
+            }
+        }
+        int nextIndex = (currentIndex + 1) % players.size();
+        return players.get(nextIndex).getId();
+    }
+
+    public boolean buildSettlement(int vertex, int playerID) {
         boolean success_build = settlements.buildSettlement(vertex, playerID);
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
-        boolean success_resources = players.get(playerIndex).deductStructureResources(structureID);
+        boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
         return success_resources && success_build;
     }
 
-    public boolean playerHasSettlementResources(int playerIndex) {
-        Player player = players.get(playerIndex);
+    public boolean playerHasSettlementResources(int playerID) {
+        Player player = getPlayer(playerID);
         return player.hasEnoughResourcesForStructure("player_infrastructure.settlement");
     }
 
-    public boolean buildCity(int vertex, int playerIndex) {
-        int playerID = players.get(playerIndex).getId();
+    public boolean buildCity(int vertex, int playerID) {
         boolean success_upgrade = settlements.upgradeSettlement(vertex, playerID);
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
-        boolean success_resources = players.get(playerIndex).deductStructureResources(structureID);
+        boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
         return success_resources && success_upgrade;
     }
 
-    public boolean playerHasCityResources(int playerIndex) {
-        Player player = players.get(playerIndex);
+    public boolean playerHasCityResources(int playerID) {
+        Player player = getPlayer(playerID);
         return player.hasEnoughResourcesForStructure("player_infrastructure.city");
     }
 
-    public boolean buildRoad(int edgeIndex, int playerIndex) {
-        int playerID = players.get(playerIndex).getId();
+    public boolean buildRoad(int edgeIndex, int playerID) {
         boolean success_build = roads.buildRoad(edgeIndex, playerID);
         String structureID = roads.getAllRoads()[edgeIndex].getRoadType();
-        boolean success_resources = players.get(playerIndex).deductStructureResources(structureID);
+        boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
         return success_resources && success_build;
     }
 
-    public boolean playerHasRoadResources(int playerIndex) {
-        Player player = players.get(playerIndex);
+    public boolean playerHasRoadResources(int playerID) {
+        Player player = getPlayer(playerID);
         return player.hasEnoughResourcesForStructure("player_infrastructure.road");
     }
 
@@ -261,7 +267,7 @@ public class GameModel {
                 }
 
                 //find the player who owns the settlement
-                Player player = getPlayerFromID(currentSettlement.getPlayerID());
+                Player player = getPlayer(currentSettlement.getPlayerID());
                 if (player == null) {throw new IllegalStateException("Player not found for settlement");}
 
                 int production = 1;
@@ -282,25 +288,13 @@ public class GameModel {
         }
     }
 
-    public Player getPlayerFromID(int ID){
-        for (Player player : players){
-            if (player.getId() == ID){
-                //found player
-                return player;
-            }
-        }
-        //failed
-        return null;
-    }
-
-
     public Road[] getRoads() {
         return roads.getAllRoads();
     }
 
     // TESTING METHODS
-    public void giveSettlementResources(int playerIndex) {
-        Player player = players.get(playerIndex);
+    public void giveSettlementResources(int playerID) {
+        Player player = getPlayer(playerID);
         PlayerInfrastructureConfig config = ConfigService.getInfrastructure("player_infrastructure.settlement");
         for (String resourceID : config.constructionCosts.keySet()) {
             ResourceConfig resourceConfig = ConfigService.getResource(resourceID);
@@ -310,8 +304,8 @@ public class GameModel {
     }
 
     // TESTING METHOD
-    public void giveCityResources(int playerIndex) {
-        Player player = players.get(playerIndex);
+    public void giveCityResources(int playerID) {
+        Player player = getPlayer(playerID);
         PlayerInfrastructureConfig config = ConfigService.getInfrastructure("player_infrastructure.city");
         for (String resourceID : config.constructionCosts.keySet()) {
             ResourceConfig resourceConfig = ConfigService.getResource(resourceID);
@@ -321,8 +315,8 @@ public class GameModel {
     }
 
     // TESTING METHOD
-    public void giveRoadResources(int playerIndex) {
-        Player player = players.get(playerIndex);
+    public void giveRoadResources(int playerID) {
+        Player player = getPlayer(playerID);
         PlayerInfrastructureConfig config = ConfigService.getInfrastructure("player_infrastructure.road");
         for (String resourceID : config.constructionCosts.keySet()) {
             ResourceConfig resourceConfig = ConfigService.getResource(resourceID);

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.geometry.Pos?>
+<?import java.lang.Double?>
+<?import javafx.scene.control.Button?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.shape.Circle?>
+
+<Pane fx:id="rootPane"
+    prefHeight="864.0"
+    prefWidth="1536.0"
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.example.view.PlayerController">
+
+    <StackPane fx:id="playerPane"
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        alignment="CENTER">
+
+        <HBox alignment="CENTER_LEFT"
+            spacing="2">
+
+            <!-- NAME -->
+            <StackPane>
+                <Polygon fx:id="colorBox" styleClass="parallelogram">
+                    <points>
+                        <Double fx:value="0.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="250.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="285.0" />
+                        <Double fx:value="60.0" />
+                        <Double fx:value="35.0" />
+                        <Double fx:value="60.0" />
+                    </points>
+                </Polygon>
+                <Label fx:id="nameLabel" styleClass="player-label" />
+            </StackPane>
+
+            <!-- SCORE -->
+            <StackPane>
+                <Polygon fx:id="scoreBox" styleClass="parallelogram">
+                    <points>
+                        <Double fx:value="0.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="100.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="135.0" />
+                        <Double fx:value="60.0" />
+                        <Double fx:value="35.0" />
+                        <Double fx:value="60.0" />
+                    </points>
+                </Polygon>
+                <Label fx:id="scoreLabel" styleClass="player-label" />
+            </StackPane>
+
+            <!-- LONGEST ROAD -->
+            <StackPane>
+                <Polygon fx:id="longestRoadBox" styleClass="parallelogram">
+                    <points>
+                        <Double fx:value="0.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="60.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="95.0" />
+                        <Double fx:value="60.0" />
+                        <Double fx:value="35.0" />
+                        <Double fx:value="60.0" />
+                    </points>
+                </Polygon>
+                <Label fx:id="longestRoadLabel" styleClass="player-label" />
+            </StackPane>
+
+            <!-- CLEANEST ENV -->
+            <StackPane>
+                <Polygon fx:id="cleanestEnvironmentBox" styleClass="parallelogram">
+                    <points>
+                        <Double fx:value="0.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="60.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="95.0" />
+                        <Double fx:value="60.0" />
+                        <Double fx:value="35.0" />
+                        <Double fx:value="60.0" />
+                    </points>
+                </Polygon>
+                <Label fx:id="cleanestEnvironmentLabel" styleClass="player-label" />
+            </StackPane>
+
+        </HBox>
+    </StackPane>
+
+</Pane>

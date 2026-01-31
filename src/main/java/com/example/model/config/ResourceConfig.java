@@ -7,14 +7,17 @@ public class ResourceConfig extends IdentifiableConfig {
     public final String texturePath;
 
     public final int maxQuantity;
+    public final String colorHex;
 
     @JsonCreator
     public ResourceConfig(
             @JsonProperty("id") String id,
             @JsonProperty("texturePath") String texturePath,
-            @JsonProperty("maxQuantity") int maxQuantity) {
+            @JsonProperty("maxQuantity") int maxQuantity,
+            @JsonProperty("colorHex") String colorHex) {
         this.id = id;
         this.texturePath = texturePath;
         this.maxQuantity = maxQuantity;
+        this.colorHex = colorHex;
     }
 }
