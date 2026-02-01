@@ -349,4 +349,17 @@ public class Player {
         }
         return success;
     }
+
+    public ArrayList<Integer> getResourceCountsList() {
+        ArrayList<Integer> counts = new ArrayList<>();
+        for (ResourceConfig resource : ResourceRegistry.getInstance().all()) {
+            System.out.println("Getting resource count for: " + resource.id);
+            counts.add(this.getResourceCount(resource));
+        }
+        return counts;
+    }
+
+    public HashMap<ResourceConfig, Integer> getResourcesMap() {
+        return this.resources;
+    }
 }
