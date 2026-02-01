@@ -328,27 +328,44 @@ public class GameModel {
             return false;
         }
 
-        // require the player to have at least 3 of the resource
-        if (player.getResourceCount(resource) < 3) {
+        // derive the infrastructure id for this tile
+        String structureId = tile.getTileID().replace("tile.", "player_infrastructure.") + "_tile";
+        PlayerInfrastructureConfig cfg = ConfigService.getInfrastructure(structureId);
+        if (cfg == null || cfg.constructionCosts.isEmpty()) {
+            return false; // no configured cost for this tile
+        }
+
+        // check player has the required resources
+        if (!player.hasEnoughResourcesForStructure(structureId)) {
             return false;
         }
 
-        // deduct from player first (failsafe)
-        boolean deducted = player.changeResourceCount(resource, -3);
+        // deduct configured resources
+        boolean deducted = player.deductStructureResources(structureId);
         if (!deducted) {
             return false;
         }
 
-        // attempt restore; if it fails, revert the deduction
+        // attempt restore; if it fails, refund the deducted resources
         boolean restored = tiles.restoreTile(tileIndex);
         if (!restored) {
-            // best-effort revert
-            player.changeResourceCount(resource, +3);
+            // refund: add back each configured resource and also return them to the bank
+            for (String resourceID : cfg.constructionCosts.keySet()) {
+                ResourceConfig r = ConfigService.getResource(resourceID);
+                int amount = cfg.constructionCosts.get(resourceID);
+                player.changeResourceCount(r, amount);
+                bankCards.returnResourceCard(r, amount);
+            }
             return false;
         }
 
-        // return the resources to the bank
-        bankCards.returnResourceCard(resource, 3);
+        // on success, return the deducted resources to the bank
+        for (String resourceID : cfg.constructionCosts.keySet()) {
+            ResourceConfig r = ConfigService.getResource(resourceID);
+            int amount = cfg.constructionCosts.get(resourceID);
+            bankCards.returnResourceCard(r, amount);
+        }
+
         return true;
     }
 
