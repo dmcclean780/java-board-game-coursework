@@ -23,6 +23,9 @@ public class Player {
     private ArrayList<String> devCards;
     private HashMap<String, Integer> structuresRemaining;
 
+    private int victoryPoints;
+    private int hiddenVictoryPoints;
+
     /**
      * Player Class Constructor
      * @param name  name of the player
@@ -48,6 +51,9 @@ public class Player {
             int startingCount = ConfigService.getInfrastructure(structureTypes.get(i)).maxQuantity;
             this.structuresRemaining.put(structureTypes.get(i), startingCount);
         }
+
+        victoryPoints = 0;
+        hiddenVictoryPoints = 0;
     }
 
     /**
@@ -339,5 +345,24 @@ public class Player {
 
     public HashMap<ResourceConfig, Integer> getResourcesMap() {
         return this.resources;
+    }
+
+    public int getTotalVictoryPoints() {
+        return victoryPoints + hiddenVictoryPoints;
+    }
+    public int getKnownVictoryPoints() {
+        return victoryPoints;
+    }
+
+    public int getHiddenVictoryPoints() {
+        return hiddenVictoryPoints;
+    }
+
+    public void changeVictoryPoints(int amount) {
+        victoryPoints += amount;
+    }
+
+    public void changeHiddenVictoryPoints(int amount) {
+        hiddenVictoryPoints += amount;
     }
 }
