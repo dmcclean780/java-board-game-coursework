@@ -53,13 +53,22 @@ public class Tiles {
         // Shuffle the bag
         java.util.Collections.shuffle(tileBag);
 
+        int desertIndex = 0;
+
         // Assign shuffled tiles to the tile array
         for (int i = 0; i < NUMBER_OF_HEXES; i++) {
+    
             tiles[i].setTileID(tileBag.get(i));
+            
+            String resourceID = ConfigService.getTile(tiles[i].getTileID()).resourceID;
+            if (resourceID.isEmpty()) {
+                desertIndex = i;
+            }
         }
 
         // Assign numbers and block deserts
-        int[] numberSequence = generateTileNumberSequence(); // should have 19 numbers, 0 for deserts
+        int[] tokens = getTokens();
+        int[] numberSequence = generateValidLayout(tokens, desertIndex); // should have 19 numbers, 0 for deserts
         int numberIndex = 0;
 
         for (int i = 0; i < NUMBER_OF_HEXES; i++) {
@@ -80,7 +89,7 @@ public class Tiles {
         return setAdjVerticesForEachTile(tiles);
     }
 
-    private int[] generateTileNumberSequence() {
+    private int[] getTokens() {
         Map<Integer, Integer> numberTokens = ConfigService.getNumberTokens();
         int NUMBER_OF_TOKENS = numberTokens.values().stream().mapToInt(Integer::intValue).sum();
         int[] sequence = new int[NUMBER_OF_TOKENS];
@@ -94,12 +103,12 @@ public class Tiles {
             }
         }
 
-        return generateValidLayout(sequence);
+        return sequence;
     }
 
     private static final int MAX_ATTEMPTS = 30000000;
 
-    private static int[] generateValidLayout(int[] tokens) {
+    private static int[] generateValidLayout(int[] tokens, int desertIndex) {
         Random rand = new Random();
 
         // Convert int[] → mutable List<Integer>
@@ -110,6 +119,8 @@ public class Tiles {
 
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             Collections.shuffle(layout, rand);
+            layout.remove(Integer.valueOf(-1)); // remove desert placeholder
+            layout.add(desertIndex, -1); // add desert back in the correct spot
 
             if (isValidLayout(layout)) {
                 layout.remove(Integer.valueOf(-1)); // remove desert placeholder
