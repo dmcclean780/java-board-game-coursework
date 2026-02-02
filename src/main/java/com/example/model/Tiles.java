@@ -16,7 +16,7 @@ public class Tiles {
 
     // Board size, change if a bigger/smaller board is desired
     // 19 is a normal 3 hex-per-side board
-    private final int NUMBER_OF_HEXES = 19;
+    public static final int NUMBER_OF_HEXES = 19;
 
     public Tiles() {
         this.tiles = setUpTiles();

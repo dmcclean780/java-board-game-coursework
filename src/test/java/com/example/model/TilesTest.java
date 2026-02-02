@@ -6,19 +6,13 @@ import com.example.model.config.ConfigManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 
 public class TilesTest {
 
-    @BeforeEach
-    public void initConfig() {
-        ConfigManager.loadAll();
-    }
-
-    @AfterEach
-    public void closeConfig() {
-        ConfigManager.unloadAll();
+    @BeforeAll
+    public static void initConfig() {
+        try {ConfigManager.loadAll();} catch (Exception e) { } // needed to load ResourceRegistry
     }
 
     @Test
@@ -92,7 +86,9 @@ public class TilesTest {
         Tiles tiles = new Tiles();
         Tile[] tileArray = tiles.getTiles();
 
-        
+        for (Tile t : tileArray) {
+            System.out.println(t.getNumber());
+        }
 
         for (int i = 0; i < tileArray.length; i++) {
             int num = tileArray[i].getNumber();
