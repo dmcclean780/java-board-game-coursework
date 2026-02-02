@@ -1,6 +1,14 @@
 package com.example.model;
 
 import org.junit.jupiter.api.Test;
+
+import com.example.model.config.ConfigManager;
+import com.example.model.config.PortConfig;
+import com.example.model.config.ResourceConfig;
+import com.example.model.config.service.ConfigService;
+import com.example.model.trading.*;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,6 +23,11 @@ import java.util.ArrayList;
 public class GameModelTest {
     private GameModel gameModel;
     private ArrayList<String> playerNames;
+
+    @BeforeAll
+    public static void setup() throws Exception {
+        try {ConfigManager.loadAll();} catch (Exception e) { } // needed to load ResourceRegistry if not loaded, throws if already loaded
+    }
 
     @BeforeEach
     public void setUp() {
@@ -110,7 +123,6 @@ public class GameModelTest {
         gameModel.initializePlayers(playerNames);
         int playerId = gameModel.getPlayers().get(0).getId();
         gameModel.giveSettlementResources(playerId);
-        // Note: settlementValid always returns true due to || true logic
         assertTrue(gameModel.settlementValid(0, playerId));
     }
 
@@ -125,7 +137,6 @@ public class GameModelTest {
     public void testRoadValid() {
         gameModel.initializePlayers(playerNames);
         int playerId = gameModel.getPlayers().get(0).getId();
-        // Note: roadValid always returns true due to || true logic
         assertTrue(gameModel.roadValid(0, playerId));
     }
 
@@ -137,7 +148,7 @@ public class GameModelTest {
         
         boolean result = gameModel.buildSettlement(0, playerId);
         // Result depends on Settlements logic
-        assertNotNull(result);
+        assertTrue(result);
     }
 
     @Test
@@ -154,11 +165,13 @@ public class GameModelTest {
     public void testBuildCity() {
         gameModel.initializePlayers(playerNames);
         int playerId = gameModel.getPlayers().get(0).getId();
+        gameModel.giveSettlementResources(playerId);
         gameModel.giveCityResources(playerId);
         
+        gameModel.buildSettlement(0, playerId); // First build settlement
         boolean result = gameModel.buildCity(0, playerId);
         // Result depends on Settlements logic
-        assertNotNull(result);
+        assertTrue(result);
     }
 
     @Test
@@ -179,7 +192,7 @@ public class GameModelTest {
         
         boolean result = gameModel.buildRoad(0, playerId);
         // Result depends on Roads logic
-        assertNotNull(result);
+        assertTrue(result);
     }
 
     @Test
@@ -207,5 +220,129 @@ public class GameModelTest {
     public void testGetSettlementOwner() {
         int owner = gameModel.getSettlmentOwner(0);
         assertNotNull(owner);
+    }
+
+    @Test
+    public void testValidTradePlayerSamePlayer() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+         
+        int playerId = gameModel.getPlayers().get(0).getId();
+        gameModel.getPlayer(playerId).setResourceCount(wood, 10);
+        gameModel.getPlayer(playerId).setResourceCount(brick, 10);
+        TradePlayer trade = new TradePlayer(playerId, playerId, wood, 1, brick, 1);
+        assertFalse(gameModel.validTrade(trade));
+    }
+
+    @Test
+    public void testValidTradePlayerInsufficientResources() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        int player1Id = gameModel.getPlayers().get(0).getId();
+        int player2Id = gameModel.getPlayers().get(1).getId();
+
+        // no resources given to players, invalid trade
+        TradePlayer trade = new TradePlayer(player1Id, player2Id, wood, 10, brick, 1);
+        assertFalse(gameModel.validTrade(trade));
+    }
+
+    @Test
+    public void testValidTradePlayerValidTrade() {
+        gameModel.initializePlayers(playerNames);
+        int player1Id = gameModel.getPlayers().get(0).getId();
+        int player2Id = gameModel.getPlayers().get(1).getId();
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+
+        gameModel.getPlayer(player1Id).setResourceCount(wood, 10);
+        gameModel.getPlayer(player2Id).setResourceCount(brick, 10);
+
+        TradePlayer trade = new TradePlayer(player1Id, player2Id, wood, 10, brick, 1);
+        assertTrue(gameModel.validTrade(trade));
+    }
+
+    
+
+    @Test
+    public void testValidTradeBankInsufficientPlayerResources() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        int playerId = gameModel.getPlayers().get(0).getId();
+        TradeBank trade = new TradeBank(playerId, wood, brick);
+        assertFalse(gameModel.validTrade(trade));
+    }
+
+    @Test
+    public void testValidTradeBankValidTrade() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        int playerId = gameModel.getPlayers().get(0).getId();
+        gameModel.getPlayer(playerId).setResourceCount(brick, 10);
+        TradeBank trade = new TradeBank(playerId, brick, wood);
+        assertTrue(gameModel.validTrade(trade));
+    }
+
+    @Test
+    public void testValidTradePortInsufficientResources() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        PortConfig port = ConfigService.getPort("port.brick");
+        int playerId = gameModel.getPlayers().get(0).getId();
+        TradePort trade = new TradePort(port, playerId, brick);
+        assertFalse(gameModel.validTrade(trade)); // player has no brick to trade
+    }
+
+    @Test
+    public void testValidTradePortValidTrade() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        PortConfig port = ConfigService.getPort("port.brick");
+        int playerId = gameModel.getPlayers().get(0).getId();
+        gameModel.getPlayer(playerId).setResourceCount(brick, 10);
+        TradePort trade = new TradePort(port, playerId, brick);
+        assertTrue(gameModel.validTrade(trade)); // player has brick to trade
+    }
+
+    @Test
+    public void testExecuteTradePlayerValid() {
+        gameModel.initializePlayers(playerNames);
+        int player1Id = gameModel.getPlayers().get(0).getId();
+        int player2Id = gameModel.getPlayers().get(1).getId();
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        gameModel.getPlayer(player1Id).setResourceCount(wood, 10);
+        gameModel.getPlayer(player2Id).setResourceCount(brick, 10);
+        TradePlayer trade = new TradePlayer(player1Id, player2Id, wood, 10, brick, 1);
+        
+        boolean result = gameModel.executeTrade(trade);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExecuteTradeBankValid() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig wood = ConfigService.getResource("resource.wood");
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        int playerId = gameModel.getPlayers().get(0).getId();
+        gameModel.getPlayer(playerId).setResourceCount(brick, 10);
+        TradeBank trade = new TradeBank(playerId, brick, wood);
+        boolean result = gameModel.executeTrade(trade);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExecuteTradePortValid() {
+        gameModel.initializePlayers(playerNames);
+        ResourceConfig brick = ConfigService.getResource("resource.brick");
+        PortConfig port = ConfigService.getPort("port.brick");
+        int playerId = gameModel.getPlayers().get(0).getId();
+        gameModel.getPlayer(playerId).setResourceCount(brick, 10);
+        TradePort trade = new TradePort(port, playerId, brick);
+        boolean result = gameModel.executeTrade(trade); // player has brick to trade
+        assertTrue(result);
     }
 }

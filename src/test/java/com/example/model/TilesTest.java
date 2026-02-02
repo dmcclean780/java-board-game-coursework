@@ -86,10 +86,6 @@ public class TilesTest {
         Tiles tiles = new Tiles();
         Tile[] tileArray = tiles.getTiles();
 
-        for (Tile t : tileArray) {
-            System.out.println(t.getNumber());
-        }
-
         for (int i = 0; i < tileArray.length; i++) {
             int num = tileArray[i].getNumber();
             if (num == 6 || num == 8) {
