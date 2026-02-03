@@ -1,7 +1,6 @@
 package com.example.model;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.example.model.config.ConfigManager;
@@ -13,15 +12,12 @@ import java.util.ArrayList;
 
 public class PortsTest {
 
-    @BeforeEach
-    public void initConfig() {
-        ConfigManager.loadAll();
+    @BeforeAll
+    public static void initConfig() {
+        try {ConfigManager.loadAll();} catch (Exception e) { } // needed to load ResourceRegistry if not loaded, throws if already loaded
     }
 
-    @AfterEach
-    public void closeConfig() {
-        ConfigManager.unloadAll();
-    }
+    
 
     @Test
     public void constructor_initializesPortsCollection() {

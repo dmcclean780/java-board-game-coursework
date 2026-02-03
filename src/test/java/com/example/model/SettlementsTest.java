@@ -2,6 +2,7 @@ package com.example.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +16,9 @@ public class SettlementsTest {
 
     @BeforeAll
     public static void setUpAll(){
-        ConfigManager.loadAll();
+        try {ConfigManager.loadAll();} catch (Exception e) { } // needed to load ResourceRegistry if not loaded, throws if already loaded    }
     }
-
+    
     @BeforeEach
     public void setUp(){
         settlements = new Settlements();
@@ -29,13 +30,13 @@ public class SettlementsTest {
     public void testConstructor_initialState(){
         Settlements s = new Settlements();
 
-        assertEquals(Settlements.NUMBER_OF_VERTICES, s.getAllSettlements().length + (Settlements.NUMBER_OF_VERTICES - s.getAllSettlements().length));
+        assertEquals(Settlements.NUMBER_OF_VERTICES, s.getAllSettlements().length); // test that all vertices have unowned settlements associated
 
         for (int i = 0; i < Settlements.NUMBER_OF_VERTICES; i++) {
             assertEquals(Settlements.UNOWNED_SETTLEMENT_ID, s.ownedByPlayer(i));
         }
 
-        assertEquals(0, s.getAllSettlements().length);
+        assertEquals(0, s.getAllOwnedSettlements().length);
 
     }
 
@@ -98,22 +99,32 @@ public class SettlementsTest {
     }
 
     //getAllSettlements()
+    void testGetAllSettlements() {
+        Settlement[] allSettlements = settlements.getAllSettlements();
+        assertEquals(Settlements.NUMBER_OF_VERTICES, allSettlements.length);
+        for (Settlement s : allSettlements) {
+            assertNotNull(s);
+            assertEquals(Settlements.UNOWNED_SETTLEMENT_ID, s.getPlayerID());
+        }
+    }
+
+    //getAllOwnedSettlements()
 
     @Test
-    void testGetAllSettlements() {
+    void testGetAllOwnedSettlements() {
         settlements.buildSettlement(1, 1);
         settlements.buildSettlement(2, 1);
         settlements.buildSettlement(3, 2);
 
-        Settlement[] owned = settlements.getAllSettlements();
+        Settlement[] owned = settlements.getAllOwnedSettlements();
 
         assertEquals(3, owned.length);
         assertTrue(owned[0].getPlayerID() != Settlements.UNOWNED_SETTLEMENT_ID);
     }
 
     @Test
-    void testGetAllSettlements_noneOwned() {
-        Settlement[] owned = settlements.getAllSettlements();
+    void testGetAllOwnedSettlements_noneOwned() {
+        Settlement[] owned = settlements.getAllOwnedSettlements();
         assertEquals(0, owned.length);
     }
 
