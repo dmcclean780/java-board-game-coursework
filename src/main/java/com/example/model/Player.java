@@ -22,10 +22,7 @@ public class Player {
     private HashMap<ResourceConfig, Integer> resources;
     private ArrayList<String> devCards;
     private HashMap<String, Integer> structuresRemaining;
-    private int victoryPoints = 0;
 
-    //for victory points from dev cards
-    private int invisibleVictoryPoints = 0;
 
     private int victoryPoints;
     private int hiddenVictoryPoints;
@@ -188,11 +185,6 @@ public class Player {
         return this.devCards.remove(card);
     }
 
-    /** Returns invisible victory points (from dev-cards). */
-    public int getInvisibleVictoryPoints() { return this.invisibleVictoryPoints; }
-
-    /** Adds invisible victory points (used when drawing VICTORY_POINT dev cards). */
-    public void addInvisibleVictoryPoints(int amount) { this.invisibleVictoryPoints += amount; }
 
     public int getVictoryPoints(int playerId) {
         return this.victoryPoints;
@@ -327,7 +319,7 @@ public class Player {
      */
     @Override
     public String toString() {
-        return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", devCards=" + this.devCards + ", invisibleVP=" + this.invisibleVictoryPoints + ", structuresRemaining=" + this.structuresRemaining + " }";
+        return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", devCards=" + this.devCards + ", hiddenVP=" + this.hiddenVictoryPoints + ", structuresRemaining=" + this.structuresRemaining + " }";
     }
 
     public boolean hasEnoughResourcesForStructure(String structureType) {

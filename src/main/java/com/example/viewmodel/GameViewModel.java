@@ -357,6 +357,10 @@ public final class GameViewModel {
         }
     }
 
+    public void switchToMoveRobberState(){
+        turnState = TurnState.MOVE_ROBBER_STATE;
+    }
+
     public void endTurn() {
         nextPlayer();
         switchToRollDiceState();
@@ -372,6 +376,14 @@ public final class GameViewModel {
 
     public ObjectProperty<PlayerViewState> currentPlayerProperty() {
         return currentPlayer;
+    }
+
+    public void moveRobber(int index){
+        if (turnState != TurnState.MOVE_ROBBER_STATE){
+            return;
+        }
+        gameModel.checkPlayerResources();
+        gameModel.moveRobber(index);
     }
 
     // TESTING METHODS
