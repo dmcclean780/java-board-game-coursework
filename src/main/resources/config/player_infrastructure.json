@@ -41,5 +41,50 @@
         },
         "maxQuantity": 25,
         "victoryPoints": 0
+    },
+    {
+        "id": "player_infrastructure.forest_tile",
+        "texturePath": "textures/infrastructure/forest_tile.png",
+        "constructionCosts": {
+            "resource.wheat": 2
+        },
+        "maxQuantity": 0,
+        "victoryPoints": 0
+    },
+    {
+        "id": "player_infrastructure.hills_tile",
+        "texturePath": "textures/infrastructure/hills_tile.png",
+        "constructionCosts": {
+            "resource.wood": 2
+        },
+        "maxQuantity": 0,
+        "victoryPoints": 0
+    },
+    {
+        "id": "player_infrastructure.mountains_tile",
+        "texturePath": "textures/infrastructure/mountains_tile.png",
+        "constructionCosts": {
+            "resource.sheep": 2
+        },
+        "maxQuantity": 0,
+        "victoryPoints": 0
+    },
+    {
+        "id": "player_infrastructure.fields_tile",
+        "texturePath": "textures/infrastructure/fields_tile.png",
+        "constructionCosts": {
+            "resource.ore": 2
+        },
+        "maxQuantity": 0,
+        "victoryPoints": 0
+    },
+    {
+        "id": "player_infrastructure.pasture_tile",
+        "texturePath": "textures/infrastructure/pasture_tile.png",
+        "constructionCosts": {
+            "resource.brick": 2
+        },
+        "maxQuantity": 0,
+        "victoryPoints": 0
     }
 ]
