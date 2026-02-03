@@ -52,7 +52,7 @@ public class BankCards {
         Collection<DisasterCardConfig> disasterCardsConfig = ConfigService.getAllDisasterCards();
         for (DisasterCardConfig disasterCard : disasterCardsConfig) {
             for (int i = 0; i < disasterCard.count; i++) {
-                disasterCards.add(disasterCard.id);
+                disasterCards.add(disasterCard.tileAffected);
             }
         }
     }
