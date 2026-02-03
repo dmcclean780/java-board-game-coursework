@@ -459,17 +459,18 @@ public class GameModel {
         if (!removed) return false;
 
         // dispatch to the appropriate effect handler
+        boolean success = false;
         switch (action) {
-            case "ECO_CONFERENCE" -> applyEcoConference(playerId);
-            case "HIGHWAY_MADNESS" -> applyHighwayMadness(playerId);
-            case "TRADING_FRENZY" -> applyTradingFrenzy(playerId);
-            case "MONOPOLY" -> applyMonopoly(playerId);
+            case "ECO_CONFERENCE" -> success = applyEcoConference(playerId);
+            case "HIGHWAY_MADNESS" -> success = applyHighwayMadness(playerId);
+            case "TRADING_FRENZY" -> success = applyTradingFrenzy(playerId);
+            case "MONOPOLY" -> success = applyMonopoly(playerId);
             default -> {
                 // unknown action: no-op for now
             }
         }
 
-        return true;
+        return success;
     }
 
     public int getPlayerVictoryPoints(int playerId) {
@@ -479,23 +480,66 @@ public class GameModel {
         return points;
     }
 
-    public void applyEcoConference(int playerId) {
+    public boolean applyEcoConference(int playerId) {
         // TODO: implement ECO_CONFERENCE effect
+        // move robber and steal a resource from a player with a settlement on that tile
+        return false;
     }
 
-    public void applyHighwayMadness(int playerId) {
+    public boolean  applyHighwayMadness(int playerId) {
         // TODO: implement HIGHWAY_MADNESS effect
-        //also increase climate tracker
+        // build two free roads
+        //need to select edges for the roads
+        int edgeIndex = 0; //placeholder
+        boolean success_build = roads.buildRoad(edgeIndex, playerId);
+        increaseClimateAndDistributeDisasterCards();
+        return success_build;
     }
 
-    public void applyTradingFrenzy(int playerId) {
+    public boolean  applyTradingFrenzy(int playerId) {
         // TODO: implement TRADING_FRENZY effect
         //also increase climate tracker
+        // take any three resource cards from the bank
+        // atm just does one card bc idk how to do different types of card
+        //NEED TO FIX
+        ResourceConfig resourceId = null; //placeholder
+        TradeFrenzy trade = new TradeFrenzy(playerId, resourceId);
+
+        Player player = getPlayer(trade.playerId());
+
+        bankCards.giveResourceCard(trade.recieveResource(), 1);
+        player.changeResourceCount(trade.recieveResource(), +1);
+
+        increaseClimateAndDistributeDisasterCards();
+
+        return true;
     }
 
-    public void applyMonopoly(int playerId) {
+    public boolean applyMonopoly(int playerId) {
         // TODO: implement MONOPOLY effect
         //also increase climate tracker
+        // choose a resource and every player gives you all their cards of that resource
+        ResourceConfig resourceId = null; //placeholder
+
+        int totalCollected = 0;
+        for (Player other : players) {
+            if (other.getId() == playerId) continue;
+            int amt = other.getResourceCount(resourceId);
+            if (amt <= 0) continue;
+            boolean removed = other.changeResourceCount(resourceId, -amt);
+            if (removed) {
+                totalCollected += amt;
+            }
+        }
+
+        if (totalCollected > 0) {
+            Player player = getPlayer(playerId);
+            player.changeResourceCount(resourceId, totalCollected);
+        }
+
+        increaseClimateAndDistributeDisasterCards();
+
+        return true;
     }
 
     // TESTING METHODS
