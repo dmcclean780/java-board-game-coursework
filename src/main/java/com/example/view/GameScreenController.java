@@ -107,69 +107,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             addPlayerRow(players.get(i), i);
         }
 
-<<<<<<< HEAD
-        // --- Initialize UI with first current player ---
-        if (!players.isEmpty()) {
-            setCurrentPlayer(0);
-        }
-
-        buildSettlementButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildSettlement").not());
-
-        buildCityButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildCity").not());
-
-        buildRoadButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildRoad").not());
-    }
-
-    private Label getLabelFromPane(StackPane pane) {
-        return pane.getChildren()
-                .stream()
-                .filter(n -> n instanceof Label)
-                .map(n -> (Label) n)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Label"));
-    }
-
-    private Polygon getBoxFromPane(StackPane pane) {
-        return pane.getChildren()
-                .stream()
-                .filter(n -> n instanceof Polygon)
-                .map(n -> (Polygon) n)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Polygon"));
-    }
-
-    private void assignPlayersToPanes(int currentPlayerIndex) {
-        ObservableList<PlayerViewState> players = viewModel.playersProperty();
-        if (players.isEmpty())
-            return;
-
-        currentPlayerIndex = currentPlayerIndex % players.size();
-
-        // ---- CURRENT PLAYER ----
-        PlayerViewState current = players.get(currentPlayerIndex);
-        String currentPlayerName = current.nameProperty().get();
-        getLabelFromPane(currentPlayerPane).setText(currentPlayerName);
-
-        Color currentColor = PLAYER_COLORS[currentPlayerIndex];
-        bottomBackground.setFill(currentColor);
-        bottomBackground.setStroke(Color.rgb(7, 4, 60));
-        bottomBackground.setStrokeWidth(3);
-        currentPlayerBox.setFill(currentColor);
-
-        // ---- OTHER PLAYERS ----
-        for (int i = 1; i <= 3; i++) {
-            int playerIndex = (currentPlayerIndex + i) % players.size();
-            PlayerViewState player = players.get(playerIndex);
-
-            StackPane pane;
-            switch (i) {
-                case 1 -> pane = player1Pane;
-                case 2 -> pane = player2Pane;
-                default -> pane = player3Pane;
-=======
         // Listen for changes
         players.addListener((ListChangeListener<PlayerViewState>) change -> {
             while (change.next()) {
@@ -184,7 +121,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                         removePlayerRow(p);
                     }
                 }
->>>>>>> main
             }
         });
 

@@ -76,24 +76,10 @@
             onAction="#giveRoadResources" />
     </VBox>
 
-<<<<<<< HEAD
-        <!-- euan stuff: Position player 1 indicator on top-left -->
-        <StackPane fx:id="player1Pane" alignment="CENTER" layoutX="10" layoutY="10">
-            <Polygon fx:id="player1Box"
-                    styleClass="parallelogram">
-                <points>
-                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
-                    <Double fx:value="250.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="285.0"/>  <Double fx:value="60.0"/>
-                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
-                </points>
-            </Polygon>
-=======
     <Pane fx:id="playerColumnPane" layoutX="717" prefWidth="819" prefHeight="864">
 
         <StackPane fx:id="climateTrackerBox" alignment="TOP_RIGHT" layoutX="0" layoutY="0"
             prefWidth="768" prefHeight="150">
->>>>>>> main
 
         </StackPane>
 
