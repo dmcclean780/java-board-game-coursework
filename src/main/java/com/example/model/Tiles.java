@@ -162,4 +162,18 @@ public class Tiles {
     }
 
     
+    //Find robber tile and change it to the new robber tile
+    public void changeBlockedTile(int destinationTileIndex){
+        for (Tile tile : tiles){
+            if (tile.getIsBlocked()){
+                tile.setIsBlocked(false);
+                break;
+            }
+        }
+
+        tiles[destinationTileIndex].setIsBlocked(true);
+        System.out.println("Robber moved to tile " + destinationTileIndex);
+    }
+
+    
 }

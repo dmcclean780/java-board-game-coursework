@@ -206,9 +206,11 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private void bindTile(int index, TileViewState state) {
         state.number.addListener((obs, old, val) -> {
             setTile(index, val.intValue(), resolveColor(state.resource.get()));
+            attachTileClickHandler(index, tileGroup[index]);
         });
 
         setTile(index, state.number.get(), resolveColor(state.resource.get()));
+        attachTileClickHandler(index, tileGroup[index]);
     }
 
     private void bindVertex(int id, VertexViewState state) {
@@ -597,6 +599,13 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         tile.getChildren().add(pips);
     }
 
+    private void attachTileClickHandler(int index, Group tile){
+        tile.setOnMouseClicked(event ->{
+            event.consume();
+            viewModel.moveRobber(index);
+        });
+    }
+
     private void setVertex(int vertexId, int playerOwner, String type) {
         if (vertexId < 0 || vertexId >= vertexNodes.length || vertexNodes[vertexId] == null) {
             return;
@@ -884,6 +893,11 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     public void switchToBUILDINGPHASE() {
         viewModel.switchToBuildState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToMOVEROBBERPHASE(){
+        viewModel.switchToMoveRobberState();
         System.out.println(viewModel.getTurnState());
     }
 

@@ -261,7 +261,7 @@ public class GameModel {
                 }
 
                 //find the player who owns the settlement
-                Player player = getPlayerFromID(currentSettlement.getPlayerID());
+                Player player = getPlayer(currentSettlement.getPlayerID());
                 if (player == null) {throw new IllegalStateException("Player not found for settlement");}
 
                 int production = 1;
@@ -282,15 +282,45 @@ public class GameModel {
         }
     }
 
-    public Player getPlayerFromID(int ID){
+
+    //method to trigger the robber
+    public void moveRobber(int tileIndex){
+        tiles.changeBlockedTile(tileIndex);
+
+        //checkPlayerResources is triggered from the robber button click
+        //knight cards trigger the moveRobber method and NOT checkPlayerRobbers
+    }
+
+    //check if player has more than 7 resources and discard their cards randomly
+    public void checkPlayerResources(){
         for (Player player : players){
-            if (player.getId() == ID){
-                //found player
-                return player;
+            //get total resource count
+            int cardCount = 0;
+            ArrayList<ResourceConfig> playerResources = new ArrayList<ResourceConfig>();
+            Collection<ResourceConfig> allResources = ConfigService.getAllResources();
+            for (ResourceConfig resource : allResources){
+                cardCount += player.getResourceCount(resource);
+                for (int i = 0; i < player.getResourceCount(resource); i++){
+                    playerResources.add(resource);
+                }
+            }
+
+            //calculate card count to be discarded
+            int cardsToDiscard = 0;
+            if (cardCount < 8){
+                //none to be discarded
+                return;
+            }
+            else{
+                cardsToDiscard = (int)Math.floor(cardCount / 2);
+            }
+
+            //randomly discard the amount of cards
+            for (int i = 0; i < cardsToDiscard; i++){
+                int randomNum = (int)(Math.random() * (cardCount - i) + 1);
+                player.changeResourceCount(playerResources.get(randomNum), -1);
             }
         }
-        //failed
-        return null;
     }
 
 
