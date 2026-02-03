@@ -1,16 +1,14 @@
 package com.example.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-
 
 import com.example.model.config.PlayerInfrastructureConfig;
-
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
-import com.example.model.trading.*;
+import com.example.model.trading.TradeBank;
+import com.example.model.trading.TradePlayer;
+import com.example.model.trading.TradePort;
 
 public class GameModel {
     private ArrayList<Player> players;
@@ -112,39 +110,53 @@ public class GameModel {
     }
 
     public boolean buildSettlement(int vertex, int playerID) {
+        Player player = getPlayer(playerID);
         boolean success_build = settlements.buildSettlement(vertex, playerID);
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
-        boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
-        return success_resources && success_build;
+        boolean success_resources = player.deductStructureResources(structureID);
+        boolean success_pieces = player.changeStructuresRemainingByType("player_infrastructure.settlement", -1);
+
+        // add victory point
+        player.changeVictoryPoints(+1);
+        return success_resources && success_pieces && success_build;
     }
 
     public boolean playerHasSettlementResources(int playerID) {
         Player player = getPlayer(playerID);
-        return player.hasEnoughResourcesForStructure("player_infrastructure.settlement");
+        return player.hasEnoughResourcesForStructure("player_infrastructure.settlement") && player.getStructuresRemaining("player_infrastructure.settlement") > 0;
     }
 
     public boolean buildCity(int vertex, int playerID) {
+        Player player = getPlayer(playerID);
         boolean success_upgrade = settlements.upgradeSettlement(vertex, playerID);
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
-        boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
-        return success_resources && success_upgrade;
+        boolean success_resources = player.deductStructureResources(structureID);
+        // building a city removes a city and adds a settlement from pieces
+        boolean success_pieces = player.changeStructuresRemainingByType("player_infrastructure.city", -1)
+                              && player.changeStructuresRemainingByType("player_infrastructure.settlement", +1);
+        
+        // add victory point
+        player.changeVictoryPoints(+1);
+        return success_resources && success_pieces && success_upgrade;
     }
 
     public boolean playerHasCityResources(int playerID) {
         Player player = getPlayer(playerID);
-        return player.hasEnoughResourcesForStructure("player_infrastructure.city");
+        return player.hasEnoughResourcesForStructure("player_infrastructure.city") && player.getStructuresRemaining("player_infrastructure.city") > 0;
     }
 
     public boolean buildRoad(int edgeIndex, int playerID) {
+        Player player = getPlayer(playerID);
         boolean success_build = roads.buildRoad(edgeIndex, playerID);
         String structureID = roads.getAllRoads()[edgeIndex].getRoadType();
-        boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
-        return success_resources && success_build;
+        boolean success_resources = player.deductStructureResources(structureID);
+        boolean success_pieces = player.changeStructuresRemainingByType("player_infrastructure.road", -1);
+        return success_resources && success_pieces && success_build;
     }
 
     public boolean playerHasRoadResources(int playerID) {
         Player player = getPlayer(playerID);
-        return player.hasEnoughResourcesForStructure("player_infrastructure.road");
+        return player.hasEnoughResourcesForStructure("player_infrastructure.road") && player.getStructuresRemaining("player_infrastructure.road") > 0;
     }
 
 
