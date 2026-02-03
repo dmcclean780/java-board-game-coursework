@@ -1,12 +1,14 @@
 package com.example.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.example.model.config.PlayerInfrastructureConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
 import com.example.model.trading.TradeBank;
+import com.example.model.trading.TradeFrenzy;
 import com.example.model.trading.TradePlayer;
 import com.example.model.trading.TradePort;
 
@@ -486,7 +488,7 @@ public class GameModel {
         String action = cfg.actionType == null ? "" : cfg.actionType;
         if ("VICTORY_POINT".equals(action)) {
             // award invisible VP immediately and do NOT add the card to hand
-            player.addInvisibleVictoryPoints(1);
+            player.changeHiddenVictoryPoints(+1);
             return;
         }
 
@@ -531,7 +533,7 @@ public class GameModel {
     public int getPlayerVictoryPoints(int playerId) {
         Player p = getPlayer(playerId);
         int points = p.getVictoryPoints(playerId);
-        if (p != null) points += p.getInvisibleVictoryPoints();
+        if (p != null) points += p.getHiddenVictoryPoints();
         return points;
     }
 
