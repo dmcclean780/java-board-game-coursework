@@ -39,7 +39,7 @@
             "resource.sheep": 1,
             "resource.wheat": 1
         },
-        "maxQuantity": 0,
+        "maxQuantity": 25,
         "victoryPoints": 0
     },
     {
