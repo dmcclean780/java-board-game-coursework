@@ -115,18 +115,30 @@ public class RoadsTest {
     }
 
     @Test
-    public void testGetAllRoads() {
+    public void testGetAllOwnedRoads() {
         roads.buildRoad(0, 1);
         roads.buildRoad(1, 1);
         roads.buildRoad(5, 2);
         
-        Road[] ownedRoads = roads.getAllRoads();
+        Road[] ownedRoads = roads.getAllOwnedRoads();
         assertEquals(3, ownedRoads.length);
     }
 
     @Test
-    public void testGetAllRoadsEmpty() {
-        Road[] ownedRoads = roads.getAllRoads();
+    public void testGetAllRoads() {
+        
+        Road[] allRoads = roads.getAllRoads();
+        assertEquals(Roads.NUMBER_OF_ROADS, allRoads.length);
+        for (Road r : allRoads) {
+            
+            assertEquals(Roads.UNOWNED_ROAD_ID, r.getPlayerID());
+            
+        }
+    }
+
+    @Test
+    public void testGetAllOwnedRoadsEmpty() {
+        Road[] ownedRoads = roads.getAllOwnedRoads();
         assertEquals(0, ownedRoads.length);
     }
 
