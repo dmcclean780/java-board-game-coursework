@@ -1,6 +1,6 @@
 package com.example.view;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,35 +8,36 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.viewmodel.GameViewModel;
+import com.example.viewmodel.PlayerViewState;
+import com.example.viewmodel.RoadViewState;
 import com.example.viewmodel.TileViewState;
 import com.example.viewmodel.VertexViewState;
-import com.example.viewmodel.RoadViewState;
-import com.example.viewmodel.PlayerViewState;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.Group;
-import javafx.beans.binding.Bindings;
+import javafx.scene.Node;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
 
     @FXML
-    private Font oswaldFont;
+    private Font mainFont;
     @FXML
     private Pane vertexPane;
     @FXML
@@ -48,42 +49,15 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML
     private Polygon mainPentagon;
     @FXML
-    private Label player1Display, player2Display, player3Display, currentPlayerDisplay;
-    @FXML
     private Pane rootPane, catanBoardPane;
-
     @FXML
     private Pane playerColumnPane;
 
     @FXML
-    private Rectangle bottomBackground;
-    @FXML
-    private StackPane currentPlayerPane;
-    @FXML
-    private StackPane player1Pane;
-    @FXML
-    private StackPane player2Pane;
-    @FXML
-    private StackPane player3Pane;
-    @FXML
-    private Polygon currentPlayerBox;
+    private VBox playerList;
 
     @FXML
-    private Label currentPlayerText;
-
-    @FXML
-    private Button buildSettlementButton;
-    @FXML
-    private Button buildCityButton;
-    @FXML
-    private Button buildRoadButton;
-
-    private static final Color[] PLAYER_COLORS = {
-            Color.web("#e43b29"), // player 1 red
-            Color.web("#4fa6eb"), // player 2 blue
-            Color.web("#f0ad00"), // player 3 yellow
-            Color.web("#517d19") // player 4 green
-    };
+    private Pane bottomPane;
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
@@ -106,7 +80,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bindTile(i, viewModel.tilesProperty().get(i));
         }
 
-         // --- Ports FIRST ---
+        // --- Ports FIRST ---
         mapPortsToVertices(viewModel.getPorts());
 
         // --- Vertex positions FIRST ---
@@ -125,82 +99,65 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             bindRoad(i, viewModel.roadsProperty().get(i));
         }
 
-       
-        
         // --- Players ---
         ObservableList<PlayerViewState> players = viewModel.playersProperty();
-        for (PlayerViewState player : players) {
-            // optional: listen for name changes and update UI if needed
-            player.nameProperty().addListener((obs, oldName, newName) -> {
-            });
+
+        // Initial load
+        for (int i = 0; i < players.size(); i++) {
+            addPlayerRow(players.get(i), i);
         }
 
-        // --- Initialize UI with first current player ---
-        if (!players.isEmpty()) {
-            setCurrentPlayer(0);
-        }
-
-        buildSettlementButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildSettlement").not());
-
-        buildCityButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildCity").not());
-
-        buildRoadButton.disableProperty().bind(
-                Bindings.selectBoolean(viewModel.currentPlayerProperty(), "canBuildRoad").not());
-    }
-
-    private Label getLabelFromPane(StackPane pane) {
-        return pane.getChildren()
-                .stream()
-                .filter(n -> n instanceof Label)
-                .map(n -> (Label) n)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Label"));
-    }
-
-    private Polygon getBoxFromPane(StackPane pane) {
-        return pane.getChildren()
-                .stream()
-                .filter(n -> n instanceof Polygon)
-                .map(n -> (Polygon) n)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("StackPane does not contain a Polygon"));
-    }
-
-    private void assignPlayersToPanes(int currentPlayerIndex) {
-        ObservableList<PlayerViewState> players = viewModel.playersProperty();
-        if (players.isEmpty())
-            return;
-
-        currentPlayerIndex = currentPlayerIndex % players.size();
-
-        // ---- CURRENT PLAYER ----
-        PlayerViewState current = players.get(currentPlayerIndex);
-        String currentPlayerName = current.nameProperty().get();
-        getLabelFromPane(currentPlayerPane).setText(currentPlayerName);
-
-        Color currentColor = PLAYER_COLORS[currentPlayerIndex];
-        bottomBackground.setFill(currentColor);
-        bottomBackground.setStroke(Color.rgb(7, 4, 60));
-        bottomBackground.setStrokeWidth(3);
-        currentPlayerBox.setFill(currentColor);
-
-        // ---- OTHER PLAYERS ----
-        for (int i = 1; i <= 3; i++) {
-            int playerIndex = (currentPlayerIndex + i) % players.size();
-            PlayerViewState player = players.get(playerIndex);
-
-            StackPane pane;
-            switch (i) {
-                case 1 -> pane = player1Pane;
-                case 2 -> pane = player2Pane;
-                default -> pane = player3Pane;
+        // Listen for changes
+        players.addListener((ListChangeListener<PlayerViewState>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (PlayerViewState p : change.getAddedSubList()) {
+                        int index = players.indexOf(p);
+                        addPlayerRow(p, index);
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (PlayerViewState p : change.getRemoved()) {
+                        removePlayerRow(p);
+                    }
+                }
             }
+        });
 
-            getLabelFromPane(pane).setText(player.nameProperty().get());
-            getBoxFromPane(pane).setFill(PLAYER_COLORS[playerIndex]);
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/currentPlayer.fxml"));
+            Node node = loader.load();
+
+            CurrentPlayerController ctrl = loader.getController();
+            ctrl.bindCurrentPlayer(viewModel);
+            bottomPane.getChildren().add(node);
+            
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+    }
+
+    private void addPlayerRow(PlayerViewState player, int index) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/player.fxml"));
+            Node row = loader.load();
+            PlayerController ctrl = loader.getController();
+            ctrl.bind(player);
+
+            row.setTranslateX(60 * index);
+            row.setUserData(player); // store reference for removal
+            playerList.getChildren().add(row);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void removePlayerRow(PlayerViewState player) {
+        playerList.getChildren().removeIf(node -> node.getUserData() == player);
     }
 
     private void bindTile(int index, TileViewState state) {
@@ -209,8 +166,13 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             attachTileClickHandler(index, tileGroup[index]);
         });
 
+        state.blocked.addListener((obs, old, val) -> {
+            setTileDisabled(index, val);
+        });
+
         setTile(index, state.number.get(), resolveColor(state.resource.get()));
         attachTileClickHandler(index, tileGroup[index]);
+        setTileDisabled(index, state.blocked.get());
     }
 
     private void bindVertex(int id, VertexViewState state) {
@@ -259,50 +221,24 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     public void initialize() {
-        // Load Oswald font from classpath
-        InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
-        if (fontStream != null) {
-            oswaldFont = Font.loadFont(fontStream, 20); // set font size
-            System.out.println("Oswald font loaded successfully.");
-        } else {
-            System.out.println("Failed to load Oswald font, using default.");
-            oswaldFont = Font.font(20);
+
+        // Load font from classpath
+        try {
+            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 20);
+            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 20);
+        } catch (Exception e) {
+            throw new IllegalStateException("JavaFX failed to load font:  Noto Sans");
         }
-
-        Platform.runLater(() -> {
-            // Full width
-            bottomBackground.widthProperty().bind(rootPane.widthProperty());
-
-            // Half height
-            bottomBackground.heightProperty().bind(rootPane.heightProperty().divide(2));
-
-            // Position at halfway point
-            bottomBackground.yProperty().bind(rootPane.heightProperty().divide(2));
-
-            // Set fill AFTER sizing
-            bottomBackground.setFill(PLAYER_COLORS[0]);
-            currentPlayerBox.setFill(PLAYER_COLORS[0]);
-
-            bottomBackground.toBack();
-        });
 
         mainPentagon.setTranslateX(-rootPane.getWidth() / 2);
         mainPentagon.setTranslateY(-rootPane.getHeight() / 2);
 
-        createPlayerNames();
-
-        // Defer setting the current player until UI is ready
-        Platform.runLater(() -> {
-            if (!viewModel.playersProperty().isEmpty()) {
-                setCurrentPlayer(3);
-            }
-        });
-
         System.out.println("GameScreenV initialized"); // Debug
 
         createCatanBoard(rootPane);
+        playerColumnPane.toBack();
+        mainPentagon.toBack();
 
-        addPlayerSwitchButtons();
     }
 
     private void mapPortsToVertices(int[][] ports) {
@@ -339,7 +275,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         }
 
         Text outlineText = new Text(displayStr);
-        outlineText.setFont(Font.loadFont(getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf"), 50));
+        outlineText.setFont(mainFont);
         outlineText.setFill(Color.BLACK);
         outlineText.setStroke(Color.BLACK);
         outlineText.setStrokeWidth(6);
@@ -615,9 +551,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         vertexPane.getChildren().remove(vertexNodes[vertexId]);
 
         // Determine color based on owner
-        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) ? playerColors[playerOwner]
-                : Color.GRAY;
+        Color fillColor = viewModel.getPlayerColor(playerOwner);
 
         // Create new node depending on type
         double layoutX = vertexNodes[vertexId].getLayoutX();
@@ -704,10 +638,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             return;
         }
 
-        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
-        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length)
-                ? playerColors[playerOwner]
-                : Color.GRAY;
+        Color fillColor = viewModel.getPlayerColor(playerOwner);
 
         Shape roadShape = roadNodes[roadId];
         if (roadShape instanceof Rectangle rect) {
@@ -742,7 +673,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         return index >= 0 && index < tileGroup.length && tileGroup[index] != null;
     }
 
-    public void highlightTile(int index, boolean highlight) {
+    private void highlightTile(int index, boolean highlight) {
         if (!isValidIndex(index))
             return;
 
@@ -753,7 +684,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         });
     }
 
-    public void setTileDisabled(int index, boolean disabled) {
+    private void setTileDisabled(int index, boolean disabled) {
         if (!isValidIndex(index))
             return;
 
@@ -908,7 +839,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     public void setCurrentPlayer(int currentPlayerIndex) {
         // then update UI
-        assignPlayersToPanes(currentPlayerIndex);
+        // assignPlayersToPanes(currentPlayerIndex);
     }
 
     public void giveSettlementResources() {
@@ -924,64 +855,5 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     public void giveRoadResources() {
         viewModel.giveRoadResources();
         System.out.println("Gave road resources to current player.");
-    }
-
-    private void setPaneColor(StackPane pane, Color color) {
-        pane.setBackground(new javafx.scene.layout.Background(
-                new javafx.scene.layout.BackgroundFill(
-                        color,
-                        new javafx.scene.layout.CornerRadii(8),
-                        javafx.geometry.Insets.EMPTY)));
-    }
-
-    private void createPlayerNames() {
-        Platform.runLater(() -> {
-
-            double centerY = rootPane.getHeight() / 2.0;
-            double currentHeight = currentPlayerPane.getBoundsInParent().getHeight();
-
-            double currentYOffset = 90; // ↓ move current player down
-            double normalGap = 85;
-            double firstGap = 140;
-            double slantX = -50;
-
-            currentPlayerPane.setLayoutX(-50);
-            currentPlayerPane.setLayoutY(centerY - currentHeight / 2 + currentYOffset);
-            currentPlayerText.setLayoutX(10);
-            currentPlayerText.setLayoutY(centerY - currentHeight / 2 + currentYOffset - 35);
-
-            player1Pane.setLayoutY(currentPlayerPane.getLayoutY() - firstGap);
-            player1Pane.setLayoutX(slantX + 10);
-
-            player2Pane.setLayoutY(player1Pane.getLayoutY() - normalGap);
-            player2Pane.setLayoutX(slantX * 2 + 10);
-
-            player3Pane.setLayoutY(player2Pane.getLayoutY() - normalGap);
-            player3Pane.setLayoutX(slantX * 3 + 10);
-        });
-    }
-
-    // TEMP TEST CODE
-    private void addPlayerSwitchButtons() {
-        Platform.runLater(() -> {
-            double buttonWidth = 80;
-            double buttonHeight = 30;
-            double startX = 20;
-            double startY = 20;
-            double gap = 10;
-
-            for (int i = 0; i < 4; i++) {
-                int playerIndex = i;
-                javafx.scene.control.Button btn = new javafx.scene.control.Button("Player " + (i + 1));
-                btn.setLayoutX(startX);
-                btn.setLayoutY(startY + i * (buttonHeight + gap));
-                btn.setPrefSize(buttonWidth, buttonHeight);
-
-                btn.setOnAction(e -> setCurrentPlayer(playerIndex));
-
-                rootPane.getChildren().add(btn);
-            }
-
-        });
     }
 }
