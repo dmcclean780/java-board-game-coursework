@@ -1,17 +1,17 @@
 package com.example.view;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-
 import java.io.IOException;
 
 import com.example.model.GameModel;
 import com.example.model.config.ConfigManager;
 import com.example.service.NavigationService;
 import com.example.viewmodel.TitleViewModel;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 /**
  * JavaFX App
  */
@@ -29,6 +29,7 @@ public class App extends Application {
         TitleViewModel titleVM = new TitleViewModel(model, navigationService);
         navigationService.navigateTo("titleScreen", titleVM);
 
+        // Font.getFamilies().forEach(System.out::println);
     }
 
     static void setRoot(String fxml) throws IOException {

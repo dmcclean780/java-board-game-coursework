@@ -72,10 +72,10 @@ public class LangManager {
                         if (name != null && !name.isBlank()) {
                             languages.put(path.getFileName().toString().replace(".json", ""), name);
                         } else {
-                            System.err.println("⚠️ Skipping language file without name: " + path);
+                            System.err.println("Skipping language file without name: " + path);
                         }
                     } catch (Exception e) {
-                        System.err.println("❌ Failed to read " + path + ": " + e.getMessage());
+                        System.err.println("Failed to read " + path + ": " + e.getMessage());
                     }
                 }
             }

@@ -3,8 +3,6 @@ package com.example.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-
 import java.util.Map;
 import java.util.Random;
 
@@ -16,7 +14,7 @@ public class Tiles {
 
     // Board size, change if a bigger/smaller board is desired
     // 19 is a normal 3 hex-per-side board
-    private final int NUMBER_OF_HEXES = 19;
+    public static final int NUMBER_OF_HEXES = 19;
 
     public Tiles() {
         this.tiles = setUpTiles();
@@ -53,13 +51,22 @@ public class Tiles {
         // Shuffle the bag
         java.util.Collections.shuffle(tileBag);
 
+        int desertIndex = 0;
+
         // Assign shuffled tiles to the tile array
         for (int i = 0; i < NUMBER_OF_HEXES; i++) {
+    
             tiles[i].setTileID(tileBag.get(i));
+            
+            String resourceID = ConfigService.getTile(tiles[i].getTileID()).resourceID;
+            if (resourceID.isEmpty()) {
+                desertIndex = i;
+            }
         }
 
         // Assign numbers and block deserts
-        int[] numberSequence = generateTileNumberSequence(); // should have 19 numbers, 0 for deserts
+        int[] tokens = getTokens();
+        int[] numberSequence = generateValidLayout(tokens, desertIndex); // should have 19 numbers, 0 for deserts
         int numberIndex = 0;
 
         for (int i = 0; i < NUMBER_OF_HEXES; i++) {
@@ -71,6 +78,7 @@ public class Tiles {
                 tile.setNumber(0); // desert has no number
             } else {
                 tile.setIsBlocked(false);
+                tile.setIsDestroyed(false);
                 tile.setNumber(numberSequence[numberIndex]);
                 numberIndex++;
             }
@@ -80,7 +88,7 @@ public class Tiles {
         return setAdjVerticesForEachTile(tiles);
     }
 
-    private int[] generateTileNumberSequence() {
+    private int[] getTokens() {
         Map<Integer, Integer> numberTokens = ConfigService.getNumberTokens();
         int NUMBER_OF_TOKENS = numberTokens.values().stream().mapToInt(Integer::intValue).sum();
         int[] sequence = new int[NUMBER_OF_TOKENS];
@@ -94,12 +102,12 @@ public class Tiles {
             }
         }
 
-        return generateValidLayout(sequence);
+        return sequence;
     }
 
     private static final int MAX_ATTEMPTS = 30000000;
 
-    private static int[] generateValidLayout(int[] tokens) {
+    private static int[] generateValidLayout(int[] tokens, int desertIndex) {
         Random rand = new Random();
 
         // Convert int[] → mutable List<Integer>
@@ -110,6 +118,8 @@ public class Tiles {
 
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             Collections.shuffle(layout, rand);
+            layout.remove(Integer.valueOf(-1)); // remove desert placeholder
+            layout.add(desertIndex, -1); // add desert back in the correct spot
 
             if (isValidLayout(layout)) {
                 layout.remove(Integer.valueOf(-1)); // remove desert placeholder
@@ -140,6 +150,51 @@ public class Tiles {
         }
 
         return tiles;
+    }
+
+    //need to make sure its not destroying the same tile every time
+    public boolean destroyTile(String tileID){
+        ArrayList<Tile> canDestroy = new ArrayList<>();
+        for (Tile tile : tiles) {
+            if (tile.getTileID().equals(tileID) && !tile.getIsDestroyed()) {
+                canDestroy.add(tile);
+            }
+        }
+        if (!canDestroy.isEmpty()) {
+            Random rand = new Random();
+            int index = rand.nextInt(canDestroy.size());
+            canDestroy.get(index).setIsDestroyed(true);
+            return true;
+        }
+        return false;
+    }
+
+    //fix to be tile index instead of id
+    public boolean restoreTile(int tileIndex){
+        if (tileIndex >= 0 && tileIndex < tiles.length && tiles[tileIndex].getIsDestroyed()) {
+            tiles[tileIndex].setIsDestroyed(false);
+            return true;
+        }
+        return false;
+    }
+
+
+
+    //Find tiles based off of a diceroll
+    public ArrayList<Tile> GetTilesFromDiceroll(int diceroll){
+        ArrayList<Tile> tilesWithDiceroll = new ArrayList<Tile>();
+        Tile[] allTiles = getTiles();
+
+        //check if each tile has diceroll value (And isn't blocked)
+        for (int i = 0; i < allTiles.length; i++){
+            if (allTiles[i].getNumber() == diceroll){
+                //tile has the desired value
+                if (!allTiles[i].getIsBlocked())
+                    tilesWithDiceroll.add(allTiles[i]);
+            }
+        }
+
+        return tilesWithDiceroll;
     }
 
     

@@ -18,10 +18,10 @@ public final class ConfigManager {
     public static void loadAll() {
         ObjectMapper mapper = new ObjectMapper();
 
-        // 1️⃣ Load singleton GameRulesConfig first
+        // Load singleton GameRulesConfig first
         GameRulesRegistry.load(mapper, "/config/game_rules.json");
 
-        // 2️⃣ Load registries
+        // Load registries
         ResourceRegistry.getInstance().load(mapper);
         DevCardRegistry.getInstance().load(mapper);
         PortRegistry.getInstance().load(mapper);
@@ -31,7 +31,7 @@ public final class ConfigManager {
 
         LangManager.load(mapper, "en_us");
 
-        // 3️⃣ Optional: validate cross-references
+        // Optional: validate cross-references
         // validateConfigs();
     }
 

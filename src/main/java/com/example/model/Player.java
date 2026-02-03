@@ -22,6 +22,13 @@ public class Player {
     private HashMap<ResourceConfig, Integer> resources;
     private ArrayList<String> devCards;
     private HashMap<String, Integer> structuresRemaining;
+    private int victoryPoints = 0;
+
+    //for victory points from dev cards
+    private int invisibleVictoryPoints = 0;
+
+    private int victoryPoints;
+    private int hiddenVictoryPoints;
 
     /**
      * Player Class Constructor
@@ -48,6 +55,9 @@ public class Player {
             int startingCount = ConfigService.getInfrastructure(structureTypes.get(i)).maxQuantity;
             this.structuresRemaining.put(structureTypes.get(i), startingCount);
         }
+
+        victoryPoints = 0;
+        hiddenVictoryPoints = 0;
     }
 
     /**
@@ -168,6 +178,24 @@ public class Player {
         this.devCards.add(card);
 
         return true;
+    }
+
+    /**
+     * Remove the first occurrence of a development card from the player's hand.
+     * @return true if a card was removed
+     */
+    public boolean removeCard(String card) {
+        return this.devCards.remove(card);
+    }
+
+    /** Returns invisible victory points (from dev-cards). */
+    public int getInvisibleVictoryPoints() { return this.invisibleVictoryPoints; }
+
+    /** Adds invisible victory points (used when drawing VICTORY_POINT dev cards). */
+    public void addInvisibleVictoryPoints(int amount) { this.invisibleVictoryPoints += amount; }
+
+    public int getVictoryPoints(int playerId) {
+        return this.victoryPoints;
     }
 
     /**
@@ -299,7 +327,7 @@ public class Player {
      */
     @Override
     public String toString() {
-        return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", devCards=" + this.devCards + ", structuresRemaining=" + this.structuresRemaining + " }";
+        return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", devCards=" + this.devCards + ", invisibleVP=" + this.invisibleVictoryPoints + ", structuresRemaining=" + this.structuresRemaining + " }";
     }
 
     public boolean hasEnoughResourcesForStructure(String structureType) {
@@ -326,5 +354,37 @@ public class Player {
             success = success && this.changeResourceCount(resourceConfig, -cost);
         }
         return success;
+    }
+
+    public ArrayList<Integer> getResourceCountsList() {
+        ArrayList<Integer> counts = new ArrayList<>();
+        for (ResourceConfig resource : ResourceRegistry.getInstance().all()) {
+            System.out.println("Getting resource count for: " + resource.id);
+            counts.add(this.getResourceCount(resource));
+        }
+        return counts;
+    }
+
+    public HashMap<ResourceConfig, Integer> getResourcesMap() {
+        return this.resources;
+    }
+
+    public int getTotalVictoryPoints() {
+        return victoryPoints + hiddenVictoryPoints;
+    }
+    public int getKnownVictoryPoints() {
+        return victoryPoints;
+    }
+
+    public int getHiddenVictoryPoints() {
+        return hiddenVictoryPoints;
+    }
+
+    public void changeVictoryPoints(int amount) {
+        victoryPoints += amount;
+    }
+
+    public void changeHiddenVictoryPoints(int amount) {
+        hiddenVictoryPoints += amount;
     }
 }

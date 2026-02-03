@@ -17,55 +17,66 @@
 <?import javafx.scene.shape.Circle?>
 
 <Pane fx:id="rootPane"
-      prefHeight="864.0"
-      prefWidth="1536.0"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.example.view.GameScreenController">
+    prefHeight="864.0"
+    prefWidth="1536.0"
+    xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.example.view.GameScreenController">
 
-    <!-- Bottom-half background -->
-    <Rectangle fx:id="bottomBackground"/>
 
     <!-- Large left-side pentagon -->
     <Polygon fx:id="mainPentagon"
-             fill="rgb(5, 0, 88)"
-             stroke="BLACK"
-             strokeWidth="4"
-             layoutX="0"
-             layoutY="0">
+        fill="rgb(5, 0, 88)"
+        stroke="BLACK"
+        strokeWidth="4"
+        layoutX="0"
+        layoutY="0">
         <points>
             <!-- Top-left corner -->
-            <Double fx:value="0.0"/><Double fx:value="0.0"/>
+            <Double fx:value="0.0" />
+            <Double fx:value="0.0" />
             <!-- Bottom-left corner -->
-            <Double fx:value="0.0"/><Double fx:value="864.0"/>
+            <Double fx:value="0.0" />
+            <Double fx:value="864.0" />
             <!-- Bottom-center -->
-            <Double fx:value="715.0"/><Double fx:value="864.0"/>
+            <Double fx:value="715.0" />
+            <Double fx:value="864.0" />
             <!-- Top-center -->
-            <Double fx:value="715.0"/><Double fx:value="433.0"/>
+            <Double fx:value="715.0" />
+            <Double fx:value="433.0" />
             <!-- Middle point slightly right -->
-            <Double fx:value="715.0"/><Double fx:value="0.0"/>
+            <Double fx:value="715.0" />
+            <Double fx:value="0.0" />
 
         </points>
 
     </Polygon>
 
     <!-- Main board pane with tiles -->
-    <Pane fx:id="borderPane" prefWidth="1000" prefHeight="800"/>
+    <Pane fx:id="borderPane" prefWidth="1000" prefHeight="800" />
 
     <!-- Main board pane with tiles -->
-    <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800"/>
+    <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800" />
 
     <!-- Pane for vertices, automatically on top -->
-    <Pane fx:id="roadsPane" pickOnBounds="false"/>
+    <Pane fx:id="roadsPane" pickOnBounds="false" />
 
     <!-- Pane for vertices, automatically on top -->
-    <Pane fx:id="portsPane" pickOnBounds="false"/>
+    <Pane fx:id="portsPane" pickOnBounds="false" />
 
     <!-- Pane for vertices, automatically on top -->
-    <Pane fx:id="vertexPane" pickOnBounds="false"/>
+    <Pane fx:id="vertexPane" pickOnBounds="false" />
 
-    <Pane fx:id="playerColumnPane" layoutX="960" prefHeight="864">
+    <VBox>
+        <Button fx:id="giveSettlementResourcesButton" text="GIVE SETTLEMENT RESOURCES"
+            onAction="#giveSettlementResources" />
+        <Button fx:id="giveCityResourcesButton" text="GIVE CITY RESOURCES"
+            onAction="#giveCityResources" />
+        <Button fx:id="giveRoadResourcesButton" text="GIVE ROAD RESOURCES"
+            onAction="#giveRoadResources" />
+    </VBox>
 
+<<<<<<< HEAD
         <!-- euan stuff: Position player 1 indicator on top-left -->
         <StackPane fx:id="player1Pane" alignment="CENTER" layoutX="10" layoutY="10">
             <Polygon fx:id="player1Box"
@@ -77,85 +88,27 @@
                     <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
                 </points>
             </Polygon>
+=======
+    <Pane fx:id="playerColumnPane" layoutX="717" prefWidth="819" prefHeight="864">
 
-            <Label fx:id="player1Display"
-                text="Player 1"
-                styleClass="player-label"/>
+        <StackPane fx:id="climateTrackerBox" alignment="TOP_RIGHT" layoutX="0" layoutY="0"
+            prefWidth="768" prefHeight="150">
+>>>>>>> main
+
         </StackPane>
 
-        <StackPane fx:id="player2Pane" alignment="CENTER">
-            <Polygon fx:id="player2Box"
-                    styleClass="parallelogram">
-                <points>
-                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
-                    <Double fx:value="250.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="285.0"/>  <Double fx:value="60.0"/>
-                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
-                </points>
-            </Polygon>
+        <!-- Top half: player list -->
+        <VBox fx:id="playerList" spacing="10" alignment="TOP_CENTER" layoutX="50" layoutY="150"
+            prefWidth="768" prefHeight="282">
 
-            <Label fx:id="player2Display"
-                text="Player 2"
-                styleClass="player-label"/>
-        </StackPane>
+            <!-- Player rows will be added dynamically -->
+        </VBox>
 
-        <StackPane fx:id="player3Pane" alignment="CENTER">
-            <Polygon fx:id="player3Box"
-                    styleClass="parallelogram">
-                <points>
-                    <Double fx:value="0.0"/>    <Double fx:value="0.0"/>
-                    <Double fx:value="250.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="285.0"/>  <Double fx:value="60.0"/>
-                    <Double fx:value="35.0"/>   <Double fx:value="60.0"/>
-                </points>
-            </Polygon>
+        <!-- Bottom half: current player info + bottom HUD -->
+        <Pane fx:id="bottomPane" layoutY="432" prefHeight="432" prefWidth="819">
+            <!-- Added Dynamically Here -->
+        </Pane>
 
-            <Label fx:id="player3Display"
-                text="Player 3"
-                styleClass="player-label"/>
-        </StackPane>
-
-        <!-- repeat for player2Pane / player3Pane -->
-
-
-        <Label fx:id="currentPlayerText"
-                text="Current Player:"
-                styleClass="current-player-text"/>
-
-        <StackPane fx:id="currentPlayerPane" alignment="CENTER">
-            <Polygon fx:id="currentPlayerBox"
-                    styleClass="parallelogram"
-                    fill="#5050A0"
-                    stroke="black"
-                    strokeWidth="8">
-                <points>
-                    <Double fx:value="45.0"/>   <Double fx:value="0.0"/>
-                    <Double fx:value="365.0"/>  <Double fx:value="0.0"/>
-                    <Double fx:value="320.0"/>  <Double fx:value="80.0"/>
-                    <Double fx:value="0.0"/>    <Double fx:value="80.0"/>
-                </points>
-            </Polygon>
-
-            <Label fx:id="currentPlayerDisplay"
-                text="Current Player"
-                styleClass="current-player-label"/>
-
-            <VBox fx:id="currentPlayerResourcesBox"
-                  alignment="CENTER"
-                  spacing="5.0"
-                  layoutY="90.0">
-                <!-- Resource labels will be added here dynamically -->
-                <Button fx:id="buildSettlementButton" text="BUILD_SETTLEMENT" onAction="#switchToBUILDSETTLEMENTPHASE"/>
-                <Button fx:id="buildCityButton" text="BUILD_CITY" onAction="#switchToBUILDCITYPHASE"/>
-                <Button fx:id="buildRoadButton" text="BUILD_ROAD" onAction="#switchToBUILDROADPHASE"/>
-                <Button fx:id="rollDiceButton" text="ROLL_DICE" onAction="#switchToROLLDICEPHASE"/>
-                <Button fx:id="buildPhaseButton" text="BUILD PHASE" onAction="#switchToBUILDINGPHASE"/>
-                <Button fx:id="nextPlayerButton" text="NEXT PLAYER" onAction="#nextPlayer"/>
-                <Button fx:id="giveSettlementResourcesButton" text="GIVE SETTLEMENT RESOURCES" onAction="#giveSettlementResources"/>
-                <Button fx:id="giveCityResourcesButton" text="GIVE CITY RESOURCES" onAction="#giveCityResources"/>
-                <Button fx:id="giveRoadResourcesButton" text="GIVE ROAD RESOURCES" onAction="#giveRoadResources"/>
-            </VBox>
-            </StackPane>
 
         <!-- Bottom HUD Area -->
         <Pane fx:id="hudPane" layoutX="-125" layoutY="560" prefWidth="576" prefHeight="380">
@@ -428,5 +381,9 @@
 
     </Pane>
 
+<<<<<<< HEAD
 
 </Pane>
+=======
+</Pane>
+>>>>>>> main
