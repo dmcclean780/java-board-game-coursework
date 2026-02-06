@@ -11,6 +11,7 @@ import com.example.model.trading.TradeBank;
 import com.example.model.trading.TradeFrenzy;
 import com.example.model.trading.TradePlayer;
 import com.example.model.trading.TradePort;
+import com.example.viewmodel.TurnState;
 
 public class GameModel {
     private ArrayList<Player> players;
@@ -271,7 +272,7 @@ public class GameModel {
 
 
     //method to give players resources based on the dice roll
-    public void GiveResourcesToPlayers(int diceroll){
+    public void giveResourcesToPlayers(int diceroll){
         for (Tile tile : tiles.GetTilesFromDiceroll(diceroll)){
             //get resource of rolled tile
             ResourceConfig resource = tile.getResourceFromTileID();
@@ -598,6 +599,20 @@ public class GameModel {
 
         return true;
     }
+
+    public void rollDice() {
+        int diceRoll = dice.roll();
+        giveResourcesToPlayers(diceRoll);
+    }
+
+    public int getDice1() {
+        return dice.getDie1();
+    }
+
+    public int getDice2() {
+        return dice.getDie2();
+    }
+
 
     // TESTING METHODS
     public void giveSettlementResources(int playerID) {
