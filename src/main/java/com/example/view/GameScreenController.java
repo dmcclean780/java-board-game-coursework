@@ -802,36 +802,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         return hex;
     }
 
-    public void switchToBUILDSETTLEMENTPHASE() {
-        viewModel.switchToBuildSettlementState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDROADPHASE() {
-        viewModel.switchToBuildRoadState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDCITYPHASE() {
-        viewModel.switchToBuildCityState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToROLLDICEPHASE() {
-        viewModel.switchToRollDiceState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDINGPHASE() {
-        viewModel.switchToBuildState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToMOVEROBBERPHASE(){
-        viewModel.switchToMoveRobberState();
-        System.out.println(viewModel.getTurnState());
-    }
-
     public void nextPlayer() {
         viewModel.nextPlayer();
         System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());

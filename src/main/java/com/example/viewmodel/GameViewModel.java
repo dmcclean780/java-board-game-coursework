@@ -18,7 +18,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import javafx.beans.property.SimpleObjectProperty;
 
-
 /**
  * ViewModel for the main game screen.
  * Owns game flow and bridges model -> view.
@@ -29,13 +28,14 @@ public final class GameViewModel {
     private NavigationService navigationService;
 
     private final ObservableList<TileViewState> tiles = FXCollections.observableArrayList();
-    private TurnState turnState = TurnState.DICE_ROLL;
+    private ObjectProperty<TurnState> turnState = new SimpleObjectProperty<>(TurnState.DICE_ROLL);
     private final ObservableList<RoadViewState> roads = FXCollections.observableArrayList();
     private final ObservableList<VertexViewState> vertices = FXCollections.observableArrayList();
     private final ObservableList<PlayerViewState> players = FXCollections.observableArrayList(); // All players except
                                                                                                  // current
     private final ObjectProperty<PlayerViewState> currentPlayer = new SimpleObjectProperty<>(); // Current player
     private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
+    private final ObjectProperty<DiceViewState> diceRoll = new SimpleObjectProperty<>(new DiceViewState());
 
     public GameViewModel(GameModel gameModel, NavigationService navigationService) {
         this.gameModel = gameModel;
@@ -80,6 +80,13 @@ public final class GameViewModel {
             roadState.visible.set(isRoadOwned(i)); // owner defaults to -1
             roads.add(roadState);
         }
+
+        updateDiceRoll();
+    }
+
+    private void updateDiceRoll() {
+        diceRoll.get().dice1Property().set(gameModel.getDice1());
+        diceRoll.get().dice2Property().set(gameModel.getDice2());
     }
 
     private PlayerViewState setUpPlayerViewState(Player player) {
@@ -92,7 +99,7 @@ public final class GameViewModel {
         playerState.scoreProperty().set(0);
         playerState.longestRoadProperty().set(false);
         playerState.cleanestEnvironmentProperty().set(false);
-        playerState.colorProperty().set(getPlayerColor(player.getId() - 1));
+        playerState.colorProperty().set(getPlayerColor(player.getId()));
 
         initPlayerResources(playerState);
         return playerState;
@@ -149,7 +156,7 @@ public final class GameViewModel {
         return currentPlayer.get();
     }
 
-    public TurnState getTurnState() {
+    public ObjectProperty<TurnState> turnStateProperty() {
         return turnState;
     }
 
@@ -161,12 +168,16 @@ public final class GameViewModel {
         return ports;
     }
 
+    public ObjectProperty<DiceViewState> diceRollProperty() {
+        return diceRoll;
+    }
+
     public int[][] getTileVertices() {
         return AdjacencyMaps.TileVertices;
     }
 
     private void buildSettlement(int vertexIndex) {
-        if (turnState != TurnState.BUILD_SETTLEMENT) {
+        if (turnState.get() != TurnState.BUILD_SETTLEMENT) {
             return;
         }
 
@@ -179,7 +190,7 @@ public final class GameViewModel {
     }
 
     private void buildCity(int vertexIndex) {
-        if (turnState != TurnState.BUILD_CITY) {
+        if (turnState.get() != TurnState.BUILD_CITY) {
             return;
         }
 
@@ -192,7 +203,7 @@ public final class GameViewModel {
     }
 
     private void buildRoad(int roadIndex) {
-        if (turnState != TurnState.BUILD_ROAD) {
+        if (turnState.get() != TurnState.BUILD_ROAD) {
             return;
         }
         boolean success = gameModel.buildRoad(roadIndex, currentPlayer.get().idProperty().get());
@@ -203,7 +214,7 @@ public final class GameViewModel {
     }
 
     public void onVertexClicked(int vertexIndex) {
-        switch (turnState) {
+        switch (turnState.get()) {
             case BUILD_SETTLEMENT -> {
                 buildSettlement(vertexIndex);
                 switchToBuildState();
@@ -219,7 +230,7 @@ public final class GameViewModel {
     }
 
     public void onRoadClicked(int roadIndex) {
-        switch (turnState) {
+        switch (turnState.get()) {
             case BUILD_ROAD -> {
                 buildRoad(roadIndex);
                 switchToBuildState();
@@ -265,10 +276,12 @@ public final class GameViewModel {
         players.add(getCurrentPlayer());
         int nextPlayerIndex = getIndexOfPlayerWithID(nextPlayerID);
         currentPlayer.set(players.remove(nextPlayerIndex));
+
+        switchToRollDiceState();
     }
 
     public void switchToRollDiceState() {
-        turnState = TurnState.DICE_ROLL;
+        turnState.set(TurnState.DICE_ROLL);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(isVertexOwned(i));
         }
@@ -281,8 +294,22 @@ public final class GameViewModel {
         }
     }
 
+    public void rollDice() {
+        if (turnState.get() != TurnState.DICE_ROLL) {
+            return;
+        }
+        gameModel.rollDice();
+        updateDiceRoll();
+
+        if(diceRoll.get().dice1Property().get() + diceRoll.get().dice2Property().get() == 7) {
+            switchToMoveRobberState();
+            return;
+        }
+        switchToTradeState();
+    }
+
     public void switchToTradeState() {
-        turnState = TurnState.TRADE;
+        turnState.set(TurnState.TRADE);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(isVertexOwned(i));
         }
@@ -296,7 +323,7 @@ public final class GameViewModel {
     }
 
     public void switchToBuildState() {
-        turnState = TurnState.BUILD;
+        turnState.set(TurnState.BUILD);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(isVertexOwned(i));
         }
@@ -313,7 +340,7 @@ public final class GameViewModel {
         if (!gameModel.playerHasSettlementResources(getCurrentPlayer().idProperty().get())) {
             return;
         }
-        turnState = TurnState.BUILD_SETTLEMENT;
+        turnState.set(TurnState.BUILD_SETTLEMENT);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(canCurrentPlayerBuildSettlement(i));
         }
@@ -327,7 +354,7 @@ public final class GameViewModel {
     }
 
     public void switchToBuildRoadState() {
-        turnState = TurnState.BUILD_ROAD;
+        turnState.set(TurnState.BUILD_ROAD);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(isVertexOwned(i));
         }
@@ -344,7 +371,7 @@ public final class GameViewModel {
         if (!gameModel.playerHasCityResources(getCurrentPlayer().idProperty().get())) {
             return;
         }
-        turnState = TurnState.BUILD_CITY;
+        turnState.set(TurnState.BUILD_CITY);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(canCurrentPlayerBuildCity(i));
         }
@@ -357,13 +384,8 @@ public final class GameViewModel {
         }
     }
 
-    public void switchToMoveRobberState(){
-        turnState = TurnState.MOVE_ROBBER_STATE;
-    }
-
-    public void endTurn() {
-        nextPlayer();
-        switchToRollDiceState();
+    public void switchToMoveRobberState() {
+        turnState.set(TurnState.MOVE_ROBBER_STATE);
     }
 
     public int[][] getRoads() {
@@ -378,12 +400,14 @@ public final class GameViewModel {
         return currentPlayer;
     }
 
-    public void moveRobber(int index){
-        if (turnState != TurnState.MOVE_ROBBER_STATE){
+    public void moveRobber(int index) {
+        if (turnState.get() != TurnState.MOVE_ROBBER_STATE) {
             return;
         }
         gameModel.checkPlayerResources();
         gameModel.moveRobber(index);
+        switchToTradeState();
+
     }
 
     // TESTING METHODS
@@ -409,6 +433,7 @@ public final class GameViewModel {
     private static final Color UNOWNED_COLOR = Color.GRAY;
 
     public Color getPlayerColor(int owner) {
+        owner = owner - 1; // player IDs are 1-indexed, but our array is 0-indexed
         return (owner >= 0 && owner < PLAYER_COLOURS.length)
                 ? PLAYER_COLOURS[owner]
                 : UNOWNED_COLOR;

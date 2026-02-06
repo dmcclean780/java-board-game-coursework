@@ -225,7 +225,9 @@
                             <VBox alignment="CENTER" spacing="2">
                                 <Label text="Dice"
                                     style="-fx-font-size: 11; -fx-text-fill: black; -fx-font-weight: bold;" />
-                                <Label fx:id="diceValue"
+                                <Label fx:id="die1Value"
+                                    style="-fx-font-size: 17; -fx-text-fill: black; -fx-font-weight: bold;" />
+                                <Label fx:id="die2Value"
                                     style="-fx-font-size: 17; -fx-text-fill: black; -fx-font-weight: bold;" />
                             </VBox>
                         </StackPane>
@@ -256,7 +258,7 @@
                             prefWidth="210"
                             style="-fx-padding: 5; -fx-font-size: 9;" />
                         <Button fx:id="rollDiceButton"
-                            onAction="#switchToROLLDICEPHASE"
+                            onAction="#rollDice"
                             text="Roll Dice"
                             prefWidth="210"
                             style="-fx-padding: 5; -fx-font-size: 9;" />
