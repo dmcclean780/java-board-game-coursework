@@ -49,6 +49,9 @@ public class CurrentPlayerController {
     private GameViewModel viewModel;
 
     public void bindCurrentPlayer(GameViewModel viewModel) {
+
+        //Initialize Static Text Method HERE
+
         this.viewModel = viewModel;
 
         ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
@@ -69,6 +72,7 @@ public class CurrentPlayerController {
 
         // initialize
         populateResources(currentPlayer.get());
+
 
         // Buttons
         buildSettlementButton.disableProperty().bind(
@@ -102,8 +106,9 @@ public class CurrentPlayerController {
     private void populateResources(PlayerViewState player) {
         resourcesBox.getChildren().clear();
 
-        if (player == null)
+        if (player == null) {
             return;
+        }
 
         for (ResourceViewState resource : player.getResources()) {
             try {
@@ -113,12 +118,26 @@ public class CurrentPlayerController {
 
                 ResourceBoxController ctrl = loader.getController();
                 ctrl.bind(resource);
-
+                node.getStyleClass().add("resource-track-cont");
+                node.setStyle("-fx-stroke-width: 4;");
                 resourcesBox.getChildren().add(node);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        setResourceIndents();
+    }
+
+    private void setResourceIndents() {
+
+        int size = resourcesBox.getChildren().size();
+        for(int i = 0; i < size; i++)
+        {
+            Node row = resourcesBox.getChildren().get(size - i - 1);
+
+            row.setTranslateX(0);
+            row.setTranslateX(30 * i);
         }
     }
 
