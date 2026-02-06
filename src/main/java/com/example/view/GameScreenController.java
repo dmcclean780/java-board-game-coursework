@@ -179,6 +179,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private void bindTile(int index, TileViewState state) {
         state.number.addListener((obs, old, val) -> {
             setTile(index, val.intValue(), resolveColor(state.resource.get()));
+            attachTileClickHandler(index, tileGroup[index]);
         });
 
         state.blocked.addListener((obs, old, val) -> {
@@ -186,6 +187,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         });
 
         setTile(index, state.number.get(), resolveColor(state.resource.get()));
+        attachTileClickHandler(index, tileGroup[index]);
         setTileDisabled(index, state.blocked.get());
     }
 
@@ -550,6 +552,13 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         tile.getChildren().add(pips);
     }
 
+    private void attachTileClickHandler(int index, Group tile){
+        tile.setOnMouseClicked(event ->{
+            event.consume();
+            viewModel.moveRobber(index);
+        });
+    }
+
     private void setVertex(int vertexId, int playerOwner, String type) {
         if (vertexId < 0 || vertexId >= vertexNodes.length || vertexNodes[vertexId] == null) {
             return;
@@ -808,6 +817,41 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                 0.0, height / 2 // left
         );
         return hex;
+    }
+
+    public void switchToBUILDSETTLEMENTPHASE() {
+        viewModel.switchToBuildSettlementState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToBUILDROADPHASE() {
+        viewModel.switchToBuildRoadState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToBUILDCITYPHASE() {
+        viewModel.switchToBuildCityState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToROLLDICEPHASE() {
+        viewModel.switchToRollDiceState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToBUILDINGPHASE() {
+        viewModel.switchToBuildState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void switchToMOVEROBBERPHASE(){
+        viewModel.switchToMoveRobberState();
+        System.out.println(viewModel.getTurnState());
+    }
+
+    public void nextPlayer() {
+        viewModel.nextPlayer();
+        System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
     }
 
     public void setCurrentPlayer(int currentPlayerIndex) {
