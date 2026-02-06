@@ -3,6 +3,7 @@ package com.example.model;
 import java.util.Collection;
 
 import com.example.model.config.ResourceConfig;
+import com.example.model.config.TileConfig;
 import com.example.model.config.service.ConfigService;
 
 public class Tile {
@@ -36,10 +37,11 @@ public class Tile {
     public void setIsDestroyed(boolean _isDestroyed){ this.isDestroyed = _isDestroyed;}
 
     public ResourceConfig getResourceFromTileID(){
-        Collection<ResourceConfig> allResources = ConfigService.getAllResources();
-        for (ResourceConfig resource : allResources){
-            if (resource.id.equals(tileID)){
-                //found resource
+        Collection<TileConfig> allTiles = ConfigService.getAllTiles();
+        for (TileConfig tile : allTiles){
+
+            if (tile.id.equals(tileID)){
+                ResourceConfig resource = ConfigService.getResource(tile.resourceID);
                 return resource;
             }
         }
