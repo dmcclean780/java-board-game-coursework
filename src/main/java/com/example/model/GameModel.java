@@ -1,7 +1,10 @@
 package com.example.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 
 import com.example.model.config.PlayerInfrastructureConfig;
 import com.example.model.config.ResourceConfig;
@@ -22,6 +25,8 @@ public class GameModel {
     private BankCards bankCards;
     private ClimateTracker climateTracker;
 
+    private boolean passBuildRule; // disables checking if roads or settlements are connected to others, to setup the board
+
     public GameModel() {
         this.players = new ArrayList<>();
         this.tiles = new Tiles();
@@ -31,12 +36,108 @@ public class GameModel {
         this.dice = new Dice();
         this.bankCards = new BankCards();
         this.climateTracker = new ClimateTracker();
+
+        this.passBuildRule = false;
+    }
+
+    // higher the rating, the better vertex
+    private float rateVertex(int vertex) {
+        float rating = 0.f;
+        //               0  1  2  3  4  5  6  7  8  9 10 11 12
+        int[] probs = {0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1};
+
+        for (Tile t : this.tiles.getTiles()) {
+            for (int n : t.getAdjVertices()) {
+                if (n == vertex) {
+                    rating += (float)probs[t.getNumber()];
+                }
+            }
+        }
+
+        return rating;
+    }
+
+    // Adds two settlements and two roads per player
+    public void initializeBoard() {
+
+        float[] vertexRatings = new float[54];
+
+        for (int i = 0; i < 54; i++) {
+            vertexRatings[i] = rateVertex(i);
+        }
+
+        passBuildRule = true;
+
+        int[] vertices = new int[54];
+        
+        for (int i = 0; i < 54; i++) {
+            float value = 0.0f;
+            int v = -1;
+
+            for (int j = 0; j < 54; j++) {
+                if (vertexRatings[j] > value) {
+                    value = vertexRatings[j];
+                    v = j;
+                }
+            }
+            if (v == -1) break;
+            vertices[i] = v;
+            vertexRatings[v] = 0.f;
+        }
+
+        ArrayList<Integer> playerIds = new ArrayList<>();
+        for (int i = 0; i < this.players.size(); i++) {playerIds.add(this.players.get(i).getId());}
+        Collections.shuffle(playerIds);
+        for (int i = this.players.size()-1; i > -1; i--) {playerIds.add(playerIds.get(i));}
+
+        int vMaxIndex = 0;
+        for (int id : playerIds) {
+            boolean built = false;
+            giveSettlementResources(id);
+            giveRoadResources(id);
+            while (!built) {
+                if (vMaxIndex == 54) {
+                    break;
+                }
+                int v = vertices[vMaxIndex++];
+                if (!settlementValid(v, id)) continue;
+                built = buildSettlement(v, id);
+
+
+                if (built) {
+                    
+                    ArrayList<Integer> rIndices = new ArrayList<>();
+                    for (int i = 0; i < Roads.NUMBER_OF_ROADS; i++) {
+                        rIndices.add(i);
+                    }
+                    Collections.shuffle(rIndices);
+                    for (int r : rIndices) {
+                        boolean connectedToVertex = false;
+                        for (int v1 : roads.getRoad(r).getVertices()) {
+                            if (v1 == v) {
+                                connectedToVertex = true;
+                            }
+                        }
+                        if (!connectedToVertex) continue;
+                        if (roads.getRoad(r).getPlayerID() != Roads.UNOWNED_ROAD_ID) {
+                            roads.buildRoad(r, id);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        passBuildRule = false;
     }
 
     public void initializePlayers(ArrayList<String> playerNames) {
         for (String name : playerNames) {
             players.add(new Player(name));
         }
+        initializeBoard();
     }
 
     public int getNumberOfTiles() {
@@ -70,9 +171,9 @@ public class GameModel {
 
     public boolean settlementValid(int vertex, int playerID) {
         boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is valid when *NOT* a nearby settlement
-        boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID);
+        boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID) || passBuildRule;
         boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
-        return settlementDistanceValid && linkedByRoad && unowned || true;
+        return settlementDistanceValid && linkedByRoad && unowned;
     }
 
     public boolean cityValid(int vertex, int playerID) {
@@ -82,10 +183,10 @@ public class GameModel {
     }
 
     public boolean roadValid(int edgeIndex, int playerID) {
-        //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID); TODO
-        //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID); TODO
-        boolean unowned = roads.isRoadOwned(edgeIndex) == false;
-        return /*(connectedToSettlement || connectedToRoad) &&*/ unowned || true;
+        //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID) || passBuildRule; TODO
+        //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID) || passBuildRule; TODO
+        boolean unowned = !roads.isRoadOwned(edgeIndex);
+        return /*(connectedToSettlement || connectedToRoad) &&*/ unowned;
     }
 
     public ArrayList<Player> getPlayers() {
@@ -116,6 +217,7 @@ public class GameModel {
     public boolean buildSettlement(int vertex, int playerID) {
         Player player = getPlayer(playerID);
         boolean success_build = settlements.buildSettlement(vertex, playerID);
+        
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
         boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
         if (success_resources && success_build) {
