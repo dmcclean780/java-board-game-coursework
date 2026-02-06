@@ -206,12 +206,19 @@ public class BankCardsTest {
 
     @Test
     public void getResourceCount_nonexistentResource_returnsZero() {
-        ResourceConfig fakeResource = new ResourceConfig("nonexistent.resource", "path/to/texture", 0);
+        ResourceConfig fakeResource = new ResourceConfig(
+                "nonexistent.resource",
+                "?",
+                "path/to/texture",
+                0,
+                "#000000"
+        );
 
         int count = bankCards.getResourceCount(fakeResource);
 
         assertEquals(0, count, "Non-existent resource should return 0");
     }
+
 
     /**
      * Helper method to get the first resource from ConfigService
