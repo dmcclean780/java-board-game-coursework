@@ -2,6 +2,7 @@ package com.example.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.example.model.config.PlayerInfrastructureConfig;
 import com.example.model.config.ResourceConfig;
@@ -519,9 +520,13 @@ public class GameModel {
         boolean success = false;
         switch (action) {
             case "ECO_CONFERENCE" -> success = applyEcoConference(playerId);
-            case "HIGHWAY_MADNESS" -> success = applyHighwayMadness(playerId);
-            case "TRADING_FRENZY" -> success = applyTradingFrenzy(playerId);
-            case "MONOPOLY" -> success = applyMonopoly(playerId);
+            // The following effects require user input (selection via the UI).
+            // Mark as success=true because the card was successfully played (removed from hand).
+            // The actual effect will be applied when the UI calls the parameterized apply methods
+            // with user selections (onRoadClicked, onResourceTypeSelected).
+            case "HIGHWAY_MADNESS" -> success = true;
+            case "TRADING_FRENZY" -> success = true;
+            case "MONOPOLY" -> success = true;
             default -> {
                 // unknown action: no-op for now
             }
@@ -543,47 +548,40 @@ public class GameModel {
         return false;
     }
 
-    public boolean  applyHighwayMadness(int playerId) {
-        // TODO: implement HIGHWAY_MADNESS effect
-        // build two free roads
-        //need to select edges for the roads
-        int edgeIndex = 0; //placeholder
-        boolean success_build = roads.buildRoad(edgeIndex, playerId);
+    // build two free roads
+    public boolean applyHighwayMadness(int playerId, int edgeIndexA, int edgeIndexB) {
+        boolean successA = roads.buildRoad(edgeIndexA, playerId);
+        boolean successB = roads.buildRoad(edgeIndexB, playerId);
         increaseClimateAndDistributeDisasterCards();
-        return success_build;
+        return successA && successB;
     }
 
-    public boolean  applyTradingFrenzy(int playerId) {
-        // TODO: implement TRADING_FRENZY effect
-        //also increase climate tracker
-        // take any three resource cards from the bank
-        // atm just does one card bc idk how to do different types of card
-        //NEED TO FIX
-        ResourceConfig resourceId = null; //placeholder
-        TradeFrenzy trade = new TradeFrenzy(playerId, resourceId);
+    // take any three resource cards from the bank
+    public boolean applyTradingFrenzy(int playerId, List<ResourceConfig> resources) {
+        Player player = getPlayer(playerId);
+        if (player == null || resources == null) return false;
 
-        Player player = getPlayer(trade.playerId());
-
-        bankCards.giveResourceCard(trade.recieveResource(), 1);
-        player.changeResourceCount(trade.recieveResource(), +1);
+        for (ResourceConfig r : resources) {
+            if (r == null) continue;
+            bankCards.giveResourceCard(r, 1);
+            player.changeResourceCount(r, +1);
+        }
 
         increaseClimateAndDistributeDisasterCards();
 
         return true;
     }
 
-    public boolean applyMonopoly(int playerId) {
-        // TODO: implement MONOPOLY effect
-        //also increase climate tracker
-        // choose a resource and every player gives you all their cards of that resource
-        ResourceConfig resourceId = null; //placeholder
+    // choose a resource and every player gives you all their cards of that resource
+    public boolean applyMonopoly(int playerId, ResourceConfig resource) {
+        if (resource == null) return false;
 
         int totalCollected = 0;
         for (Player other : players) {
             if (other.getId() == playerId) continue;
-            int amt = other.getResourceCount(resourceId);
+            int amt = other.getResourceCount(resource);
             if (amt <= 0) continue;
-            boolean removed = other.changeResourceCount(resourceId, -amt);
+            boolean removed = other.changeResourceCount(resource, -amt);
             if (removed) {
                 totalCollected += amt;
             }
@@ -591,12 +589,12 @@ public class GameModel {
 
         if (totalCollected > 0) {
             Player player = getPlayer(playerId);
-            player.changeResourceCount(resourceId, totalCollected);
+            player.changeResourceCount(resource, totalCollected);
         }
 
         increaseClimateAndDistributeDisasterCards();
 
-        return true;
+        return totalCollected > 0;
     }
 
     // TESTING METHODS
