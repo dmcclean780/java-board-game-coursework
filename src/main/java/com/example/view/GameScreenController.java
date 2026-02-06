@@ -39,6 +39,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML
     private Font mainFont;
     @FXML
+    private Font italicFont;
+    @FXML
     private Pane vertexPane;
     @FXML
     private Pane roadsPane;
@@ -107,6 +109,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             addPlayerRow(players.get(i), i);
         }
 
+        setPlayerIndents();
+
         // Listen for changes
         players.addListener((ListChangeListener<PlayerViewState>) change -> {
             while (change.next()) {
@@ -122,6 +126,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                     }
                 }
             }
+            setPlayerIndents();
         });
 
         try {
@@ -147,7 +152,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             PlayerController ctrl = loader.getController();
             ctrl.bind(player);
 
-            row.setTranslateX(60 * index);
             row.setUserData(player); // store reference for removal
             playerList.getChildren().add(row);
 
@@ -159,6 +163,18 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private void removePlayerRow(PlayerViewState player) {
         playerList.getChildren().removeIf(node -> node.getUserData() == player);
     }
+
+    private void setPlayerIndents() {
+        for(int i = 0; i < playerList.getChildren().size(); i++)
+        {
+            Node row = playerList.getChildren().get(i);
+
+            row.setTranslateX(0);
+            row.setTranslateX(60 * i);
+        }
+    }
+
+    
 
     private void bindTile(int index, TileViewState state) {
         state.number.addListener((obs, old, val) -> {
@@ -224,8 +240,9 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
         // Load font from classpath
         try {
-            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 20);
-            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 20);
+            //mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 40);
+            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf"), 50);
+            italicFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 40);
         } catch (Exception e) {
             throw new IllegalStateException("JavaFX failed to load font:  Noto Sans");
         }
