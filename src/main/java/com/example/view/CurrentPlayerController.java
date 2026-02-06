@@ -13,6 +13,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
@@ -30,6 +33,8 @@ public class CurrentPlayerController {
     private Node buildCityButton;
     @FXML
     private Node buildRoadButton;
+    @FXML
+    private HBox diceDisplayBox;
 
     private GameViewModel viewModel;
 
@@ -54,6 +59,9 @@ public class CurrentPlayerController {
 
         // initialize
         populateResources(currentPlayer.get());
+
+        // Dice display
+        updateDiceDisplay();
 
         // Buttons
         buildSettlementButton.disableProperty().bind(
@@ -104,6 +112,7 @@ public class CurrentPlayerController {
 
     public void switchToROLLDICEPHASE() {
         viewModel.switchToRollDiceState();
+        updateDiceDisplay();
         System.out.println(viewModel.getTurnState());
     }
 
@@ -115,5 +124,46 @@ public class CurrentPlayerController {
     public void nextPlayer() {
         viewModel.nextPlayer();
         System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
+    }
+
+    private void updateDiceDisplay() {
+        int die1 = viewModel.getGameModel().getDice().getDie1();
+        int die2 = viewModel.getGameModel().getDice().getDie2();
+        displayDiceImages(die1, die2);
+    }
+
+    private void displayDiceImages(int die1, int die2) {
+        if (diceDisplayBox == null) return;
+
+        diceDisplayBox.getChildren().clear();
+
+        // Die 1 image, Red
+        ImageView die1View = createDiceImageView(die1, "RDie");
+        if (die1View != null) {
+            diceDisplayBox.getChildren().add(die1View);
+        }
+
+        // Die 2 image, Yellow
+        ImageView die2View = createDiceImageView(die2, "YDie");
+        if (die2View != null) {
+            diceDisplayBox.getChildren().add(die2View);
+        }
+    }
+
+    private ImageView createDiceImageView(int dieValue, String prefix) {
+        if (dieValue < 1 || dieValue > 6) return null;
+
+        String imagePath = "/images/" + prefix + dieValue + ".png";
+        try {
+            Image image = new Image(getClass().getResourceAsStream(imagePath));
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(40);
+            imageView.setFitHeight(40);
+            imageView.setPreserveRatio(true);
+            return imageView;
+        } catch (Exception e) {
+            System.err.println("Failed. to load dice image: " + imagePath);
+            return null;
+        }
     }
 }

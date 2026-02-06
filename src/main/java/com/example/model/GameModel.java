@@ -358,6 +358,10 @@ public class GameModel {
         return roads.getAllRoads();
     }
 
+    public Dice getDice() {
+        return dice;
+    }
+
     //need to do front end stuff to chose tile to destroy
     //asks for same resource as tile atm - need to fix
     public boolean tileRestore(int tileIndex, int playerId) {

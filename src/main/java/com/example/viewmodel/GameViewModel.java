@@ -269,6 +269,8 @@ public final class GameViewModel {
 
     public void switchToRollDiceState() {
         turnState = TurnState.DICE_ROLL;
+        int diceRoll = gameModel.getDice().roll();
+        gameModel.GiveResourcesToPlayers(diceRoll);
         for (int i = 0; i < vertices.size(); i++) {
             vertices.get(i).visible.set(isVertexOwned(i));
         }
@@ -376,6 +378,10 @@ public final class GameViewModel {
 
     public ObjectProperty<PlayerViewState> currentPlayerProperty() {
         return currentPlayer;
+    }
+
+    public GameModel getGameModel() {
+        return gameModel;
     }
 
     public void moveRobber(int index){
