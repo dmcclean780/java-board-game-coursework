@@ -76,6 +76,11 @@ public class SetupViewModel {
             playerNames.add(player4Name.get());
         }
         gameModel.initializePlayers(playerNames);
+        try {
+            gameModel.initializeBoard();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
         GameViewModel gameVM = new GameViewModel(gameModel, navigationService);
         navigationService.navigateTo("gameScreen", gameVM);
     }

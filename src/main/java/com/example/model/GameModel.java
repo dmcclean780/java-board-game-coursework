@@ -43,7 +43,7 @@ public class GameModel {
     // higher the rating, the better vertex
     private float rateVertex(int vertex) {
         float rating = 0.f;
-        //               0  1  2  3  4  5  6  7  8  9 10 11 12
+        //             0  1  2  3  4  5  6  7  8  9 10 11 12
         int[] probs = {0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1};
 
         for (Tile t : this.tiles.getTiles()) {
@@ -58,54 +58,64 @@ public class GameModel {
     }
 
     // Adds two settlements and two roads per player
-    public void initializeBoard() {
+    public void initializeBoard() throws Exception {
 
-        float[] vertexRatings = new float[54];
+        // rate each vertex based on its probablility of being rolled
+        int NUM_OF_VERTICES = 54;
+        float[] vertexRatings = new float[NUM_OF_VERTICES];
 
-        for (int i = 0; i < 54; i++) {
+        for (int i = 0; i < NUM_OF_VERTICES; i++) {
             vertexRatings[i] = rateVertex(i);
         }
 
+        // enable building without connecting to existing settlements 
         passBuildRule = true;
 
-        int[] vertices = new int[54];
+        // list the vertices based on their ratings
+        float[] vr = vertexRatings.clone();
+        int[] vertices = new int[NUM_OF_VERTICES];
         
-        for (int i = 0; i < 54; i++) {
-            float value = 0.0f;
+        for (int i = 0; i < NUM_OF_VERTICES; i++) {
+            float value = -1.f;
             int v = -1;
 
-            for (int j = 0; j < 54; j++) {
-                if (vertexRatings[j] > value) {
-                    value = vertexRatings[j];
+            for (int j = 0; j < NUM_OF_VERTICES; j++) {
+                if (vr[j] > value) {
+                    value = vr[j];
                     v = j;
                 }
             }
             if (v == -1) break;
             vertices[i] = v;
-            vertexRatings[v] = 0.f;
+            vr[v] = 0.f;
         }
+
+        // make a random assortment of playerIDs for selecting settlements twice
+        // e.g. 2,1,3,4,4,3,1,2
 
         ArrayList<Integer> playerIds = new ArrayList<>();
         for (int i = 0; i < this.players.size(); i++) {playerIds.add(this.players.get(i).getId());}
         Collections.shuffle(playerIds);
         for (int i = this.players.size()-1; i > -1; i--) {playerIds.add(playerIds.get(i));}
 
+
+        
         int vMaxIndex = 0;
         for (int id : playerIds) {
-            boolean built = false;
+            boolean settlementBuilt = false;
             giveSettlementResources(id);
             giveRoadResources(id);
-            while (!built) {
+            while (!settlementBuilt) {
                 if (vMaxIndex == 54) {
-                    break;
+                    throw new Exception("Unable to place settlement during board setup!");
                 }
                 int v = vertices[vMaxIndex++];
                 if (!settlementValid(v, id)) continue;
-                built = buildSettlement(v, id);
+                settlementBuilt = buildSettlement(v, id);
 
 
-                if (built) {
-                    
+                if (settlementBuilt) {
+                    boolean roadBuilt = false;
                     ArrayList<Integer> rIndices = new ArrayList<>();
                     for (int i = 0; i < Roads.NUMBER_OF_ROADS; i++) {
                         rIndices.add(i);
@@ -119,10 +129,14 @@ public class GameModel {
                             }
                         }
                         if (!connectedToVertex) continue;
-                        if (roads.getRoad(r).getPlayerID() != Roads.UNOWNED_ROAD_ID) {
+                        if (roads.getRoad(r).getPlayerID() == Roads.UNOWNED_ROAD_ID) {
                             roads.buildRoad(r, id);
+                            roadBuilt = true;
                             break;
                         }
+                    }
+                    if (!roadBuilt) {
+                        throw new Exception("Unable to place road during board setup!");
                     }
                 }
             }
@@ -137,7 +151,6 @@ public class GameModel {
         for (String name : playerNames) {
             players.add(new Player(name));
         }
-        initializeBoard();
     }
 
     public int getNumberOfTiles() {
