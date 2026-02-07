@@ -213,6 +213,16 @@ public final class GameViewModel {
         }
     }
 
+    private void stealResource(int vertexIndex) {
+        if (turnState.get() != TurnState.STEAL_RESOURCE) {
+            return;
+        }
+        boolean success = gameModel.stealResource(vertexIndex, currentPlayer.get().idProperty().get());
+        if (success) {
+            updatePlayerViewState(currentPlayer.get());
+        }
+    }
+
     public void onVertexClicked(int vertexIndex) {
         switch (turnState.get()) {
             case BUILD_SETTLEMENT -> {
@@ -222,6 +232,10 @@ public final class GameViewModel {
             case BUILD_CITY -> {
                 buildCity(vertexIndex);
                 switchToBuildState();
+            }
+            case STEAL_RESOURCE -> {
+                stealResource(vertexIndex);
+                switchToTradeState();
             }
             default -> {
                 // No action
@@ -254,6 +268,10 @@ public final class GameViewModel {
         return gameModel.cityValid(i, getCurrentPlayer().idProperty().get());
     }
 
+    private boolean canCurrentPlayerSteal(int i) {
+        return gameModel.stealValid(i, getCurrentPlayer().idProperty().get());
+    }
+
     private boolean isVertexOwned(int i) {
         return gameModel.getSettlements()[i].getPlayerID() != -1;
     }
@@ -271,6 +289,22 @@ public final class GameViewModel {
         return -1; // Not found
     }
 
+    private void setDefaultVisibility() {
+        for (int i = 0; i < vertices.size(); i++) {
+            vertices.get(i).visible.set(isVertexOwned(i));
+        }
+        for (int i = 0; i < roads.size(); i++) {
+            roads.get(i).visible.set(isRoadOwned(i));
+        }
+    }
+
+    private void updatePlayerViewStates() {
+        updatePlayerViewState(currentPlayer.get());
+        for (int i = 0; i < players.size(); i++) {
+            updatePlayerViewState(players.get(i));
+        }
+    }
+
     public void nextPlayer() {
         int nextPlayerID = gameModel.nextPlayer(getCurrentPlayer().idProperty().get());
         players.add(getCurrentPlayer());
@@ -282,16 +316,8 @@ public final class GameViewModel {
 
     public void switchToRollDiceState() {
         turnState.set(TurnState.DICE_ROLL);
-        for (int i = 0; i < vertices.size(); i++) {
-            vertices.get(i).visible.set(isVertexOwned(i));
-        }
-        for (int i = 0; i < roads.size(); i++) {
-            roads.get(i).visible.set(isRoadOwned(i));
-        }
-        updatePlayerViewState(getCurrentPlayer());
-        for (int i = 0; i < players.size(); i++) {
-            updatePlayerViewState(players.get(i));
-        }
+        setDefaultVisibility();
+        updatePlayerViewStates();
     }
 
     public void rollDice() {
@@ -310,30 +336,14 @@ public final class GameViewModel {
 
     public void switchToTradeState() {
         turnState.set(TurnState.TRADE);
-        for (int i = 0; i < vertices.size(); i++) {
-            vertices.get(i).visible.set(isVertexOwned(i));
-        }
-        for (int i = 0; i < roads.size(); i++) {
-            roads.get(i).visible.set(isRoadOwned(i));
-        }
-        updatePlayerViewState(getCurrentPlayer());
-        for (int i = 0; i < players.size(); i++) {
-            updatePlayerViewState(players.get(i));
-        }
+        setDefaultVisibility();
+        updatePlayerViewStates();
     }
 
     public void switchToBuildState() {
         turnState.set(TurnState.BUILD);
-        for (int i = 0; i < vertices.size(); i++) {
-            vertices.get(i).visible.set(isVertexOwned(i));
-        }
-        for (int i = 0; i < roads.size(); i++) {
-            roads.get(i).visible.set(isRoadOwned(i));
-        }
-        updatePlayerViewState(getCurrentPlayer());
-        for (int i = 0; i < players.size(); i++) {
-            updatePlayerViewState(players.get(i));
-        }
+        setDefaultVisibility();
+        updatePlayerViewStates();
     }
 
     public void switchToBuildSettlementState() {
@@ -347,10 +357,7 @@ public final class GameViewModel {
         for (int i = 0; i < roads.size(); i++) {
             roads.get(i).visible.set(isRoadOwned(i));
         }
-        updatePlayerViewState(getCurrentPlayer());
-        for (int i = 0; i < players.size(); i++) {
-            updatePlayerViewState(players.get(i));
-        }
+        updatePlayerViewStates();
     }
 
     public void switchToBuildRoadState() {
@@ -361,10 +368,7 @@ public final class GameViewModel {
         for (int i = 0; i < roads.size(); i++) {
             roads.get(i).visible.set(canCurrentPlayerBuildRoad(i));
         }
-        updatePlayerViewState(getCurrentPlayer());
-        for (int i = 0; i < players.size(); i++) {
-            updatePlayerViewState(players.get(i));
-        }
+        updatePlayerViewStates();
     }
 
     public void switchToBuildCityState() {
@@ -378,14 +382,30 @@ public final class GameViewModel {
         for (int i = 0; i < roads.size(); i++) {
             roads.get(i).visible.set(isRoadOwned(i));
         }
-        updatePlayerViewState(getCurrentPlayer());
-        for (int i = 0; i < players.size(); i++) {
-            updatePlayerViewState(players.get(i));
-        }
+        updatePlayerViewStates();
     }
 
     public void switchToMoveRobberState() {
         turnState.set(TurnState.MOVE_ROBBER_STATE);
+        setDefaultVisibility();
+        updatePlayerViewStates();
+    }
+
+    public void switchToStealResourceState() {
+        turnState.set(TurnState.STEAL_RESOURCE);
+        boolean canSteal = false;
+        for (int i = 0; i < vertices.size(); i++) {
+            boolean currentCanSteal = canCurrentPlayerSteal(i);
+            vertices.get(i).visible.set(currentCanSteal);
+            canSteal |= currentCanSteal;
+        }
+        for (int i = 0; i < roads.size(); i++) {
+            roads.get(i).visible.set(false);
+        }
+        updatePlayerViewStates();
+        if(!canSteal) {
+            switchToTradeState();
+        }
     }
 
     public int[][] getRoads() {
@@ -406,7 +426,7 @@ public final class GameViewModel {
         }
         gameModel.checkPlayerResources();
         gameModel.moveRobber(index);
-        switchToTradeState();
+        switchToStealResourceState();
 
     }
 

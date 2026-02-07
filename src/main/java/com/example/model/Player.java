@@ -379,4 +379,22 @@ public class Player {
     public void changeHiddenVictoryPoints(int amount) {
         hiddenVictoryPoints += amount;
     }
+
+    public ResourceConfig stealRandomResource() {
+        ArrayList<ResourceConfig> ownedResources = new ArrayList<>();
+        for (ResourceConfig resource : this.resources.keySet()) {
+            if (this.getResourceCount(resource) > 0) {
+                ownedResources.add(resource);
+            }
+        }
+
+        if (ownedResources.isEmpty()) {
+            return null; // No resources to steal
+        }
+
+        int randomIndex = (int) (Math.random() * ownedResources.size());
+        ResourceConfig stolenResource = ownedResources.get(randomIndex);
+        this.changeResourceCount(stolenResource, -1); // Remove one of the stolen resource
+        return stolenResource;
+    }
 }
