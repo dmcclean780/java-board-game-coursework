@@ -211,5 +211,14 @@ public class Tiles {
         System.out.println("Robber moved to tile " + destinationTileIndex);
     }
 
+    public int getBlockedTileIndex() {
+        for (int i = 0; i < tiles.length; i++) {
+            if (tiles[i].getIsBlocked()) {
+                return i;
+            }
+        }
+        return -1; // No blocked tile found
+    }
+
     
 }
