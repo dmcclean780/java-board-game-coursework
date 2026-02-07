@@ -39,6 +39,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     @FXML
     private Font mainFont;
     @FXML
+    private Font italicFont;
+    @FXML
     private Pane vertexPane;
     @FXML
     private Pane roadsPane;
@@ -107,6 +109,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             addPlayerRow(players.get(i), i);
         }
 
+        setPlayerIndents();
+
         // Listen for changes
         players.addListener((ListChangeListener<PlayerViewState>) change -> {
             while (change.next()) {
@@ -122,6 +126,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                     }
                 }
             }
+            setPlayerIndents();
         });
 
         try {
@@ -147,7 +152,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             PlayerController ctrl = loader.getController();
             ctrl.bind(player);
 
-            row.setTranslateX(60 * index);
             row.setUserData(player); // store reference for removal
             playerList.getChildren().add(row);
 
@@ -159,6 +163,18 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private void removePlayerRow(PlayerViewState player) {
         playerList.getChildren().removeIf(node -> node.getUserData() == player);
     }
+
+    private void setPlayerIndents() {
+        for(int i = 0; i < playerList.getChildren().size(); i++)
+        {
+            Node row = playerList.getChildren().get(i);
+
+            row.setTranslateX(0);
+            row.setTranslateX(60 * i);
+        }
+    }
+
+    
 
     private void bindTile(int index, TileViewState state) {
         state.number.addListener((obs, old, val) -> {
@@ -224,8 +240,9 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
         // Load font from classpath
         try {
-            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 20);
-            Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 20);
+            //mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Regular.ttf"), 40);
+            mainFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf"), 50);
+            italicFont = Font.loadFont(getClass().getResourceAsStream("/fonts/NotoSans-Italic.ttf"), 40);
         } catch (Exception e) {
             throw new IllegalStateException("JavaFX failed to load font:  Noto Sans");
         }
@@ -616,10 +633,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
             // Example: tell ViewModel
             viewModel.onVertexClicked(vertexId);
-
-            // Optional visual feedback
-            vertex.setStroke(Color.GOLD);
-            vertex.setStrokeWidth(3);
         });
 
         // Optional hover feedback
@@ -800,36 +813,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                 0.0, height / 2 // left
         );
         return hex;
-    }
-
-    public void switchToBUILDSETTLEMENTPHASE() {
-        viewModel.switchToBuildSettlementState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDROADPHASE() {
-        viewModel.switchToBuildRoadState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDCITYPHASE() {
-        viewModel.switchToBuildCityState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToROLLDICEPHASE() {
-        viewModel.switchToRollDiceState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDINGPHASE() {
-        viewModel.switchToBuildState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToMOVEROBBERPHASE(){
-        viewModel.switchToMoveRobberState();
-        System.out.println(viewModel.getTurnState());
     }
 
     public void nextPlayer() {

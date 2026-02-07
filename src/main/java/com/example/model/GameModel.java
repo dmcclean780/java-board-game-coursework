@@ -15,6 +15,7 @@ import com.example.model.trading.TradeBank;
 import com.example.model.trading.TradeFrenzy;
 import com.example.model.trading.TradePlayer;
 import com.example.model.trading.TradePort;
+import com.example.viewmodel.TurnState;
 
 public class GameModel {
     private ArrayList<Player> players;
@@ -358,6 +359,20 @@ public class GameModel {
         return /*(connectedToSettlement || connectedToRoad) &&*/ unowned;
     }
 
+    public boolean stealValid(int vertexIndex, int playerID) {
+        int blockedTile = tiles.getBlockedTileIndex();
+        int[] adjacentTiles = tiles.getTiles()[blockedTile].getAdjVertices();
+        for (int vertex : adjacentTiles) {
+            if(vertex == vertexIndex) {
+                int ownerId = settlements.getAllSettlements()[vertex].getPlayerID();
+                if (ownerId != Settlements.UNOWNED_SETTLEMENT_ID && ownerId != playerID) {
+                    return true; // valid target to steal from
+                }
+            }
+        }
+        return false; // This Vertex is not adjacent to the blocked tile or has no valid target to steal from
+    }
+
     public ArrayList<Player> getPlayers() {
         return players;
     }
@@ -435,6 +450,26 @@ public class GameModel {
     public boolean playerHasRoadResources(int playerID) {
         Player player = getPlayer(playerID);
         return player.hasEnoughResourcesForStructure("player_infrastructure.road") && player.getStructuresRemaining("player_infrastructure.road") > 0;
+    }
+
+    public boolean stealResource(int vertexIndex, int playerID) {
+        if (!stealValid(vertexIndex, playerID)) {
+            return false;
+        }
+        int blockedTile = tiles.getBlockedTileIndex();
+        int[] adjacentTiles = tiles.getTiles()[blockedTile].getAdjVertices();
+        for (int vertex : adjacentTiles) {
+            if(vertex == vertexIndex) {
+                int ownerId = settlements.getAllSettlements()[vertex].getPlayerID();
+                Player victim = getPlayer(ownerId);
+                ResourceConfig stolenResource = victim.stealRandomResource();
+                if (stolenResource != null) {
+                    getPlayer(playerID).changeResourceCount(stolenResource, 1);
+                    return true; // successfully stole a resource
+                }
+            }
+        }
+        return false; // failed to steal a resource
     }
 
 
@@ -542,7 +577,7 @@ public class GameModel {
 
 
     //method to give players resources based on the dice roll
-    public void GiveResourcesToPlayers(int diceroll){
+    public void giveResourcesToPlayers(int diceroll){
         for (Tile tile : tiles.GetTilesFromDiceroll(diceroll)){
             //get resource of rolled tile
             ResourceConfig resource = tile.getResourceFromTileID();
@@ -617,7 +652,7 @@ public class GameModel {
 
             //randomly discard the amount of cards
             for (int i = 0; i < cardsToDiscard; i++){
-                int randomNum = (int)(Math.random() * (cardCount - i) + 1);
+                int randomNum = (int)(Math.random() * (cardCount - i));
                 player.changeResourceCount(playerResources.get(randomNum), -1);
                 playerResources.remove(randomNum);
             }
@@ -869,6 +904,20 @@ public class GameModel {
 
         return true;
     }
+
+    public void rollDice() {
+        int diceRoll = dice.roll();
+        giveResourcesToPlayers(diceRoll);
+    }
+
+    public int getDice1() {
+        return dice.getDie1();
+    }
+
+    public int getDice2() {
+        return dice.getDie2();
+    }
+
 
     // TESTING METHODS
     public void giveSettlementResources(int playerID) {

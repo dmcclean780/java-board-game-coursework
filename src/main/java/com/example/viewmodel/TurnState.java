@@ -7,5 +7,6 @@ public enum TurnState {
     BUILD_SETTLEMENT,
     BUILD_ROAD,
     BUILD_CITY,
-    MOVE_ROBBER_STATE
+    MOVE_ROBBER_STATE,
+    STEAL_RESOURCE,
 }
