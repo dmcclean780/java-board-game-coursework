@@ -1,7 +1,6 @@
 package com.example.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import com.example.model.trading.TradeBank;
 import com.example.model.trading.TradeFrenzy;
 import com.example.model.trading.TradePlayer;
 import com.example.model.trading.TradePort;
-import com.example.viewmodel.TurnState;
 
 public class GameModel {
     private ArrayList<Player> players;
