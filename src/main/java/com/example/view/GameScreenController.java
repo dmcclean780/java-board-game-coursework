@@ -633,10 +633,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
             // Example: tell ViewModel
             viewModel.onVertexClicked(vertexId);
-
-            // Optional visual feedback
-            vertex.setStroke(Color.GOLD);
-            vertex.setStrokeWidth(3);
         });
 
         // Optional hover feedback
