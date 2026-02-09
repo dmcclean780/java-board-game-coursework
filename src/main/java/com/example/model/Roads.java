@@ -54,6 +54,10 @@ public class Roads {
         return roads;
     }
 
+    public Road getRoad(int index) {
+        return this.roads[index];
+    }
+
     /**
      * Attempts to build a road at the specified index for the given player.
      * @param index     Index of the road to build (0 to 71)
