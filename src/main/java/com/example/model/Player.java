@@ -337,12 +337,12 @@ public class Player {
     public boolean deductStructureResources(String structureType) {
         boolean success = true;
         PlayerInfrastructureConfig structureConfig = ConfigService.getInfrastructure(structureType);
-        System.out.println("Deducting resources for structure: " + structureType);
+        // System.out.println("Deducting resources for structure: " + structureType);
         for (String resource : structureConfig.constructionCosts.keySet()) {
             ResourceConfig resourceConfig = ConfigService.getResource(resource);
             int cost = structureConfig.constructionCosts.get(resource);
-            System.out.println(" - " + cost + " of " + resource);
-            System.out.println("   Current amount: " + this.getResourceCount(resourceConfig));
+            // System.out.println(" - " + cost + " of " + resource);
+            // System.out.println("   Current amount: " + this.getResourceCount(resourceConfig));
             success = success && this.changeResourceCount(resourceConfig, -cost);
         }
         return success;

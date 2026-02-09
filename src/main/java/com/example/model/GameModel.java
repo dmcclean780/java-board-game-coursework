@@ -1,8 +1,10 @@
 package com.example.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import com.example.model.config.PlayerInfrastructureConfig;
 import com.example.model.config.ResourceConfig;
@@ -12,7 +14,6 @@ import com.example.model.trading.TradeBank;
 import com.example.model.trading.TradeFrenzy;
 import com.example.model.trading.TradePlayer;
 import com.example.model.trading.TradePort;
-import com.example.viewmodel.TurnState;
 
 public class GameModel {
     private ArrayList<Player> players;
@@ -24,6 +25,9 @@ public class GameModel {
     private BankCards bankCards;
     private ClimateTracker climateTracker;
 
+    private boolean passBuildRule; // disables checking if roads or settlements are connected to others, to setup the board
+
+
     public GameModel() {
         this.players = new ArrayList<>();
         this.tiles = new Tiles();
@@ -33,6 +37,269 @@ public class GameModel {
         this.dice = new Dice();
         this.bankCards = new BankCards();
         this.climateTracker = new ClimateTracker();
+
+        this.passBuildRule = false;
+    }
+
+    // // code used to test how settlement placements are be valued
+    // private void _logTestValuation(int playerID, double k, int[] vertices) {
+    //     System.out.print("-- Player "); System.out.print(playerID);System.out.print("-- K: "); System.out.print(k);System.out.print(",  Vertices: ");
+    //     for (int v : vertices) {
+    //         System.out.print(v + ", ");
+    //     }
+
+    //     System.out.println();
+    // }
+
+    // Creates the tile bias for each tile type for the player
+    private HashMap<String, Double> getTileBias(int playerID) {
+
+        //             0  1  2  3  4  5  6  7  8  9 10 11 12
+        int[] probs = {0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1};
+
+        // create hashmap to count the number of cards the player can expect of the tileID for the average die roll
+        HashMap<String, Integer> ownedProbabilityPerTile = new HashMap<>();
+        ownedProbabilityPerTile.put("tile.forest", 0);
+        ownedProbabilityPerTile.put("tile.hills", 0);
+        ownedProbabilityPerTile.put("tile.mountains", 0);
+        ownedProbabilityPerTile.put("tile.fields", 0);
+        ownedProbabilityPerTile.put("tile.pasture", 0);
+        ownedProbabilityPerTile.put("tile.desert", 0);
+
+        // goes through all owned settlements for the player, and adds to the probability all surrounding tiles
+        for (Settlement s : settlements.getAllOwnedSettlements()) {
+            if (s.getPlayerID() == playerID) {
+                int vertex = s.getVertex();
+                for (Tile t : tiles.getTiles()) {
+                    for (int v : t.getAdjVertices()) {
+                        if (v == vertex) {
+                            ownedProbabilityPerTile.merge(t.getTileID(), probs[t.getNumber()], Integer::sum);
+                        }
+                    }
+                }
+            }
+        }
+
+        HashMap<String, Double> tileBias = new HashMap<>();
+
+        double k = 0.18d; // amount each owned probability point for a tile type decreases bias to get the tile
+                          // improves spread of resources
+                          // k = 0 ignores spread of resources, k > 0.3 is harsh enough to break valuation (bias is close 0 for already owned resources)
+
+        
+        // Bias is found by the equation:  t * e**(-ka), where t is starting bias, k is a constant (defined above), and a is the probability count
+
+        tileBias.put("tile.forest", (Double)(1.01d * Math.exp(-k * ownedProbabilityPerTile.get("tile.forest"))));
+        tileBias.put("tile.hills", (Double)(1.01d * Math.exp(-k * ownedProbabilityPerTile.get("tile.hills"))));
+        tileBias.put("tile.mountains", (Double)(1.d * Math.exp(-k * ownedProbabilityPerTile.get("tile.mountains"))));
+        tileBias.put("tile.fields", (Double)(1.d * Math.exp(-k * ownedProbabilityPerTile.get("tile.fields"))));
+        tileBias.put("tile.pasture", (Double)(0.99d * Math.exp(-k * ownedProbabilityPerTile.get("tile.pasture"))));
+        tileBias.put("tile.desert", (Double)0.d);
+
+        return tileBias;
+    }
+
+    // higher the rating, the better vertex
+    private double rateVertex(int vertex, int playerID) {
+        double rating = 0.f;
+        //             0  1  2  3  4  5  6  7  8  9 10 11 12
+        int[] probs = {0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1};
+
+        HashMap<String, Double> tileBias = getTileBias(playerID);
+
+        for (Tile t : this.tiles.getTiles()) {
+            for (int n : t.getAdjVertices()) {
+                if (n == vertex) {
+                    rating += probs[t.getNumber()] * Math.max(tileBias.get(t.getTileID()), 0.d);
+                }
+            }
+        }
+
+        return rating;
+    }
+
+    private int[] verticesSortedByRating(int playerID) {
+
+        // rate each vertex based on its probablility of being rolled
+        int NUM_OF_VERTICES = 54;
+        double[] vertexRatings = new double[NUM_OF_VERTICES];
+
+        for (int i = 0; i < NUM_OF_VERTICES; i++) {
+            vertexRatings[i] = rateVertex(i, playerID);
+        }
+
+        // enable building without connecting to existing settlements 
+        passBuildRule = true;
+
+        // sort the vertices based on their ratings
+        double[] vr = vertexRatings.clone();
+        int[] vertices = new int[NUM_OF_VERTICES]; // the vertices sorted in order of rating
+                                                   // Note: default constructs to `0` for each value
+
+        // O(n^2) sorting algorithm :/   sorts vertices (j) in the order that the appear in vr
+        for (int i = 0; i < NUM_OF_VERTICES; i++) {
+            double value = -1.d;
+            int v = -1;
+
+            for (int j = 0; j < NUM_OF_VERTICES; j++) {
+                if (vr[j] > value) {
+                    value = vr[j];
+                    v = j;
+                }
+            }
+            if (v == -1) break; // break early if no rating
+            vertices[i] = v;
+            vr[v] = -1.f;
+        }
+
+        return vertices;
+    }
+
+    
+
+    // counts the number of empty vertices in a given direction
+    // recursive function; distance is how far to check for emptiness, prevVertex is last vertex (skips checking it again)
+    //                     , vertex is the current vertex being checked, and checkedVertices are the vertices check by this search already
+    private int countEmptyVertices(int distance, int prevVertex, int vertex, HashSet<Integer> checkedVertices) {
+        if (checkedVertices.contains(vertex)) {
+            return 0; // if already checked, return 0
+        }
+
+        if (distance <= 0) {
+            return 0; // if no distance, do not check
+        }
+
+        boolean unoccupied = this.settlements.GetSettlementFromVertex(vertex) == null;
+
+        if (!unoccupied) {
+            return 0; // no empty space this direction if blocked by settlement
+        }
+
+        checkedVertices.add(vertex);
+
+        int count = 0;
+        for (int neighbouringVertex : AdjacencyMaps.getAdjacentVertices(vertex)) {
+            if (neighbouringVertex == prevVertex) continue; // skip previously checked vertex
+            count += countEmptyVertices(distance-1, vertex, neighbouringVertex, checkedVertices);
+        }
+        return 1 + count; // add one to the number of empty vertices in this direction
+    }
+
+    private ArrayList<Road> rateAndSortRoads(ArrayList<Road> roads) {
+        ArrayList<Integer> roadRatings = new ArrayList<>(); // ratings of roads (to sort by)
+
+        int DISTANCE = 4; // distance to check vertices
+
+        for (Road r : roads) {
+            int[] verts = r.getVertices();
+            // rates both vertices of the road based on emptiness in each direction
+            // NOTE: can double count vertices if distance is greater than 2, no better solution possible
+            //       shouldn't happen in the current use-case i.e. one side of the road has a settlement
+            roadRatings.add( countEmptyVertices(DISTANCE, verts[1], verts[0], new HashSet<>()) +  countEmptyVertices(DISTANCE, verts[0], verts[1], new HashSet<>()));
+        }
+
+        // Create list of indices
+        ArrayList<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < roads.size(); i++) {
+            indices.add(i);
+        }
+
+        // Sort indices by associated rating (descending here)
+        indices.sort((i, j) -> Integer.compare(
+            roadRatings.get(j),
+            roadRatings.get(i)
+        ));
+
+        // Build sorted roads list
+        ArrayList<Road> sortedRoads = new ArrayList<>();
+        for (int i : indices) {
+            sortedRoads.add(roads.get(i));
+        }
+
+        return sortedRoads;
+    }
+
+    // Adds two settlements and two roads per player
+    public boolean initializeBoard() {
+
+        // make a random assortment of playerIDs for selecting settlements twice
+        // e.g. 2,1,3,4,4,3,1,2
+        ArrayList<Integer> playerIds = new ArrayList<>();
+        for (int i = 0; i < this.players.size(); i++) {playerIds.add((Integer)this.players.get(i).getId());}
+        Collections.shuffle(playerIds);
+        for (int i = this.players.size()-1; i > -1; i--) {playerIds.add(playerIds.get(i));}
+
+        ArrayList<Integer> builtVertices = new ArrayList<>(); // used for road building phase
+
+        //     | Build Settlement Phase |
+        // for each player in the build order
+        // trys to build a settlement on the next best square and loops till it finds one that works
+
+        for (int id : playerIds) {
+            // _logTestValuation(id, 0.18, verticesSortedByRating(id));
+
+            int[] vertices = verticesSortedByRating(id); // get the vertices, based on their value to the player
+            boolean settlementBuilt = false;
+            giveSettlementResources(id); // give settlement resources (to pass the check)
+
+            int vIndex = 0; // index of next vertex to try build upon
+            while (!settlementBuilt) {
+                if (vIndex == 54) {
+                    return false; // exit without finishing
+                }
+
+                int v = vertices[vIndex++]; // get the vertex (sorted with best first)
+                if (!settlementValid(v, id)) continue; // if invalid skip to next
+
+                settlementBuilt = buildSettlement(v, id); // build the settlement
+                if (settlementBuilt) {
+                    builtVertices.add(v); // store the vertex, for the road building phase
+                }
+            }
+            
+        }
+
+
+        //    | Build Road Phase |
+        // for each player ID and built vertex, build a road in the optimal direction
+
+        for (int i = 0; i < playerIds.size(); i++) {
+            int playerID = playerIds.get(i);
+            int vertex = builtVertices.get(i); 
+
+            giveRoadResources(playerID); // give resources to pass build check
+
+            boolean roadBuilt = false;
+            ArrayList<Road> potentialRoads = new ArrayList<>();
+
+            for (Road r : this.roads.getAllRoads()) {
+                if (r.getPlayerID() != Roads.UNOWNED_ROAD_ID) continue; // skip if owned (shouldn't happen at this stage)
+                for (int v : r.getVertices()) {
+                    if (v == vertex) {
+                        potentialRoads.add(r);
+                    }
+                }
+            }
+
+            // sort roads by optimal placement
+            potentialRoads = rateAndSortRoads(potentialRoads);
+            // Collections.shuffle(potentialRoads);
+
+            // attempt to build road (should work on first road build attempt)
+            for (Road r : potentialRoads) {
+                int[] roadVerts = r.getVertices();
+                roadBuilt = roads.buildRoad(roadVerts[0], roadVerts[1], playerID);
+                if (roadBuilt) break;
+            }
+            if (!roadBuilt) {
+                return false; // exit without finishing
+            }
+        }
+
+        // disable building without connecting to existing settlements 
+        passBuildRule = false;
+
+        return true; // successful
     }
 
     public void initializePlayers(ArrayList<String> playerNames) {
@@ -72,9 +339,9 @@ public class GameModel {
 
     public boolean settlementValid(int vertex, int playerID) {
         boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is valid when *NOT* a nearby settlement
-        boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID);
+        boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID) || passBuildRule;
         boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
-        return settlementDistanceValid && linkedByRoad && unowned || true;
+        return settlementDistanceValid && linkedByRoad && unowned;
     }
 
     public boolean cityValid(int vertex, int playerID) {
@@ -84,10 +351,10 @@ public class GameModel {
     }
 
     public boolean roadValid(int edgeIndex, int playerID) {
-        //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID); TODO
-        //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID); TODO
-        boolean unowned = roads.isRoadOwned(edgeIndex) == false;
-        return /*(connectedToSettlement || connectedToRoad) &&*/ unowned || true;
+        //boolean connectedToSettlement = settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID) || passBuildRule; TODO
+        //boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID) || passBuildRule; TODO
+        boolean unowned = !roads.isRoadOwned(edgeIndex);
+        return /*(connectedToSettlement || connectedToRoad) &&*/ unowned;
     }
 
     public boolean stealValid(int vertexIndex, int playerID) {
@@ -132,6 +399,7 @@ public class GameModel {
     public boolean buildSettlement(int vertex, int playerID) {
         Player player = getPlayer(playerID);
         boolean success_build = settlements.buildSettlement(vertex, playerID);
+        
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
         boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
         if (success_resources && success_build) {
