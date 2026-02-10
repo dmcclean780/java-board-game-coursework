@@ -259,10 +259,6 @@ public final class GameViewModel {
         }
     }
 
-    /**
-     * Called by the view when a resource type is selected by the player.
-     * Used for Trade Frenzy (choose 3 resources) and Monopoly (choose 1 resource).
-     */
     public void onResourceTypeSelected(ResourceConfig resource) {
         switch (turnState) {
             case TRADE_FRENZY -> {
@@ -312,10 +308,7 @@ public final class GameViewModel {
 
         String action = cfg.actionType == null ? "" : cfg.actionType;
         switch (action) {
-            case "ECO_CONFERENCE" -> {
-                // ECO_CONFERENCE effect was already applied in GameModel
-                switchToBuildState();
-            }
+            case "ECO_CONFERENCE" -> switchToMoveRobberState();
             case "HIGHWAY_MADNESS" -> switchToHighwayMadnessState();
             case "TRADING_FRENZY" -> switchToTradeFrenzyState();
             case "MONOPOLY" -> switchToMonopolyState();

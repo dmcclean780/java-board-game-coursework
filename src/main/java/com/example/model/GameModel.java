@@ -519,11 +519,7 @@ public class GameModel {
         // dispatch to the appropriate effect handler
         boolean success = false;
         switch (action) {
-            case "ECO_CONFERENCE" -> success = applyEcoConference(playerId);
-            // The following effects require user input (selection via the UI).
-            // Mark as success=true because the card was successfully played (removed from hand).
-            // The actual effect will be applied when the UI calls the parameterized apply methods
-            // with user selections (onRoadClicked, onResourceTypeSelected).
+            case "ECO_CONFERENCE" -> success = true;
             case "HIGHWAY_MADNESS" -> success = true;
             case "TRADING_FRENZY" -> success = true;
             case "MONOPOLY" -> success = true;
