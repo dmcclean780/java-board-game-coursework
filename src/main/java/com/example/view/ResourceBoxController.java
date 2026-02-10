@@ -3,6 +3,8 @@ package com.example.view;
 import com.example.viewmodel.ResourceViewState;
 
 import com.example.model.config.LangManager;
+import com.example.model.config.ResourceConfig;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Polygon;
@@ -11,6 +13,8 @@ import javafx.scene.paint.Paint;
 
 public class ResourceBoxController {
 
+        @FXML
+        private Label resourceSymbol;
     @FXML
     private Label resourceName;
     @FXML
@@ -19,6 +23,11 @@ public class ResourceBoxController {
     private Polygon resourcePolygon;
 
     public void bind(ResourceViewState resource) {
+        resourceSymbol.textProperty().bind(
+                Bindings.createStringBinding(
+                        () -> resource.configProperty().get().symbol,
+                        resource.configProperty()));
+                        
         resourceName.textProperty().bind(
                 Bindings.createStringBinding(
                         () -> LangManager.get(resource.configProperty().get().id + ".name"),
@@ -30,5 +39,4 @@ public class ResourceBoxController {
                                 resource.configProperty().get().colorHex),
                         resource.configProperty()));
     }
-
 }

@@ -206,6 +206,7 @@ public class BankCardsTest {
         assertTrue(true);
     }
 
+
     /**
      * Helper method to get the first resource from ConfigService
      */

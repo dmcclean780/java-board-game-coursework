@@ -11,5 +11,6 @@ public enum TurnState {
     PLAY_DEV_CARD,
     HIGHWAY_MADNESS,
     TRADE_FRENZY,
-    MONOPOLY
+    MONOPOLY,
+    STEAL_RESOURCE
 }

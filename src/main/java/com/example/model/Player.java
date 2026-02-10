@@ -337,12 +337,12 @@ public class Player {
     public boolean deductStructureResources(String structureType) {
         boolean success = true;
         PlayerInfrastructureConfig structureConfig = ConfigService.getInfrastructure(structureType);
-        System.out.println("Deducting resources for structure: " + structureType);
+        // System.out.println("Deducting resources for structure: " + structureType);
         for (String resource : structureConfig.constructionCosts.keySet()) {
             ResourceConfig resourceConfig = ConfigService.getResource(resource);
             int cost = structureConfig.constructionCosts.get(resource);
-            System.out.println(" - " + cost + " of " + resource);
-            System.out.println("   Current amount: " + this.getResourceCount(resourceConfig));
+            // System.out.println(" - " + cost + " of " + resource);
+            // System.out.println("   Current amount: " + this.getResourceCount(resourceConfig));
             success = success && this.changeResourceCount(resourceConfig, -cost);
         }
         return success;
@@ -378,5 +378,23 @@ public class Player {
 
     public void changeHiddenVictoryPoints(int amount) {
         hiddenVictoryPoints += amount;
+    }
+
+    public ResourceConfig stealRandomResource() {
+        ArrayList<ResourceConfig> ownedResources = new ArrayList<>();
+        for (ResourceConfig resource : this.resources.keySet()) {
+            if (this.getResourceCount(resource) > 0) {
+                ownedResources.add(resource);
+            }
+        }
+
+        if (ownedResources.isEmpty()) {
+            return null; // No resources to steal
+        }
+
+        int randomIndex = (int) (Math.random() * ownedResources.size());
+        ResourceConfig stolenResource = ownedResources.get(randomIndex);
+        this.changeResourceCount(stolenResource, -1); // Remove one of the stolen resource
+        return stolenResource;
     }
 }
