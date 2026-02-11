@@ -37,11 +37,11 @@ public final class GameViewModel {
                                                                                                  // current
     private final ObjectProperty<PlayerViewState> currentPlayer = new SimpleObjectProperty<>(); // Current player
     private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
-    // Selections for special dev-card states
-    // todo: get rid of these
+
     private final ArrayList<Integer> highwaySelectedRoads = new ArrayList<>();
     private final ArrayList<ResourceConfig> frenzySelectedResources = new ArrayList<>();
     private ResourceConfig monopolySelectedResource = null;
+    
     private final ObjectProperty<DiceViewState> diceRoll = new SimpleObjectProperty<>(new DiceViewState());
 
     public GameViewModel(GameModel gameModel, NavigationService navigationService) {
