@@ -308,9 +308,8 @@ public class GameModel {
             // attempt to build road (should work on first road build attempt)
             for (Road r : potentialRoads) {
                 int[] roadVerts = r.getVertices();
-                roadBuilt = roads.buildRoad(roadVerts[0], roadVerts[1], playerID);
-                if (roadBuilt)
-                    break;
+                roadBuilt = buildRoad(Roads.getRoadIndex(roadVerts[0], roadVerts[1]), playerID);
+                if (roadBuilt) break;
             }
             if (!roadBuilt) {
                 return false; // exit without finishing
