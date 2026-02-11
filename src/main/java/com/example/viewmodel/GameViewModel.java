@@ -196,6 +196,15 @@ public final class GameViewModel {
         playerState.getPorts().setAll(portConfigs);
     }
 
+    private void updateTileViewStates() {
+        for (int i = 0; i < tiles.size(); i++) {
+            Tile tile = gameModel.getTiles()[i];
+            tiles.get(i).number.set(tile.getNumber());
+            tiles.get(i).resource.set(tile.getTileID());
+            tiles.get(i).blocked.set(tile.getIsBlocked());
+        }
+    }
+
     public ObservableList<TileViewState> tilesProperty() {
         return tiles;
     }
@@ -499,6 +508,7 @@ public final class GameViewModel {
         gameModel.checkPlayerResources();
         gameModel.moveRobber(index);
         switchToStealResourceState();
+        updateTileViewStates();
 
     }
 
@@ -524,8 +534,8 @@ public final class GameViewModel {
         TradePlayer tradePlayer = new TradePlayer(currentPlayer.get().idProperty().get(), playerID, giveResource, receiveResource);
         if(gameModel.validTrade(tradePlayer)) {
             gameModel.executeTrade(tradePlayer);
-            updatePlayerViewState(currentPlayer.get());
-            updateBankViewState(bankState.get());
+            System.out.println("Trade executed successfully");
+            updatePlayerViewStates();
         }
     }
 

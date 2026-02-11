@@ -57,6 +57,13 @@ public class TradePortMenuController {
             receiveToggleGroup.selectToggle(null);
             portToggleGroup.selectToggle(null);
         });
+
+        confirmTradeButton.disableProperty().bind(
+                Bindings.or(
+                        giveToggleGroup.selectedToggleProperty().isNull(),
+                        Bindings.or(
+                                receiveToggleGroup.selectedToggleProperty().isNull(),
+                                portToggleGroup.selectedToggleProperty().isNull())));
     }
 
     public void initialize() {

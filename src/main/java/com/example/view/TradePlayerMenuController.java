@@ -1,6 +1,7 @@
 package com.example.view;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
@@ -16,20 +17,21 @@ import com.example.viewmodel.viewstates.ResourceViewState;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
 
 public class TradePlayerMenuController {
     private GameViewModel viewModel;
@@ -37,17 +39,21 @@ public class TradePlayerMenuController {
     @FXML
     private Label playerTradeTitleLabel;
     @FXML
-    private Button confirmTradeButton;
+    private Button proposeTradeButton;
 
     @FXML
     private HBox giveResourceBox;
     @FXML
     private HBox receiveResourceBox;
-    private ToggleGroup playerToggleGroup = new ToggleGroup();
+    @FXML
+    private HBox playersAcceptBox;
 
-    private HashMap<ResourceConfig, Integer> selectedGiveResources = new HashMap<>();
-    private HashMap<ResourceConfig, Integer> selectedReceiveResources = new HashMap<>();
+    private ObservableMap<ResourceConfig, Integer> selectedGiveResources = FXCollections.observableHashMap();
+    private ObservableMap<ResourceConfig, Integer> selectedReceiveResources = FXCollections.observableHashMap();
     private BooleanProperty tradeProposed = new SimpleBooleanProperty(false);
+    private IntegerProperty selectedPlayerID = new SimpleIntegerProperty(-1);
+    private ObservableList<Integer> rejectedPlayerIDs = FXCollections.observableArrayList();
+    private ObservableList<Integer> playerAcceptOrderStack = FXCollections.observableArrayList();
 
     public void bind(GameViewModel viewModel) {
         this.viewModel = viewModel;
@@ -57,52 +63,86 @@ public class TradePlayerMenuController {
         updateResourceBoxes(viewModel);
 
         GameUIState.popupVisible.addListener((obs, oldValue, newValue) -> {
-            tradeProposed.set(false);
-            selectedGiveResources.clear();
-            selectedReceiveResources.clear();
+            if (!newValue) { // popup hidden
+                tradeProposed.set(false);
+                selectedGiveResources.clear();
+                selectedReceiveResources.clear();
+                rejectedPlayerIDs.clear();
+                playerAcceptOrderStack.clear();
+                updateResourceBoxes(viewModel);
+            }
         });
     }
 
     public void initialize() {
         playerTradeTitleLabel.setText(LangManager.get("playerTradeTitleLabel"));
-        confirmTradeButton.setText(LangManager.get("confirmTradeButton"));
+        proposeTradeButton.setText(LangManager.get("proposeTradeButton"));
     }
 
     private void updateResourceBoxes(GameViewModel viewModel) {
         giveResourceBox.getChildren().clear();
         receiveResourceBox.getChildren().clear();
+        playersAcceptBox.getChildren().clear();
 
         ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
         currentPlayer.get().getResources().forEach(resourceViewState -> {
-            Spinner<Integer> resourceSelector = createResourceGiveSelector(resourceViewState);
+            VBox resourceSelector = createResourceGiveSelector(resourceViewState);
             giveResourceBox.getChildren().add(resourceSelector);
         });
 
         currentPlayer.get().getResources().forEach(resourceViewState -> {
-            Spinner<Integer> resourceSelector = createResourceReceiveSelector(resourceViewState,
+            VBox resourceSelector = createResourceReceiveSelector(resourceViewState,
                     viewModel.playersProperty());
             receiveResourceBox.getChildren().add(resourceSelector);
         });
+
+        playerAcceptOrderStack.clear();
+        List<PlayerViewState> otherPlayers = viewModel.playersProperty();
+        for (PlayerViewState player : otherPlayers) {
+            if (player.idProperty().get() != currentPlayer.get().idProperty().get()) {
+                playerAcceptOrderStack.add(player.idProperty().get());
+                VBox acceptBox = createPlayerAcceptBox(player);
+                playersAcceptBox.getChildren().add(acceptBox);
+            }
+        }
+        System.out.println(playerAcceptOrderStack);
+
     }
 
-    private Spinner<Integer> createResourceGiveSelector(ResourceViewState resourceViewState) {
-        Spinner<Integer> spinner = new Spinner<>(0, resourceViewState.countProperty().get(), 0);
+    private VBox createResourceGiveSelector(ResourceViewState resourceViewState) {
+        IntegerSpinnerValueFactory valueFactory = new IntegerSpinnerValueFactory(0,
+                resourceViewState.countProperty().get(), 0);
+
+        VBox selectBox = new VBox();
+        selectBox.setStyle("-fx-border-color: black; -fx-background-color: "
+                + resourceViewState.configProperty().get().colorHex + "; -fx-padding: 5;");
+        Label nameLabel = new Label(LangManager.get(resourceViewState.configProperty().get().id + ".name"));
+        Spinner<Integer> spinner = new Spinner<>(valueFactory);
         spinner.setEditable(true);
-        spinner.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue > resourceViewState.countProperty().get()) {
-                spinner.getValueFactory().setValue(resourceViewState.countProperty().get());
-            } else if (newValue < 0) {
-                spinner.getValueFactory().setValue(0);
+
+        // Bind max to the current resource count dynamically
+        valueFactory.maxProperty().bind(resourceViewState.countProperty());
+
+        // Optional: clamp value to current max
+        resourceViewState.countProperty().addListener((obs, oldVal, newVal) -> {
+            if (spinner.getValue() > newVal.intValue()) {
+                spinner.getValueFactory().setValue(newVal.intValue());
             }
         });
+
         spinner.disableProperty().bind(tradeProposed);
         spinner.setUserData(resourceViewState.configProperty().get());
-        return spinner;
+        selectBox.getChildren().addAll(nameLabel, spinner);
+        return selectBox;
     }
 
-    private Spinner<Integer> createResourceReceiveSelector(ResourceViewState resourceViewState,
+    private VBox createResourceReceiveSelector(ResourceViewState resourceViewState,
             ObservableList<PlayerViewState> players) {
 
+        VBox selectBox = new VBox();
+        selectBox.setStyle("-fx-border-color: black; -fx-background-color: "
+                + resourceViewState.configProperty().get().colorHex + "; -fx-padding: 5;");
+        Label nameLabel = new Label(LangManager.get(resourceViewState.configProperty().get().id + ".name"));
         int max = players.stream()
                 .mapToInt(player -> player.getResources().stream()
                         .filter(r -> r.configProperty().get().equals(
@@ -124,21 +164,25 @@ public class TradePlayerMenuController {
         });
         spinner.disableProperty().bind(tradeProposed);
         spinner.setUserData(resourceViewState.configProperty().get());
-        return spinner;
+        selectBox.getChildren().addAll(nameLabel, spinner);
+        return selectBox;
     }
 
     private HashMap<ResourceConfig, Integer> getSelectedResources(HBox selectionBox) {
-
         HashMap<ResourceConfig, Integer> selection = new HashMap<>();
 
-        selectionBox.getChildren().stream()
-                .filter(n -> n instanceof Spinner<?>)
-                .map(n -> (Spinner<Integer>) n)
-                .forEach(spinner -> {
-                    ResourceConfig resource = (ResourceConfig) spinner.getUserData();
-                    selection.put(resource, spinner.getValue());
-                });
+        for (var node : selectionBox.getChildren()) {
+            if (node instanceof VBox vbox) {
+                for (var child : vbox.getChildren()) {
+                    if (child instanceof Spinner<?> spinner) {
+                        ResourceConfig resource = (ResourceConfig) spinner.getUserData();
+                        selection.put(resource, ((Spinner<Integer>) spinner).getValue());
+                    }
+                }
+            }
+        }
 
+        System.out.println("Selected resources: " + selection);
         return selection;
     }
 
@@ -164,17 +208,107 @@ public class TradePlayerMenuController {
         });
     }
 
-    @FXML
-    private void handleProposeTrade() {
-        System.out.println("Proposing player trade...");
+    private VBox createPlayerAcceptBox(PlayerViewState player) {
+        VBox acceptBox = new VBox();
+        System.out.println(player.colorProperty().get().toString());
+        Color fxColor = player.colorProperty().get();
+        String cssColor = String.format(
+                "#%02X%02X%02X",
+                (int) (fxColor.getRed() * 255),
+                (int) (fxColor.getGreen() * 255),
+                (int) (fxColor.getBlue() * 255));
+        acceptBox.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: " + cssColor + ";");
+        Label nameLabel = new Label(player.nameProperty().get());
+        Button acceptButton = new Button("Accept");
+        acceptButton.setUserData(player.idProperty().get());
+        acceptButton.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> {
+                            int playerId = player.idProperty().get();
+                            boolean rejected = rejectedPlayerIDs.contains(playerId);
+                            int idx = playerAcceptOrderStack.indexOf(playerId);
+                            boolean notFirst = (idx != 0);
+                            boolean notProposed = !tradeProposed.get();
+                            boolean canProvide = canThisPlayerAccept(selectedReceiveResources, player);
+                            return rejected || notFirst || notProposed || !canProvide;
+                        },
+                        tradeProposed,
+                        rejectedPlayerIDs,
+                        playerAcceptOrderStack,
+                        selectedReceiveResources,
+                        player.idProperty()));
 
-        selectedGiveResources = getSelectedResources(giveResourceBox);
-        selectedReceiveResources = getSelectedResources(receiveResourceBox);
+        acceptButton.setOnAction(e -> {
+            selectedPlayerID.set((Integer) acceptButton.getUserData());
+            handleConfirmTrade();
+        });
+        Button rejectButton = new Button("Reject");
+        rejectButton.setUserData(player.idProperty().get());
+        rejectButton.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> {
+                            int playerId = player.idProperty().get();
+                            boolean rejected = rejectedPlayerIDs.contains(playerId);
+                            int idx = playerAcceptOrderStack.indexOf(playerId);
+                            boolean notFirst = (idx != 0);
+                            boolean notProposed = !tradeProposed.get();
+                            return rejected || notFirst || notProposed;
+                        },
+                        tradeProposed,
+                        rejectedPlayerIDs,
+                        playerAcceptOrderStack,
+                        player.idProperty()));
+        rejectButton.setOnAction(e -> {
+            int playerId = player.idProperty().get();
+            if (!rejectedPlayerIDs.contains(playerId)) {
+                rejectedPlayerIDs.add(playerId);
+            }
+            playerAcceptOrderStack.remove((Integer) playerId);
+        });
+
+        acceptBox.getChildren().addAll(nameLabel, acceptButton, rejectButton);
+        return acceptBox;
+    }
+
+    private boolean canThisPlayerAccept(ObservableMap<ResourceConfig, Integer> required, PlayerViewState player) {
+
+        return required.entrySet().stream().allMatch(entry -> {
+
+            ResourceConfig resource = entry.getKey();
+            int requiredAmount = entry.getValue();
+
+            int playerAmount = player.getResources().stream()
+                    .filter(r -> r.configProperty().get().equals(resource))
+                    .mapToInt(r -> r.countProperty().get())
+                    .sum();
+
+            return playerAmount >= requiredAmount;
+        });
+
     }
 
     @FXML
+    private void handleProposeTrade() {
+        System.out.println("Proposing player trade...");
+        System.out.print(playerAcceptOrderStack);
+
+        selectedGiveResources.clear();
+        selectedReceiveResources.clear();
+        selectedGiveResources.putAll(getSelectedResources(giveResourceBox));
+        selectedReceiveResources.putAll(getSelectedResources(receiveResourceBox));
+        tradeProposed.set(true);
+    }
+
     private void handleConfirmTrade() {
         System.out.println("Confirming bank trade...");
-        int playerID = (int) playerToggleGroup.getSelectedToggle().getUserData();
+        viewModel.setPlayerTrade(
+                selectedPlayerID.get(),
+                new HashMap<>(selectedGiveResources),
+                new HashMap<>(selectedReceiveResources));
+        tradeProposed.set(false);
+        selectedPlayerID.set(-1);
+        rejectedPlayerIDs.clear();
+        playerAcceptOrderStack.clear();
+        updateResourceBoxes(viewModel);
     }
 }

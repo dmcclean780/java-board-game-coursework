@@ -728,7 +728,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             return;
 
         Platform.runLater(() -> {
-            tileGroup[index].setOpacity(disabled ? 1.0 : 1.0);
+            tileGroup[index].setOpacity(disabled ? 0.2 : 1.0);
             tileGroup[index].setMouseTransparent(disabled);
         });
     }

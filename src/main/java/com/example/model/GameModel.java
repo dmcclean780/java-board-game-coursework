@@ -572,13 +572,16 @@ public class GameModel {
             return false;
         }
 
+        System.out.println(getPlayer(trade.playerAId()));
+        System.out.println(getPlayer(trade.playerBId()));
+
         Player playerA = getPlayer(trade.playerAId());
         Player playerB = getPlayer(trade.playerBId());
         HashMap<ResourceConfig, Integer> playerAResources = trade.resourcesAGive();
         HashMap<ResourceConfig, Integer> playerBResources = trade.resourcesBGive();
 
         for (Map.Entry<ResourceConfig, Integer> entry : playerAResources.entrySet()) {
-            ResourceConfig resource = entry.getKey();
+            ResourceConfig resource = entry.getKey();   
             int amount = entry.getValue();
             playerA.changeResourceCount(resource, -amount);
             playerB.changeResourceCount(resource, +amount);
@@ -590,6 +593,11 @@ public class GameModel {
             playerB.changeResourceCount(resource, -amount);
             playerA.changeResourceCount(resource, +amount);
         }
+        
+        System.out.println("Trade executed successfully");
+        System.out.println(getPlayer(trade.playerAId()));
+        System.out.println(getPlayer(trade.playerBId()));
+
 
         return true;
     }

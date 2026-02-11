@@ -53,6 +53,12 @@ public class TradeBankMenuController {
             giveToggleGroup.selectToggle(null);
             receiveToggleGroup.selectToggle(null);
         });
+
+        confirmTradeButton.disableProperty().bind(
+                Bindings.or(
+                        giveToggleGroup.selectedToggleProperty().isNull(),
+                        receiveToggleGroup.selectedToggleProperty().isNull()));
+
     }
 
     public void initialize() {
@@ -63,6 +69,7 @@ public class TradeBankMenuController {
     private void updateResourceBoxes(GameViewModel viewModel) {
         giveResourceBox.getChildren().clear();
         receiveResourceBox.getChildren().clear();
+        
 
         ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
         currentPlayer.get().getResources().forEach(resourceViewState -> {
