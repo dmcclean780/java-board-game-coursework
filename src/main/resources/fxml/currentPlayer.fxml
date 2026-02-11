@@ -299,6 +299,7 @@
                             prefWidth="250"
                             styleClass="action-button"/>
                         <Button fx:id="tradeButton"
+                            onAction="#showTradingMenu"
                             text="Trade"
                             prefWidth="250"
                             styleClass="action-button"/>

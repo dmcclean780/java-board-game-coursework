@@ -1,6 +1,7 @@
 package com.example.view;
 
-import com.example.viewmodel.PlayerViewState;
+import com.example.viewmodel.viewstates.PlayerViewState;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Polygon;

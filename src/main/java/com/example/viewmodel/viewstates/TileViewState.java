@@ -1,4 +1,4 @@
-package com.example.viewmodel;
+package com.example.viewmodel.viewstates;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
