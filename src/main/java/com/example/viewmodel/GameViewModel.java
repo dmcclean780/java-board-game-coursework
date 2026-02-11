@@ -286,7 +286,7 @@ public final class GameViewModel {
     }
 
     public void onResourceTypeSelected(ResourceConfig resource) {
-        switch (turnState) {
+        switch (turnState.get()) {
             case TRADE_FRENZY -> {
                 frenzySelectedResources.add(resource);
                 if (frenzySelectedResources.size() == 3) {
@@ -334,7 +334,7 @@ public final class GameViewModel {
 
         String action = cfg.actionType == null ? "" : cfg.actionType;
         switch (action) {
-            case "ECO_CONFERENCE" -> switchToMoveRobberState();
+            case "ECO_CONFERENCE" -> switchToEcoConferenceState();
             case "HIGHWAY_MADNESS" -> switchToHighwayMadnessState();
             case "TRADING_FRENZY" -> switchToTradeFrenzyState();
             case "MONOPOLY" -> switchToMonopolyState();
@@ -497,20 +497,25 @@ public final class GameViewModel {
         }
     }
 
+    // do these need more happening in them?
+    public void switchToEcoConferenceState() {
+        turnState.set(TurnState.ECO_CONFERENCE);
+    }
+
     public void switchToHighwayMadnessState(){
-        turnState = TurnState.HIGHWAY_MADNESS;
+        turnState.set(TurnState.HIGHWAY_MADNESS);
     }
 
     public void switchToTradeFrenzyState(){
-        turnState = TurnState.TRADE_FRENZY;
+        turnState.set(TurnState.TRADE_FRENZY);
     }
 
     public void switchToMonopolyState(){
-        turnState = TurnState.MONOPOLY;
+        turnState.set(TurnState.MONOPOLY);
     }
 
     public void switchToPlayDevCardState() {
-        turnState = TurnState.PLAY_DEV_CARD;
+        turnState.set(TurnState.PLAY_DEV_CARD);
     }
 
     public void endTurn() {
@@ -531,12 +536,15 @@ public final class GameViewModel {
     }
 
     public void moveRobber(int index) {
-        if (turnState.get() != TurnState.MOVE_ROBBER_STATE) {
-            return;
+        if (turnState.get() == TurnState.MOVE_ROBBER_STATE) {
+            gameModel.checkPlayerResources();
+            gameModel.moveRobber(index);
+            switchToStealResourceState();
         }
-        gameModel.checkPlayerResources();
-        gameModel.moveRobber(index);
-        switchToStealResourceState();
+        else if (turnState.get() == TurnState.ECO_CONFERENCE) {
+            gameModel.moveRobber(index);
+            switchToStealResourceState();
+        }
 
     }
 

@@ -828,7 +828,7 @@ public class GameModel {
             case "TRADING_FRENZY" -> success = true;
             case "MONOPOLY" -> success = true;
             default -> {
-                // unknown action: no-op for now
+                break;
             }
         }
 
@@ -840,12 +840,6 @@ public class GameModel {
         int points = p.getVictoryPoints(playerId);
         if (p != null) points += p.getHiddenVictoryPoints();
         return points;
-    }
-
-    public boolean applyEcoConference(int playerId) {
-        // TODO: implement ECO_CONFERENCE effect
-        // move robber and steal a resource from a player with a settlement on that tile
-        return false;
     }
 
     // build two free roads

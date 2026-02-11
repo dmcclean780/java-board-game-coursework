@@ -9,6 +9,7 @@ public enum TurnState {
     BUILD_CITY,
     MOVE_ROBBER_STATE,
     PLAY_DEV_CARD,
+    ECO_CONFERENCE,
     HIGHWAY_MADNESS,
     TRADE_FRENZY,
     MONOPOLY,
