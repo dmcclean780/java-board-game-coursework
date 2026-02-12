@@ -1,4 +1,6 @@
-package com.example.viewmodel;
+package com.example.viewmodel.viewstates;
+
+import com.example.model.config.PortConfig;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -23,7 +25,9 @@ public class PlayerViewState {
     private final BooleanProperty canBuildRoad = new SimpleBooleanProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
 
-    ObservableList<ResourceViewState> resources = FXCollections.observableArrayList();
+    private final ObservableList<ResourceViewState> resources = FXCollections.observableArrayList();
+    private final ObservableList<PortConfig> ports = FXCollections.observableArrayList();
+
 
     public StringProperty nameProperty() { return name; }
     public IntegerProperty idProperty() { return id; }
@@ -35,4 +39,5 @@ public class PlayerViewState {
     public BooleanProperty canBuildRoadProperty() { return canBuildRoad; }
     public ObjectProperty<Color> colorProperty() { return color; }
     public ObservableList<ResourceViewState> getResources() { return resources; }
+    public ObservableList<PortConfig> getPorts() { return ports; }
 }

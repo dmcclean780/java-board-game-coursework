@@ -1,12 +1,23 @@
 package com.example.model;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+<<<<<<< HEAD
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+=======
+import java.util.Collection;
+import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+>>>>>>> main
 
 import com.example.model.config.PlayerInfrastructureConfig;
+import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
@@ -25,8 +36,8 @@ public class GameModel {
     private final BankCards bankCards;
     private final ClimateTracker climateTracker;
 
-    private boolean passBuildRule; // disables checking if roads or settlements are connected to others, to setup the board
-
+    private boolean passBuildRule; // disables checking if roads or settlements are connected to others, to setup
+                                   // the board
 
     public GameModel() {
         this.players = new ArrayList<>();
@@ -43,21 +54,24 @@ public class GameModel {
 
     // // code used to test how settlement placements are be valued
     // private void _logTestValuation(int playerID, double k, int[] vertices) {
-    //     System.out.print("-- Player "); System.out.print(playerID);System.out.print("-- K: "); System.out.print(k);System.out.print(",  Vertices: ");
-    //     for (int v : vertices) {
-    //         System.out.print(v + ", ");
-    //     }
+    // System.out.print("-- Player ");
+    // System.out.print(playerID);System.out.print("-- K: ");
+    // System.out.print(k);System.out.print(", Vertices: ");
+    // for (int v : vertices) {
+    // System.out.print(v + ", ");
+    // }
 
-    //     System.out.println();
+    // System.out.println();
     // }
 
     // Creates the tile bias for each tile type for the player
     private HashMap<String, Double> getTileBias(int playerID) {
 
-        //             0  1  2  3  4  5  6  7  8  9 10 11 12
-        int[] probs = {0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1};
+        // 0 1 2 3 4 5 6 7 8 9 10 11 12
+        int[] probs = { 0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1 };
 
-        // create hashmap to count the number of cards the player can expect of the tileID for the average die roll
+        // create hashmap to count the number of cards the player can expect of the
+        // tileID for the average die roll
         HashMap<String, Integer> ownedProbabilityPerTile = new HashMap<>();
         ownedProbabilityPerTile.put("tile.forest", 0);
         ownedProbabilityPerTile.put("tile.hills", 0);
@@ -66,7 +80,8 @@ public class GameModel {
         ownedProbabilityPerTile.put("tile.pasture", 0);
         ownedProbabilityPerTile.put("tile.desert", 0);
 
-        // goes through all owned settlements for the player, and adds to the probability all surrounding tiles
+        // goes through all owned settlements for the player, and adds to the
+        // probability all surrounding tiles
         for (Settlement s : settlements.getAllOwnedSettlements()) {
             if (s.getPlayerID() == playerID) {
                 int vertex = s.getVertex();
@@ -82,19 +97,21 @@ public class GameModel {
 
         HashMap<String, Double> tileBias = new HashMap<>();
 
-        double k = 0.18d; // amount each owned probability point for a tile type decreases bias to get the tile
+        double k = 0.18d; // amount each owned probability point for a tile type decreases bias to get the
+                          // tile
                           // improves spread of resources
-                          // k = 0 ignores spread of resources, k > 0.3 is harsh enough to break valuation (bias is close 0 for already owned resources)
+                          // k = 0 ignores spread of resources, k > 0.3 is harsh enough to break valuation
+                          // (bias is close 0 for already owned resources)
 
-        
-        // Bias is found by the equation:  t * e**(-ka), where t is starting bias, k is a constant (defined above), and a is the probability count
+        // Bias is found by the equation: t * e**(-ka), where t is starting bias, k is a
+        // constant (defined above), and a is the probability count
 
-        tileBias.put("tile.forest", (Double)(1.01d * Math.exp(-k * ownedProbabilityPerTile.get("tile.forest"))));
-        tileBias.put("tile.hills", (Double)(1.01d * Math.exp(-k * ownedProbabilityPerTile.get("tile.hills"))));
-        tileBias.put("tile.mountains", (Double)(1.d * Math.exp(-k * ownedProbabilityPerTile.get("tile.mountains"))));
-        tileBias.put("tile.fields", (Double)(1.d * Math.exp(-k * ownedProbabilityPerTile.get("tile.fields"))));
-        tileBias.put("tile.pasture", (Double)(0.99d * Math.exp(-k * ownedProbabilityPerTile.get("tile.pasture"))));
-        tileBias.put("tile.desert", (Double)0.d);
+        tileBias.put("tile.forest", (Double) (1.01d * Math.exp(-k * ownedProbabilityPerTile.get("tile.forest"))));
+        tileBias.put("tile.hills", (Double) (1.01d * Math.exp(-k * ownedProbabilityPerTile.get("tile.hills"))));
+        tileBias.put("tile.mountains", (Double) (1.d * Math.exp(-k * ownedProbabilityPerTile.get("tile.mountains"))));
+        tileBias.put("tile.fields", (Double) (1.d * Math.exp(-k * ownedProbabilityPerTile.get("tile.fields"))));
+        tileBias.put("tile.pasture", (Double) (0.99d * Math.exp(-k * ownedProbabilityPerTile.get("tile.pasture"))));
+        tileBias.put("tile.desert", (Double) 0.d);
 
         return tileBias;
     }
@@ -102,8 +119,8 @@ public class GameModel {
     // higher the rating, the better vertex
     private double rateVertex(int vertex, int playerID) {
         double rating = 0.f;
-        //             0  1  2  3  4  5  6  7  8  9 10 11 12
-        int[] probs = {0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1};
+        // 0 1 2 3 4 5 6 7 8 9 10 11 12
+        int[] probs = { 0, 0, 1, 2, 3, 4, 5, 0, 5, 4, 3, 2, 1 };
 
         HashMap<String, Double> tileBias = getTileBias(playerID);
 
@@ -128,7 +145,7 @@ public class GameModel {
             vertexRatings[i] = rateVertex(i, playerID);
         }
 
-        // enable building without connecting to existing settlements 
+        // enable building without connecting to existing settlements
         passBuildRule = true;
 
         // sort the vertices based on their ratings
@@ -136,7 +153,8 @@ public class GameModel {
         int[] vertices = new int[NUM_OF_VERTICES]; // the vertices sorted in order of rating
                                                    // Note: default constructs to `0` for each value
 
-        // O(n^2) sorting algorithm :/   sorts vertices (j) in the order that the appear in vr
+        // O(n^2) sorting algorithm :/ sorts vertices (j) in the order that the appear
+        // in vr
         for (int i = 0; i < NUM_OF_VERTICES; i++) {
             double value = -1.d;
             int v = -1;
@@ -147,7 +165,8 @@ public class GameModel {
                     v = j;
                 }
             }
-            if (v == -1) break; // break early if no rating
+            if (v == -1)
+                break; // break early if no rating
             vertices[i] = v;
             vr[v] = -1.f;
         }
@@ -155,11 +174,11 @@ public class GameModel {
         return vertices;
     }
 
-    
-
     // counts the number of empty vertices in a given direction
-    // recursive function; distance is how far to check for emptiness, prevVertex is last vertex (skips checking it again)
-    //                     , vertex is the current vertex being checked, and checkedVertices are the vertices check by this search already
+    // recursive function; distance is how far to check for emptiness, prevVertex is
+    // last vertex (skips checking it again)
+    // , vertex is the current vertex being checked, and checkedVertices are the
+    // vertices check by this search already
     private int countEmptyVertices(int distance, int prevVertex, int vertex, HashSet<Integer> checkedVertices) {
         if (checkedVertices.contains(vertex)) {
             return 0; // if already checked, return 0
@@ -179,8 +198,9 @@ public class GameModel {
 
         int count = 0;
         for (int neighbouringVertex : AdjacencyMaps.getAdjacentVertices(vertex)) {
-            if (neighbouringVertex == prevVertex) continue; // skip previously checked vertex
-            count += countEmptyVertices(distance-1, vertex, neighbouringVertex, checkedVertices);
+            if (neighbouringVertex == prevVertex)
+                continue; // skip previously checked vertex
+            count += countEmptyVertices(distance - 1, vertex, neighbouringVertex, checkedVertices);
         }
         return 1 + count; // add one to the number of empty vertices in this direction
     }
@@ -193,9 +213,12 @@ public class GameModel {
         for (Road r : roads) {
             int[] verts = r.getVertices();
             // rates both vertices of the road based on emptiness in each direction
-            // NOTE: can double count vertices if distance is greater than 2, no better solution possible
-            //       shouldn't happen in the current use-case i.e. one side of the road has a settlement
-            roadRatings.add( countEmptyVertices(DISTANCE, verts[1], verts[0], new HashSet<>()) +  countEmptyVertices(DISTANCE, verts[0], verts[1], new HashSet<>()));
+            // NOTE: can double count vertices if distance is greater than 2, no better
+            // solution possible
+            // shouldn't happen in the current use-case i.e. one side of the road has a
+            // settlement
+            roadRatings.add(countEmptyVertices(DISTANCE, verts[1], verts[0], new HashSet<>())
+                    + countEmptyVertices(DISTANCE, verts[0], verts[1], new HashSet<>()));
         }
 
         // Create list of indices
@@ -206,9 +229,8 @@ public class GameModel {
 
         // Sort indices by associated rating (descending here)
         indices.sort((i, j) -> Integer.compare(
-            roadRatings.get(j),
-            roadRatings.get(i)
-        ));
+                roadRatings.get(j),
+                roadRatings.get(i)));
 
         // Build sorted roads list
         ArrayList<Road> sortedRoads = new ArrayList<>();
@@ -225,15 +247,20 @@ public class GameModel {
         // make a random assortment of playerIDs for selecting settlements twice
         // e.g. 2,1,3,4,4,3,1,2
         ArrayList<Integer> playerIds = new ArrayList<>();
-        for (int i = 0; i < this.players.size(); i++) {playerIds.add((Integer)this.players.get(i).getId());}
+        for (int i = 0; i < this.players.size(); i++) {
+            playerIds.add((Integer) this.players.get(i).getId());
+        }
         Collections.shuffle(playerIds);
-        for (int i = this.players.size()-1; i > -1; i--) {playerIds.add(playerIds.get(i));}
+        for (int i = this.players.size() - 1; i > -1; i--) {
+            playerIds.add(playerIds.get(i));
+        }
 
         ArrayList<Integer> builtVertices = new ArrayList<>(); // used for road building phase
 
-        //     | Build Settlement Phase |
+        // | Build Settlement Phase |
         // for each player in the build order
-        // trys to build a settlement on the next best square and loops till it finds one that works
+        // trys to build a settlement on the next best square and loops till it finds
+        // one that works
 
         for (int id : playerIds) {
             // _logTestValuation(id, 0.18, verticesSortedByRating(id));
@@ -250,23 +277,23 @@ public class GameModel {
                 }
 
                 int v = vertices[vIndex++]; // get the vertex (sorted with best first)
-                if (!settlementValid(v, id)) continue; // if invalid skip to next
+                if (!settlementValid(v, id))
+                    continue; // if invalid skip to next
 
                 settlementBuilt = buildSettlement(v, id); // build the settlement
                 if (settlementBuilt) {
                     builtVertices.add(v); // store the vertex, for the road building phase
                 }
             }
-            
+
         }
 
-
-        //    | Build Road Phase |
+        // | Build Road Phase |
         // for each player ID and built vertex, build a road in the optimal direction
 
         for (int i = 0; i < playerIds.size(); i++) {
             int playerID = playerIds.get(i);
-            int vertex = builtVertices.get(i); 
+            int vertex = builtVertices.get(i);
 
             giveRoadResources(playerID); // give resources to pass build check
 
@@ -274,7 +301,8 @@ public class GameModel {
             ArrayList<Road> potentialRoads = new ArrayList<>();
 
             for (Road r : this.roads.getAllRoads()) {
-                if (r.getPlayerID() != Roads.UNOWNED_ROAD_ID) continue; // skip if owned (shouldn't happen at this stage)
+                if (r.getPlayerID() != Roads.UNOWNED_ROAD_ID)
+                    continue; // skip if owned (shouldn't happen at this stage)
                 for (int v : r.getVertices()) {
                     if (v == vertex) {
                         potentialRoads.add(r);
@@ -289,7 +317,7 @@ public class GameModel {
             // attempt to build road (should work on first road build attempt)
             for (Road r : potentialRoads) {
                 int[] roadVerts = r.getVertices();
-                roadBuilt = roads.buildRoad(roadVerts[0], roadVerts[1], playerID);
+                roadBuilt = buildRoad(Roads.getRoadIndex(roadVerts[0], roadVerts[1]), playerID);
                 if (roadBuilt) break;
             }
             if (!roadBuilt) {
@@ -298,7 +326,7 @@ public class GameModel {
             }
         }
 
-        // disable building without connecting to existing settlements 
+        // disable building without connecting to existing settlements
         passBuildRule = false;
 
         return true; // successful
@@ -340,7 +368,8 @@ public class GameModel {
     }
 
     public boolean settlementValid(int vertex, int playerID) {
-        boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is valid when *NOT* a nearby settlement
+        boolean settlementDistanceValid = !settlements.nearbySettlement(vertex); // Note: settlement distance rule is
+                                                                                 // valid when *NOT* a nearby settlement
         boolean linkedByRoad = roads.isVertexConnectedByPlayer(vertex, playerID) || passBuildRule;
         boolean unowned = getSettlmentOwner(vertex) == Settlements.UNOWNED_SETTLEMENT_ID;
         return settlementDistanceValid && linkedByRoad && unowned;
@@ -353,6 +382,7 @@ public class GameModel {
     }
 
     public boolean roadValid(int edgeIndex, int playerID) {
+<<<<<<< HEAD
         // We do not need to check if connected to settlement, road is enough (as every settlement is also conected to a road)
         boolean connectedToRoad = roads.isRoadConnectedByPlayer(edgeIndex, playerID) || passBuildRule;
         boolean unowned = !roads.isRoadOwned(edgeIndex);
@@ -374,12 +404,30 @@ public class GameModel {
         for (int v : adjacentVertices) {
             if(v == vertex) {
                 int ownerId = settlements.ownedByPlayer(v);
+=======
+        // boolean connectedToSettlement =
+        // settlements.isEdgeConnectedToPlayerSettlement(edgeIndex, playerID) ||
+        // passBuildRule; TODO
+        // boolean connectedToRoad = roads.isEdgeConnectedByPlayer(edgeIndex, playerID)
+        // || passBuildRule; TODO
+        boolean unowned = !roads.isRoadOwned(edgeIndex);
+        return /* (connectedToSettlement || connectedToRoad) && */ unowned;
+    }
+
+    public boolean stealValid(int vertexIndex, int playerID) {
+        int blockedTile = tiles.getBlockedTileIndex();
+        int[] adjacentTiles = tiles.getTiles()[blockedTile].getAdjVertices();
+        for (int vertex : adjacentTiles) {
+            if (vertex == vertexIndex) {
+                int ownerId = settlements.getAllSettlements()[vertex].getPlayerID();
+>>>>>>> main
                 if (ownerId != Settlements.UNOWNED_SETTLEMENT_ID && ownerId != playerID) {
                     return true; // valid target to steal from
                 }
             }
         }
-        return false; // This Vertex is not adjacent to the blocked tile or has no valid target to steal from
+        return false; // This Vertex is not adjacent to the blocked tile or has no valid target to
+                      // steal from
     }
 
     public ArrayList<Player> getPlayers() {
@@ -396,6 +444,10 @@ public class GameModel {
     }
 
     public int nextPlayer(int currentPlayerId) {
+<<<<<<< HEAD
+=======
+        int currentIndex = -1;
+>>>>>>> main
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).getId() == currentPlayerId) {
                 int nextIndex = (i + 1) % players.size();
@@ -407,6 +459,11 @@ public class GameModel {
 
     public boolean buildSettlement(int vertex, int playerID) {
         Player player = getPlayer(playerID);
+<<<<<<< HEAD
+=======
+        boolean success_build = settlements.buildSettlement(vertex, playerID);
+
+>>>>>>> main
         String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
 
         boolean success_build = settlements.buildSettlement(vertex, playerID);
@@ -422,9 +479,14 @@ public class GameModel {
 
     public boolean playerHasSettlementResources(int playerID) {
         Player player = getPlayer(playerID);
+<<<<<<< HEAD
         String structureID = "player_infrastructure.settlement";
 
         return player.hasEnoughResourcesForStructure(structureID) && player.getStructuresRemaining(structureID) > 0;
+=======
+        return player.hasEnoughResourcesForStructure("player_infrastructure.settlement")
+                && player.getStructuresRemaining("player_infrastructure.settlement") > 0;
+>>>>>>> main
     }
 
     public boolean buildCity(int vertex, int playerID) {
@@ -435,8 +497,8 @@ public class GameModel {
         boolean success_resources = player.deductStructureResources(structureID);
         // building a city removes a city and adds a settlement from pieces
         boolean success_pieces = player.changeStructuresRemainingByType("player_infrastructure.city", -1)
-                              && player.changeStructuresRemainingByType("player_infrastructure.settlement", +1);
-        
+                && player.changeStructuresRemainingByType("player_infrastructure.settlement", +1);
+
         // add victory point
         player.changeVictoryPoints(+1);
         return success_resources && success_pieces && success_upgrade;
@@ -444,9 +506,14 @@ public class GameModel {
 
     public boolean playerHasCityResources(int playerID) {
         Player player = getPlayer(playerID);
+<<<<<<< HEAD
         String structureID = "player_infrastructure.city";
         
         return player.hasEnoughResourcesForStructure(structureID) && player.getStructuresRemaining(structureID) > 0;
+=======
+        return player.hasEnoughResourcesForStructure("player_infrastructure.city")
+                && player.getStructuresRemaining("player_infrastructure.city") > 0;
+>>>>>>> main
     }
 
     public boolean buildRoad(int edgeIndex, int playerID) {
@@ -461,9 +528,14 @@ public class GameModel {
 
     public boolean playerHasRoadResources(int playerID) {
         Player player = getPlayer(playerID);
+<<<<<<< HEAD
         String structureID = "player_infrastructure.road";
 
         return player.hasEnoughResourcesForStructure(structureID) && player.getStructuresRemaining(structureID) > 0;
+=======
+        return player.hasEnoughResourcesForStructure("player_infrastructure.road")
+                && player.getStructuresRemaining("player_infrastructure.road") > 0;
+>>>>>>> main
     }
 
     public boolean stealResource(int vertexIndex, int playerID) {
@@ -473,7 +545,7 @@ public class GameModel {
         int blockedTile = tiles.getBlockedTileIndex();
         int[] adjacentTiles = tiles.getTiles()[blockedTile].getAdjVertices();
         for (int vertex : adjacentTiles) {
-            if(vertex == vertexIndex) {
+            if (vertex == vertexIndex) {
                 int ownerId = settlements.getAllSettlements()[vertex].getPlayerID();
                 Player victim = getPlayer(ownerId);
                 ResourceConfig stolenResource = victim.stealRandomResource();
@@ -486,7 +558,6 @@ public class GameModel {
         return false; // failed to steal a resource
     }
 
-
     public boolean validTrade(TradePlayer trade) {
         // trade valid if both players have required resources
         if (trade.playerAId() == trade.playerBId()) {
@@ -494,15 +565,24 @@ public class GameModel {
         }
         Player playerA = getPlayer(trade.playerAId());
         Player playerB = getPlayer(trade.playerBId());
-        
-        int playerAResourceCount = playerA.getResourceCount(trade.resourceAGive());
-        if (playerAResourceCount < trade.amountA()) {
-            return false;
+
+        HashMap<ResourceConfig, Integer> resourcesAGive = trade.resourcesAGive();
+        HashMap<ResourceConfig, Integer> resourcesBGive = trade.resourcesBGive();
+
+        for (Map.Entry<ResourceConfig, Integer> entry : resourcesAGive.entrySet()) {
+            ResourceConfig resource = entry.getKey();
+            int amount = entry.getValue();
+            if (playerA.getResourceCount(resource) < amount) {
+                return false;
+            }
         }
 
-        int playerBResourceCount = playerB.getResourceCount(trade.resourceBGive());
-        if (playerBResourceCount < trade.amountB()) {
-            return false;
+        for (Map.Entry<ResourceConfig, Integer> entry : resourcesBGive.entrySet()) {
+            ResourceConfig resource = entry.getKey();
+            int amount = entry.getValue();
+            if (playerB.getResourceCount(resource) < amount) {
+                return false;
+            }
         }
 
         return true;
@@ -516,12 +596,12 @@ public class GameModel {
         }
 
         Player player = getPlayer(trade.playerId());
-       
+
         int playerResourceCount = player.getResourceCount(trade.giveResource());
         if (playerResourceCount < TradeBank.TRADE_RATE) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -529,8 +609,15 @@ public class GameModel {
         // trade valid if player and bank have required resources (ports are just a front for the bank)
         Player player = getPlayer(trade.playerId());
 
-        int playerResourceCount = player.getResourceCount(ResourceRegistry.getInstance().get(trade.port().resourceID)); // gets the resource being given to the port;                                    
-        if (playerResourceCount < trade.port().giveQuantity) {                                                          // the number of resources the player has of that type
+        int playerResourceCount = player.getResourceCount(ResourceRegistry.getInstance().get(trade.port().resourceID)); // gets
+                                                                                                                        // the
+                                                                                                                        // resource
+                                                                                                                        // being
+                                                                                                                        // given
+                                                                                                                        // to
+                                                                                                                        // the
+                                                                                                                        // port;
+        if (playerResourceCount < trade.port().giveQuantity) { // the number of resources the player has of that type
             return false;
         }
 
@@ -538,7 +625,6 @@ public class GameModel {
         if (bankResourceCount < trade.port().receiveQuantity) {
             return false;
         }
-
 
         return true;
     }
@@ -548,17 +634,35 @@ public class GameModel {
             return false;
         }
 
+        System.out.println(getPlayer(trade.playerAId()));
+        System.out.println(getPlayer(trade.playerBId()));
+
         Player playerA = getPlayer(trade.playerAId());
         Player playerB = getPlayer(trade.playerBId());
-        playerA.changeResourceCount(trade.resourceAGive(), -trade.amountA());
-        playerB.changeResourceCount(trade.resourceBGive(), -trade.amountB());
+        HashMap<ResourceConfig, Integer> playerAResources = trade.resourcesAGive();
+        HashMap<ResourceConfig, Integer> playerBResources = trade.resourcesBGive();
 
-        playerA.changeResourceCount(trade.resourceBGive(), +trade.amountB());
-        playerB.changeResourceCount(trade.resourceAGive(), +trade.amountA());
+        for (Map.Entry<ResourceConfig, Integer> entry : playerAResources.entrySet()) {
+            ResourceConfig resource = entry.getKey();   
+            int amount = entry.getValue();
+            playerA.changeResourceCount(resource, -amount);
+            playerB.changeResourceCount(resource, +amount);
+        }
+
+        for (Map.Entry<ResourceConfig, Integer> entry : playerBResources.entrySet()) {
+            ResourceConfig resource = entry.getKey();
+            int amount = entry.getValue();
+            playerB.changeResourceCount(resource, -amount);
+            playerA.changeResourceCount(resource, +amount);
+        }
+        
+        System.out.println("Trade executed successfully");
+        System.out.println(getPlayer(trade.playerAId()));
+        System.out.println(getPlayer(trade.playerBId()));
+
 
         return true;
     }
-
 
     public boolean executeTrade(TradeBank trade) {
         if (!validTrade(trade)) {
@@ -582,66 +686,73 @@ public class GameModel {
         Player player = getPlayer(trade.playerId());
 
         bankCards.giveResourceCard(trade.resource(), trade.port().receiveQuantity);
-        player.changeResourceCount(ResourceRegistry.getInstance().get(trade.port().resourceID), -trade.port().giveQuantity);
+        player.changeResourceCount(ResourceRegistry.getInstance().get(trade.port().resourceID),
+                -trade.port().giveQuantity);
 
-        bankCards.returnResourceCard(ResourceRegistry.getInstance().get(trade.port().resourceID), trade.port().giveQuantity);
+        bankCards.returnResourceCard(ResourceRegistry.getInstance().get(trade.port().resourceID),
+                trade.port().giveQuantity);
         player.changeResourceCount(trade.resource(), +trade.port().receiveQuantity);
 
         return true;
     }
 
-
-
-    //method to give players resources based on the dice roll
-    public void giveResourcesToPlayers(int diceroll){
-        for (Tile tile : tiles.GetTilesFromDiceroll(diceroll)){
-            //get resource of rolled tile
+    // method to give players resources based on the dice roll
+    public void giveResourcesToPlayers(int diceroll) {
+        for (Tile tile : tiles.GetTilesFromDiceroll(diceroll)) {
+            // get resource of rolled tile
             ResourceConfig resource = tile.getResourceFromTileID();
 
-            //get all vertices on that tile
-            for (int vertex : tile.getAdjVertices()){
+            // get all vertices on that tile
+            for (int vertex : tile.getAdjVertices()) {
 
-                //check if there's a settlement on that vertex
+                // check if there's a settlement on that vertex
                 Settlement currentSettlement = settlements.GetSettlementFromVertex(vertex);
-                if (currentSettlement == null){
-                    continue; //no settlement found, skip the rest of this method
+                if (currentSettlement == null) {
+                    continue; // no settlement found, skip the rest of this method
                 }
 
-                //find the player who owns the settlement
+                // find the player who owns the settlement
                 Player player = getPlayer(currentSettlement.getPlayerID());
-                if (player == null) {throw new IllegalStateException("Player not found for settlement");}
+                if (player == null) {
+                    throw new IllegalStateException("Player not found for settlement");
+                }
 
                 int production = 1;
-                if (currentSettlement.isCity()) { production++; }
+                if (currentSettlement.isCity()) {
+                    production++;
+                }
 
-                //for loop accounts for cities giving two resources, whilst still ensuring
-                //that when only one resource is left, a city will still produce one
-                for (int i = 0; i < production; i++){
-                    //check if there is a free resource left in the bank
-                    if (bankCards.giveResourceCard(resource, 1)){
+                // for loop accounts for cities giving two resources, whilst still ensuring
+                // that when only one resource is left, a city will still produce one
+                for (int i = 0; i < production; i++) {
+                    // check if there is a free resource left in the bank
+                    if (bankCards.giveResourceCard(resource, 1)) {
                         player.changeResourceCount(resource, 1);
-                        // Only settlements (not cities) cause climate to increase / disaster cards to be considered.
+                        // Only settlements (not cities) cause climate to increase / disaster cards to
+                        // be considered.
                         if (!currentSettlement.isCity()) {
                             increaseClimateAndDistributeDisasterCards();
                         }
                     }
-                    //bank empty, stop giving out resources
-                    else{break;}
+                    // bank empty, stop giving out resources
+                    else {
+                        break;
+                    }
                 }
-                
+
             }
         }
     }
 
-
-    //method to trigger the robber
-    public void moveRobber(int tileIndex){
+    // method to trigger the robber
+    public void moveRobber(int tileIndex) {
         tiles.changeBlockedTile(tileIndex);
 
-        //checkPlayerResources is triggered from the robber button click
-        //knight cards trigger the moveRobber method and NOT checkPlayerRobbers
+        // checkPlayerResources is triggered from the robber button click
+        // knight cards trigger the moveRobber method and NOT checkPlayerRobbers
     }
 
+<<<<<<< HEAD
     // check if any players have more than 7 resources and discard excess cards randomly
     public void checkPlayerResources(){
         for (Player player : players){
@@ -652,10 +763,23 @@ public class GameModel {
                 int count = player.getResourceCount(resource);
                 cardCount += count;
                 for (int i = 0; i < count; i++){
+=======
+    // check if player has more than 7 resources and discard their cards randomly
+    public void checkPlayerResources() {
+        for (Player player : players) {
+            // get total resource count
+            int cardCount = 0;
+            ArrayList<ResourceConfig> playerResources = new ArrayList<ResourceConfig>();
+            Collection<ResourceConfig> allResources = ConfigService.getAllResources();
+            for (ResourceConfig resource : allResources) {
+                cardCount += player.getResourceCount(resource);
+                for (int i = 0; i < player.getResourceCount(resource); i++) {
+>>>>>>> main
                     playerResources.add(resource);
                 }
             }
 
+<<<<<<< HEAD
             if (cardCount < 8){
                 continue; // none to be discarded, go to next
             }
@@ -667,6 +791,20 @@ public class GameModel {
             Random random = new Random();
             for (int i = 0; i < cardsToDiscard; i++){
                 int randomNum = random.nextInt(playerResources.size());
+=======
+            // calculate card count to be discarded
+            int cardsToDiscard = 0;
+            if (cardCount < 8) {
+                // none to be discarded
+                return;
+            } else {
+                cardsToDiscard = (int) Math.floor(cardCount / 2);
+            }
+
+            // randomly discard the amount of cards
+            for (int i = 0; i < cardsToDiscard; i++) {
+                int randomNum = (int) (Math.random() * (cardCount - i));
+>>>>>>> main
                 player.changeResourceCount(playerResources.get(randomNum), -1);
                 playerResources.remove(randomNum);
             }
@@ -677,8 +815,8 @@ public class GameModel {
         return roads.getAllRoads();
     }
 
-    //need to do front end stuff to chose tile to destroy
-    //asks for same resource as tile atm - need to fix
+    // need to do front end stuff to chose tile to destroy
+    // asks for same resource as tile atm - need to fix
     public boolean tileRestore(int tileIndex, int playerId) {
         Tile[] allTiles = tiles.getTiles();
         if (tileIndex < 0 || tileIndex >= allTiles.length) {
@@ -740,41 +878,43 @@ public class GameModel {
     }
 
     /*
-    also need to call this function:
-            when settlements get resources
-            when certain devcards are played
-                (trading frenzy, highway madness, monopoly)
-                -need to check which devcard before calling
-    */
-    //also where should tile restoration be implemented
-    //for restore tile i need unique id for each tile to know which one to restore
+     * also need to call this function:
+     * when settlements get resources
+     * when certain devcards are played
+     * (trading frenzy, highway madness, monopoly)
+     * -need to check which devcard before calling
+     */
+    // also where should tile restoration be implemented
+    // for restore tile i need unique id for each tile to know which one to restore
     public void increaseClimateAndDistributeDisasterCards() {
         climateTracker.increaseClimate();
-        
+
         if (climateTracker.shouldGiveDisasterCard()) {
             int numCards = climateTracker.disasterCardNum();
             for (int i = 0; i < numCards; i++) {
                 String disasterCard = bankCards.giveDisasterCard();
                 if (!disasterCard.isEmpty()) {
-                    //give disaster card
-                    //destroy tile
+                    // give disaster card
+                    // destroy tile
                     tiles.destroyTile(disasterCard);
                 }
-                //do nothing if no cards are left??
+                // do nothing if no cards are left??
             }
         }
     }
 
     public boolean buyDevelopmentCard(int playerId) {
         Player player = getPlayer(playerId);
-        if (player == null) return false;
+        if (player == null)
+            return false;
 
         // check & deduct cost
         if (!player.hasEnoughResourcesForStructure("player_infrastructure.dev_card")) {
             return false;
         }
         boolean deducted = player.deductStructureResources("player_infrastructure.dev_card");
-        if (!deducted) return false;
+        if (!deducted)
+            return false;
 
         // attempt to draw from bank
         String devCardId = bankCards.giveDevelopmentCard();
@@ -796,7 +936,8 @@ public class GameModel {
 
     private void handleReceivedDevelopmentCard(int playerId, String devCardId) {
         Player player = getPlayer(playerId);
-        if (player == null) return;
+        if (player == null)
+            return;
 
         com.example.model.config.DevCardConfig cfg = ConfigService.getDevCard(devCardId);
         if (cfg == null) {
@@ -817,12 +958,15 @@ public class GameModel {
 
     public boolean playDevCard(int playerId, String devCardId) {
         Player player = getPlayer(playerId);
-        if (player == null) return false;
+        if (player == null)
+            return false;
 
-        if (!player.hasCard(devCardId)) return false;
+        if (!player.hasCard(devCardId))
+            return false;
 
         com.example.model.config.DevCardConfig cfg = ConfigService.getDevCard(devCardId);
-        if (cfg == null) return false;
+        if (cfg == null)
+            return false;
 
         String action = cfg.actionType == null ? "" : cfg.actionType;
         if ("VICTORY_POINT".equals(action)) {
@@ -832,17 +976,18 @@ public class GameModel {
 
         // remove the card from the player's hand (played)
         boolean removed = player.removeCard(devCardId);
-        if (!removed) return false;
+        if (!removed)
+            return false;
 
         // dispatch to the appropriate effect handler
         boolean success = false;
         switch (action) {
-            case "ECO_CONFERENCE" -> success = applyEcoConference(playerId);
-            case "HIGHWAY_MADNESS" -> success = applyHighwayMadness(playerId);
-            case "TRADING_FRENZY" -> success = applyTradingFrenzy(playerId);
-            case "MONOPOLY" -> success = applyMonopoly(playerId);
+            case "ECO_CONFERENCE" -> success = true;
+            case "HIGHWAY_MADNESS" -> success = true;
+            case "TRADING_FRENZY" -> success = true;
+            case "MONOPOLY" -> success = true;
             default -> {
-                // unknown action: no-op for now
+                break;
             }
         }
 
@@ -854,57 +999,49 @@ public class GameModel {
         if (p == null) return 0;
 
         int points = p.getVictoryPoints(playerId);
+<<<<<<< HEAD
         points += p.getHiddenVictoryPoints();
+=======
+        if (p != null)
+            points += p.getHiddenVictoryPoints();
+>>>>>>> main
         return points;
     }
 
-    public boolean applyEcoConference(int playerId) {
-        // TODO: implement ECO_CONFERENCE effect
-        // move robber and steal a resource from a player with a settlement on that tile
-        return false;
-    }
-
-    public boolean  applyHighwayMadness(int playerId) {
-        // TODO: implement HIGHWAY_MADNESS effect
-        // build two free roads
-        //need to select edges for the roads
-        int edgeIndex = 0; //placeholder
-        boolean success_build = roads.buildRoad(edgeIndex, playerId);
+    // build two free roads
+    public boolean applyHighwayMadness(int playerId, int edgeIndexA, int edgeIndexB) {
+        boolean successA = roads.buildRoad(edgeIndexA, playerId);
+        boolean successB = roads.buildRoad(edgeIndexB, playerId);
         increaseClimateAndDistributeDisasterCards();
-        return success_build;
+        return successA && successB;
     }
 
-    public boolean  applyTradingFrenzy(int playerId) {
-        // TODO: implement TRADING_FRENZY effect
-        //also increase climate tracker
-        // take any three resource cards from the bank
-        // atm just does one card bc idk how to do different types of card
-        //NEED TO FIX
-        ResourceConfig resourceId = null; //placeholder
-        TradeFrenzy trade = new TradeFrenzy(playerId, resourceId);
+    // take any three resource cards from the bank
+    public boolean applyTradingFrenzy(int playerId, List<ResourceConfig> resources) {
+        Player player = getPlayer(playerId);
+        if (player == null || resources == null) return false;
 
-        Player player = getPlayer(trade.playerId());
-
-        bankCards.giveResourceCard(trade.recieveResource(), 1);
-        player.changeResourceCount(trade.recieveResource(), +1);
+        for (ResourceConfig r : resources) {
+            if (r == null) continue;
+            bankCards.giveResourceCard(r, 1);
+            player.changeResourceCount(r, +1);
+        }
 
         increaseClimateAndDistributeDisasterCards();
 
         return true;
     }
 
-    public boolean applyMonopoly(int playerId) {
-        // TODO: implement MONOPOLY effect
-        //also increase climate tracker
-        // choose a resource and every player gives you all their cards of that resource
-        ResourceConfig resourceId = null; //placeholder
+    // choose a resource and every player gives you all their cards of that resource
+    public boolean applyMonopoly(int playerId, ResourceConfig resource) {
+        if (resource == null) return false;
 
         int totalCollected = 0;
         for (Player other : players) {
             if (other.getId() == playerId) continue;
-            int amt = other.getResourceCount(resourceId);
+            int amt = other.getResourceCount(resource);
             if (amt <= 0) continue;
-            boolean removed = other.changeResourceCount(resourceId, -amt);
+            boolean removed = other.changeResourceCount(resource, -amt);
             if (removed) {
                 totalCollected += amt;
             }
@@ -912,12 +1049,12 @@ public class GameModel {
 
         if (totalCollected > 0) {
             Player player = getPlayer(playerId);
-            player.changeResourceCount(resourceId, totalCollected);
+            player.changeResourceCount(resource, totalCollected);
         }
 
         increaseClimateAndDistributeDisasterCards();
 
-        return true;
+        return totalCollected > 0;
     }
 
     public void rollDice() {
@@ -933,6 +1070,22 @@ public class GameModel {
         return dice.getDie2();
     }
 
+    public Map<ResourceConfig, Integer> getBankResources() {
+        Collection<ResourceConfig> allResources = ConfigService.getAllResources();
+        Map<ResourceConfig, Integer> bankResources = new HashMap<>();
+        for (ResourceConfig resource : allResources) {
+            bankResources.put(resource, bankCards.getResourceCount(resource));
+        }
+        return bankResources;
+    }
+
+    public ArrayList<PortConfig> getPlayerPorts(int playerId) {
+        Player player = getPlayer(playerId);
+        if (player == null)
+            return new ArrayList<>();
+        ArrayList<Integer> portNumbers = settlements.getPortsOwnedByPlayer(playerId);
+        return ports.getPortConfigsByPortNumbers(portNumbers);
+    }
 
     // TESTING METHODS
     public void giveSettlementResources(int playerID) {
@@ -968,4 +1121,3 @@ public class GameModel {
     }
 
 }
-

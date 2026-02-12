@@ -1,5 +1,5 @@
 module com.example {
-    requires javafx.controls;
+    requires transitive javafx.controls;
     requires javafx.fxml;
     requires transitive com.fasterxml.jackson.databind;
     requires transitive javafx.graphics;
