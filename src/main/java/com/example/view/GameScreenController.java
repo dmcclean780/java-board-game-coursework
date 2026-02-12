@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.viewmodel.GameViewModel;
-import com.example.viewmodel.PlayerViewState;
-import com.example.viewmodel.RoadViewState;
-import com.example.viewmodel.TileViewState;
-import com.example.viewmodel.VertexViewState;
+import com.example.viewmodel.viewstates.GameUIState;
+import com.example.viewmodel.viewstates.PlayerViewState;
+import com.example.viewmodel.viewstates.RoadViewState;
+import com.example.viewmodel.viewstates.TileViewState;
+import com.example.viewmodel.viewstates.VertexViewState;
 
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
@@ -32,6 +33,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
@@ -60,6 +62,11 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     private Pane bottomPane;
+
+    @FXML
+    private StackPane popupOverlay;
+    @FXML
+    private StackPane popupBox;
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
@@ -143,6 +150,24 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             e.printStackTrace();
         }
 
+        bindTradingMenu();
+
+    }
+
+    private void bindTradingMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/tradingMenu.fxml"));
+            Node menu = loader.load();
+            TradingMenuController ctrl = loader.getController();
+            ctrl.bind(viewModel);
+
+            //row.setUserData(player); // store reference for removal
+            menu.maxHeight(Region.USE_PREF_SIZE);
+            popupBox.getChildren().add(menu);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void addPlayerRow(PlayerViewState player, int index) {
@@ -255,6 +280,9 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         createCatanBoard(rootPane);
         playerColumnPane.toBack();
         mainPentagon.toBack();
+
+        popupOverlay.visibleProperty()
+            .bind(GameUIState.popupVisible);
 
     }
 
@@ -667,8 +695,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             viewModel.onRoadClicked(roadId);
 
             // Optional visual feedback
-            road.setStroke(Color.GOLD);
-            road.setStrokeWidth(3);
         });
 
         // Optional hover feedback
@@ -702,7 +728,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             return;
 
         Platform.runLater(() -> {
-            tileGroup[index].setOpacity(disabled ? 1.0 : 1.0);
+            tileGroup[index].setOpacity(disabled ? 0.2 : 1.0);
             tileGroup[index].setMouseTransparent(disabled);
         });
     }

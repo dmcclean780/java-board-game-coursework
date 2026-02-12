@@ -1,12 +1,28 @@
 package com.example.viewmodel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.example.model.AdjacencyMaps;
 import com.example.model.GameModel;
 import com.example.model.Player;
 import com.example.model.Road;
+import com.example.model.Tile;
+import com.example.model.config.PortConfig;
+import com.example.model.config.ResourceConfig;
+import com.example.model.trading.TradeBank;
+import com.example.model.trading.TradePlayer;
+import com.example.model.trading.TradePort;
+import com.example.service.NavigationService;
+import com.example.viewmodel.viewstates.BankViewState;
+import com.example.viewmodel.viewstates.DiceViewState;
+import com.example.viewmodel.viewstates.PlayerViewState;
+import com.example.viewmodel.viewstates.PortViewState;
+import com.example.viewmodel.viewstates.ResourceViewState;
+import com.example.viewmodel.viewstates.RoadViewState;
+import com.example.viewmodel.viewstates.TileViewState;
+import com.example.viewmodel.viewstates.VertexViewState;
 import com.example.model.Settlement;
 import com.example.model.Tile;
 import com.example.model.config.DevCardConfig;
@@ -43,6 +59,7 @@ public final class GameViewModel {
     private ResourceConfig monopolySelectedResource = null;
     
     private final ObjectProperty<DiceViewState> diceRoll = new SimpleObjectProperty<>(new DiceViewState());
+    private final ObjectProperty<BankViewState> bankState = new SimpleObjectProperty<>(new BankViewState());
 
     public GameViewModel(GameModel gameModel, NavigationService navigationService) {
         this.gameModel = gameModel;
@@ -88,7 +105,11 @@ public final class GameViewModel {
             roads.add(roadState);
         }
 
+        bankState.set(setUpBankViewState());
+        updateBankViewState(bankState.get());
+
         updateDiceRoll();
+        updatePlayerViewStates();
     }
 
     private void updateDiceRoll() {
@@ -109,6 +130,7 @@ public final class GameViewModel {
         playerState.colorProperty().set(getPlayerColor(player.getId()));
 
         initPlayerResources(playerState);
+        initPlayerPorts(playerState);
         return playerState;
     }
 
@@ -121,8 +143,33 @@ public final class GameViewModel {
         // playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
         // playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
         updateResourceCounts(playerState);
+        updatePlayerPorts(playerState);
         return playerState;
     }
+
+    private BankViewState setUpBankViewState() {
+        BankViewState bankState = new BankViewState();
+        for (ResourceConfig type : gameModel.getBankResources().keySet()) {
+            ResourceViewState rvs = new ResourceViewState();
+            rvs.configProperty().set(type);
+            rvs.countProperty().set(19); // Bank starts with 19 of each resource
+            bankState.getResources().add(rvs);
+        }
+        return bankState;
+    }
+
+    private BankViewState updateBankViewState(BankViewState bankState) {
+        Map<ResourceConfig, Integer> resources = gameModel.getBankResources();
+        for (ResourceViewState rvs : bankState.getResources()) {
+            Integer newValue = resources.get(rvs.configProperty().get());
+            if (newValue != null) {
+                rvs.countProperty().set(newValue);
+            }
+        }
+        return bankState;
+    }
+
+
 
     private void initPlayerResources(PlayerViewState playerState) {
         Player player = gameModel.getPlayer(playerState.idProperty().get());
@@ -144,6 +191,27 @@ public final class GameViewModel {
             if (newValue != null) {
                 rvs.countProperty().set(newValue);
             }
+        }
+    }
+
+    private void initPlayerPorts(PlayerViewState playerState) {
+        int playerID = playerState.idProperty().get();
+        ArrayList<PortConfig> portConfigs = gameModel.getPlayerPorts(playerID);
+        playerState.getPorts().addAll(portConfigs);
+    }
+
+    private void updatePlayerPorts(PlayerViewState playerState) {
+        int playerID = playerState.idProperty().get();
+        ArrayList<PortConfig> portConfigs = gameModel.getPlayerPorts(playerID);
+        playerState.getPorts().setAll(portConfigs);
+    }
+
+    private void updateTileViewStates() {
+        for (int i = 0; i < tiles.size(); i++) {
+            Tile tile = gameModel.getTiles()[i];
+            tiles.get(i).number.set(tile.getNumber());
+            tiles.get(i).resource.set(tile.getTileID());
+            tiles.get(i).blocked.set(tile.getIsBlocked());
         }
     }
 
@@ -177,6 +245,10 @@ public final class GameViewModel {
 
     public ObjectProperty<DiceViewState> diceRollProperty() {
         return diceRoll;
+    }
+
+    public ObjectProperty<BankViewState> bankStateProperty() {
+        return bankState;
     }
 
     public int[][] getTileVertices() {
@@ -407,6 +479,7 @@ public final class GameViewModel {
         turnState.set(TurnState.DICE_ROLL);
         setDefaultVisibility();
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
     }
 
     public void rollDice() {
@@ -427,12 +500,15 @@ public final class GameViewModel {
         turnState.set(TurnState.TRADE);
         setDefaultVisibility();
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
+
     }
 
     public void switchToBuildState() {
         turnState.set(TurnState.BUILD);
         setDefaultVisibility();
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
     }
 
     public void switchToBuildSettlementState() {
@@ -447,6 +523,8 @@ public final class GameViewModel {
             roads.get(i).visible.set(isRoadOwned(i));
         }
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
+
     }
 
     public void switchToBuildRoadState() {
@@ -458,6 +536,7 @@ public final class GameViewModel {
             roads.get(i).visible.set(canCurrentPlayerBuildRoad(i));
         }
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
     }
 
     public void switchToBuildCityState() {
@@ -472,12 +551,15 @@ public final class GameViewModel {
             roads.get(i).visible.set(isRoadOwned(i));
         }
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
     }
 
     public void switchToMoveRobberState() {
         turnState.set(TurnState.MOVE_ROBBER_STATE);
         setDefaultVisibility();
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
+
     }
 
     public void switchToStealResourceState() {
@@ -492,6 +574,8 @@ public final class GameViewModel {
             roads.get(i).visible.set(false);
         }
         updatePlayerViewStates();
+        updateBankViewState(bankState.get());
+
         if(!canSteal) {
             switchToTradeState();
         }
@@ -545,20 +629,38 @@ public final class GameViewModel {
             gameModel.moveRobber(index);
             switchToStealResourceState();
         }
+        gameModel.checkPlayerResources();
+        gameModel.moveRobber(index);
+        switchToStealResourceState();
+        updateTileViewStates();
 
     }
 
-    // TESTING METHODS
-    public void giveCityResources() {
-        gameModel.giveCityResources(getCurrentPlayer().idProperty().get());
+    public void setBankTrade(ResourceConfig giveResource, ResourceConfig receiveResource) {
+        TradeBank tradeBank = new TradeBank(currentPlayer.get().idProperty().get(), giveResource, receiveResource);
+        if(gameModel.validTrade(tradeBank)) {
+            gameModel.executeTrade(tradeBank);
+            updatePlayerViewState(currentPlayer.get());
+            updateBankViewState(bankState.get());
+        }
     }
 
-    public void giveSettlementResources() {
-        gameModel.giveSettlementResources(getCurrentPlayer().idProperty().get());
+    public void setPortTrade(PortConfig portConfig, ResourceConfig receiveResource) {
+        TradePort tradePort = new TradePort(portConfig, currentPlayer.get().idProperty().get(), receiveResource);
+        if(gameModel.validTrade(tradePort)) {
+            gameModel.executeTrade(tradePort);
+            updatePlayerViewState(currentPlayer.get());
+            updateBankViewState(bankState.get());
+        }
     }
 
-    public void giveRoadResources() {
-        gameModel.giveRoadResources(getCurrentPlayer().idProperty().get());
+    public void setPlayerTrade(int playerID, HashMap<ResourceConfig, Integer> giveResource, HashMap<ResourceConfig, Integer> receiveResource) {
+        TradePlayer tradePlayer = new TradePlayer(currentPlayer.get().idProperty().get(), playerID, giveResource, receiveResource);
+        if(gameModel.validTrade(tradePlayer)) {
+            gameModel.executeTrade(tradePlayer);
+            System.out.println("Trade executed successfully");
+            updatePlayerViewStates();
+        }
     }
 
     private static final Color[] PLAYER_COLOURS = {
@@ -575,5 +677,18 @@ public final class GameViewModel {
         return (owner >= 0 && owner < PLAYER_COLOURS.length)
                 ? PLAYER_COLOURS[owner]
                 : UNOWNED_COLOR;
+    }
+
+    // TESTING METHODS
+    public void giveCityResources() {
+        gameModel.giveCityResources(getCurrentPlayer().idProperty().get());
+    }
+
+    public void giveSettlementResources() {
+        gameModel.giveSettlementResources(getCurrentPlayer().idProperty().get());
+    }
+
+    public void giveRoadResources() {
+        gameModel.giveRoadResources(getCurrentPlayer().idProperty().get());
     }
 }

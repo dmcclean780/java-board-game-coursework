@@ -1,4 +1,4 @@
-package com.example.viewmodel;
+package com.example.viewmodel.viewstates;
 
 import com.example.model.config.ResourceConfig;
 
