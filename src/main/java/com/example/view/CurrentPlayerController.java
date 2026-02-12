@@ -2,7 +2,6 @@ package com.example.view;
 
 import java.io.IOException;
 
-
 import com.example.viewmodel.PlayerViewState;
 import com.example.viewmodel.ResourceViewState;
 import com.example.viewmodel.GameViewModel;
@@ -14,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
 public class CurrentPlayerController {
@@ -30,6 +30,10 @@ public class CurrentPlayerController {
     private Node buildCityButton;
     @FXML
     private Node buildRoadButton;
+    @FXML 
+    private Node endTurnButton;
+    @FXML 
+    private Node rollDiceButton;
 
     private GameViewModel viewModel;
 
@@ -57,8 +61,7 @@ public class CurrentPlayerController {
 
         // initialize
         populateResources(currentPlayer.get());
-
-
+        
         // Buttons
         buildSettlementButton.disableProperty().bind(
                 Bindings.selectBoolean(currentPlayer, "canBuildSettlement").not());
@@ -122,6 +125,12 @@ public class CurrentPlayerController {
     }
 
     public void switchToROLLDICEPHASE() {
+        rollDiceButton.setVisible(false);
+        rollDiceButton.setManaged(false);
+
+        endTurnButton.setVisible(true);
+        endTurnButton.setManaged(true);
+
         viewModel.switchToRollDiceState();
         System.out.println(viewModel.getTurnState());
     }
@@ -133,6 +142,15 @@ public class CurrentPlayerController {
 
     public void nextPlayer() {
         viewModel.nextPlayer();
-        System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
+
+        endTurnButton.setVisible(false);
+        endTurnButton.setManaged(false);
+
+        rollDiceButton.setVisible(true);
+        rollDiceButton.setManaged(true);
+
+        System.out.println("Next player: " +
+            viewModel.getCurrentPlayer().nameProperty().get());
     }
+
 }

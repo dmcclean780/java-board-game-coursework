@@ -31,14 +31,30 @@
         StackPane.alignment="CENTER_LEFT"
         translateX="0" />
 
+    <!-- Make Background parallelogram????? -->
+    <!-- <Polygon fx:id="bottomBackground"
+                styleClass="parallelogram"
+                stroke="black"
+                strokeWidth="8">
+                <points>
+                    <Double fx:value="45.0" />
+                    <Double fx:value="0.0" />
+                    <Double fx:value="819.0" />
+                    <Double fx:value="0.0" />
+                    <Double fx:value="819.0" />
+                    <Double fx:value="432.0" />
+                    <Double fx:value="0.0" />
+                    <Double fx:value="432.0" />
+                </points>
+            </Polygon> -->
+
     <!-- Current player info -->
     <StackPane fx:id="currentPlayerPane" alignment="TOP_CENTER" prefHeight="50"
-        prefWidth="819" layoutY="20" translateX="20">
-        <HBox alignment="CENTER" spacing="5">
+        prefWidth="819" layoutY="20" translateX="70">
+        <HBox alignment="CENTER" spacing="10">
             <StackPane>
                 <Polygon fx:id="currentPlayerBox"
                     styleClass="parallelogram"
-                    fill="#5050A0"
                     stroke="black"
                     strokeWidth="8">
                     <points>
@@ -65,22 +81,41 @@
             </VBox> -->
 
             <!-- Score -->
-            <StackPane prefWidth="100" prefHeight="50" alignment="CENTER">
+            <StackPane prefWidth="100" prefHeight="80" alignment="CENTER">
                 <Polygon styleClass="progress-track-cont">
                     <points>
-                        <Double fx:value="15.0" />
+                        <Double fx:value="0.0" />
                         <Double fx:value="0.0" />
                         <Double fx:value="100.0" />
                         <Double fx:value="0.0" />
-                        <Double fx:value="85.0" />
-                        <Double fx:value="60.0" />
+                        <Double fx:value="100.0" />
+                        <Double fx:value="80.0" />
                         <Double fx:value="0.0" />
-                        <Double fx:value="60.0" />
+                        <Double fx:value="80.0" />
                     </points>
                 </Polygon>
                 <VBox alignment="CENTER" spacing="5">
-                    <Label text="Score" styleClass="tracker-title" />
+                    <Label text="Score" styleClass="tracker-title" translateY="-10"/>
                     <Label text="0" fx:id="scoreValue" styleClass="tracker-content"/>
+                </VBox>
+            </StackPane>
+
+            <StackPane prefWidth="120" prefHeight="80" alignment="CENTER">
+                <Polygon styleClass="progress-track-cont" >
+                    <points>
+                        <Double fx:value="0.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="120.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="120.0" />
+                        <Double fx:value="80.0" />
+                        <Double fx:value="0.0" />
+                        <Double fx:value="80" />
+                    </points>
+                </Polygon>
+                <VBox alignment="CENTER" spacing="2">
+                    <Label text="Dice" styleClass="tracker-title"  translateY="-10"/>
+                    <Label fx:id="diceValue" styleClass="tracker-content"/>
                 </VBox>
             </StackPane>
         </HBox>
@@ -95,8 +130,8 @@
 
                 <!-- Add icons later -->
                 <!-- Resources Column -->
-                <VBox spacing="3" prefWidth="275" fx:id="resourcesBox">
-                    <Label text="Resources" styleClass="resources-title" />
+                <VBox spacing="3" prefWidth="310" fx:id="resourcesBox">
+                    <Label text="Resources" styleClass="resources-title"/>
 
                     <!-- Added Dynamic Resource Labels -->
                 </VBox>
@@ -202,31 +237,8 @@
                 </VBox>
 
                 <!-- Score & Actions Column -->
-                <VBox spacing="2" prefWidth="210">
+                <VBox spacing="2" prefWidth="250" translateX="10">
 
-                    <!-- Score & Dice side-by-side -->
-                    <!-- <HBox spacing="4" prefWidth="210" prefHeight="68" alignment="CENTER">
-                        <StackPane prefWidth="100" prefHeight="62" alignment="CENTER">
-                            <Polygon fill="white" stroke="black" strokeWidth="2">
-                                <points>
-                                    <Double fx:value="8.0" />
-                                    <Double fx:value="0.0" />
-                                    <Double fx:value="108.0" />
-                                    <Double fx:value="0.0" />
-                                    <Double fx:value="100.0" />
-                                    <Double fx:value="62.0" />
-                                    <Double fx:value="0.0" />
-                                    <Double fx:value="62.0" />
-                                </points>
-                            </Polygon>
-                            <VBox alignment="CENTER" spacing="2">
-                                <Label text="Dice" styleClass="tracker-title" />
-                                <Label fx:id="diceValue" styleClass="tracker-content"/>
-                            </VBox>
-                        </StackPane>
-                    </HBox> -->
-
-                    <!-- Action buttons -->
                     <VBox fx:id="actionButtonsBox" spacing="5" prefWidth="250"
                         alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
 
@@ -240,7 +252,6 @@
                                 prefWidth="210"
                                 prefHeight="60"
                                 styleClass="action-button">
-                                <Circle fx:id="settlementCircle" radius="20" styleClass="stat-pip"/>                            
                             </Button>
                             <Button fx:id="buildCityButton"
                                 onAction="#switchToBUILDCITYPHASE"
@@ -248,14 +259,8 @@
                                 alignment="TOP_CENTER"
                                 wrapText="true"
                                 prefWidth="210"
-                                prefHeight="80"
+                                prefHeight="60"
                                 styleClass="action-button">
-                                <Rectangle
-                                    width="1"
-                                    height="1"
-                                    arcWidth="2"
-                                    arcHeight="2"
-                                    styleClass="dev-card"/>
                             </Button>
                         </HBox>
                         <Button fx:id="buildRoadButton"
@@ -269,11 +274,6 @@
                             text="Play Dev Card"
                             prefWidth="250"
                             styleClass="action-button"/>
-                        <Button fx:id="rollDiceButton"
-                            onAction="#switchToROLLDICEPHASE"
-                            text="Roll Dice"
-                            prefWidth="250"
-                            styleClass="action-button"/>
                         <Button fx:id="tradeButton"
                             text="Trade"
                             prefWidth="250"
@@ -283,12 +283,27 @@
                             text="Build"
                             prefWidth="250"
                             styleClass="action-button"/> -->
-                        <Button fx:id="endTurnButton"
-                            onAction="#nextPlayer"
-                            text="End Turn"
-                            prefWidth="250"
-                            prefHeight="60"
-                            styleClass="action-button"/>
+                        <StackPane fx:id="bottomRightAction"
+                                prefWidth="250"
+                                prefHeight="60"
+                                alignment="CENTER">
+
+                            <Button fx:id="rollDiceButton"
+                                    onAction="#switchToROLLDICEPHASE"
+                                    text="Roll Dice"
+                                    prefWidth="250"
+                                    prefHeight="60"
+                                    styleClass="action-button"/>
+
+                            <Button fx:id="endTurnButton"
+                                    onAction="#nextPlayer"
+                                    text="End Turn"
+                                    prefWidth="250"
+                                    prefHeight="60"
+                                    styleClass="action-button"
+                                    visible="false"
+                                    managed="false"/>
+                        </StackPane>    
                     </VBox>
                 </VBox>
             </HBox>

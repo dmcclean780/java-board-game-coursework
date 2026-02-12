@@ -13,7 +13,9 @@ import com.example.viewmodel.RoadViewState;
 import com.example.viewmodel.TileViewState;
 import com.example.viewmodel.VertexViewState;
 
+import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,6 +33,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Rotate;
 import javafx.scene.Node;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
@@ -50,6 +53,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
     private Pane borderPane;
     @FXML
     private Polygon mainPentagon;
+    @FXML
+    private Polygon smallTriangle;
     @FXML
     private Pane rootPane, catanBoardPane;
     @FXML
@@ -111,6 +116,8 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
         setPlayerIndents();
 
+        bindTriangle();
+
         // Listen for changes
         players.addListener((ListChangeListener<PlayerViewState>) change -> {
             while (change.next()) {
@@ -129,6 +136,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             setPlayerIndents();
         });
 
+
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/currentPlayer.fxml"));
@@ -137,7 +145,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             CurrentPlayerController ctrl = loader.getController();
             ctrl.bindCurrentPlayer(viewModel);
             bottomPane.getChildren().add(node);
-            
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,6 +166,19 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             e.printStackTrace();
         }
     }
+
+    private void bindTriangle(){
+
+        ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
+
+         // Background color
+        smallTriangle.fillProperty().bind(
+                Bindings.select(currentPlayer, "color"));
+        smallTriangle.strokeProperty().bind(
+                Bindings.select(currentPlayer, "color"));
+    }
+
+
 
     private void removePlayerRow(PlayerViewState player) {
         playerList.getChildren().removeIf(node -> node.getUserData() == player);
@@ -255,7 +275,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         createCatanBoard(rootPane);
         playerColumnPane.toBack();
         mainPentagon.toBack();
-
     }
 
     private void mapPortsToVertices(int[][] ports) {
@@ -406,12 +425,12 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             vertexPane.getChildren().add(vertex);
 
             // Add vertex ID label above
-            // Text label = new Text(String.valueOf(vertexId));
-            // label.setFill(Color.INDIGO);
-            // label.setFont(Font.font(12));
-            // label.setLayoutX(avgX - 4);
-            // label.setLayoutY(avgY - 12);
-            // vertexPane.getChildren().add(label);
+            Text label = new Text(String.valueOf(vertexId));
+            label.setFill(Color.INDIGO);
+            label.setFont(Font.font(12));
+            label.setLayoutX(avgX - 4);
+            label.setLayoutY(avgY - 12);
+            vertexPane.getChildren().add(label);
         }
     }
 
@@ -424,6 +443,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         roadNodes = new Shape[roadVertices.length];
 
         double shorten = 16; // pixels to shorten at each end
+        double roadWidth = 12; // road thickness
 
         for (int roadId = 0; roadId < roadVertices.length; roadId++) {
             int v1 = roadVertices[roadId][0];
@@ -459,15 +479,18 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             double midX = (startX + endX) / 2;
             double midY = (startY + endY) / 2;
 
-            // New length
+            // Road length
             double roadLength = Math.hypot(endX - startX, endY - startY);
 
-            // Rotation angle
+            // Rotation angle in degrees
             double angle = Math.toDegrees(Math.atan2(endY - startY, endX - startX));
 
             // Create rectangle
-            double roadWidth = 7;
-            Rectangle road = new Rectangle(roadLength, roadWidth);
+            Rectangle road = new Rectangle();
+            road.setX(0);             // rectangle origin at (0,0)
+            road.setY(0);
+            road.setWidth(roadLength);
+            road.setHeight(roadWidth);
             road.setFill(Color.GRAY);
             road.setStroke(Color.BLACK);
             road.setStrokeWidth(1);
@@ -475,8 +498,12 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             // Center rectangle on midpoint
             road.setTranslateX(midX - roadLength / 2);
             road.setTranslateY(midY - roadWidth / 2);
+
+            // Rotate around center
+            road.setRotationAxis(Rotate.Z_AXIS);
             road.setRotate(angle);
 
+            // Add to arrays/pane
             roadNodes[roadId] = road;
             roadsPane.getChildren().add(road);
         }
@@ -706,7 +733,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             return;
 
         Platform.runLater(() -> {
-            tileGroup[index].setOpacity(disabled ? 1.0 : 1.0);
+            tileGroup[index].setOpacity(disabled ? 0.5 : 1.0);
             tileGroup[index].setMouseTransparent(disabled);
         });
     }

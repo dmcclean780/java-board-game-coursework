@@ -28,17 +28,17 @@
     <StackPane prefHeight="60" alignment="CENTER">
         <Polygon fx:id="resourcePolygon" stroke="black" strokeWidth="4">
             <points>
-                <Double fx:value="15.0" />
+                <Double fx:value="25.0" />
+                <Double fx:value="0.0" />
+                <Double fx:value="185.0" />
                 <Double fx:value="0.0" />
                 <Double fx:value="160.0" />
-                <Double fx:value="0.0" />
-                <Double fx:value="145.0" />
                 <Double fx:value="42.0" />
                 <Double fx:value="0.0" />
                 <Double fx:value="42.0" />
             </points>
         </Polygon>
-        <HBox alignment="CENTER" spacing="5" style="-fx-padding: 0 20 0 30;">
+        <HBox alignment="CENTER" spacing="5" style="-fx-padding: 0 35 0 30;">
             <!-- Symbol on the left -->
             <Label fx:id="resourceSymbol" styleClass="resource-type"
                 style="-fx-font-size: 20; -fx-text-fill: white; -fx-font-weight: bold;"/>
