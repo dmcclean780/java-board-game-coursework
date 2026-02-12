@@ -2,9 +2,10 @@ package com.example.view;
 
 import java.io.IOException;
 
-import com.example.viewmodel.PlayerViewState;
-import com.example.viewmodel.ResourceViewState;
 import com.example.viewmodel.TurnState;
+import com.example.viewmodel.viewstates.GameUIState;
+import com.example.viewmodel.viewstates.PlayerViewState;
+import com.example.viewmodel.viewstates.ResourceViewState;
 import com.example.viewmodel.GameViewModel;
 
 import javafx.beans.binding.Bindings;
@@ -173,6 +174,11 @@ public class CurrentPlayerController {
 
     public void rollDice() {
         viewModel.rollDice();
+        System.out.println(viewModel.turnStateProperty().get());
+    }
+
+    public void showTradingMenu() {
+        GameUIState.popupVisible.set(true);
         System.out.println(viewModel.turnStateProperty().get());
     }
 }
