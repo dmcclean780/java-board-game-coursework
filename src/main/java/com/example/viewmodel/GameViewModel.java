@@ -24,12 +24,17 @@ import com.example.viewmodel.viewstates.RoadViewState;
 import com.example.viewmodel.viewstates.TileViewState;
 import com.example.viewmodel.viewstates.VertexViewState;
 import com.example.model.Settlement;
+import com.example.model.Tile;
+import com.example.model.config.DevCardConfig;
+import com.example.model.config.ResourceConfig;
+import com.example.model.config.service.ConfigService;
+import com.example.service.NavigationService;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
-import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * ViewModel for the main game screen.
@@ -48,6 +53,11 @@ public final class GameViewModel {
                                                                                                  // current
     private final ObjectProperty<PlayerViewState> currentPlayer = new SimpleObjectProperty<>(); // Current player
     private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
+
+    private final ArrayList<Integer> highwaySelectedRoads = new ArrayList<>();
+    private final ArrayList<ResourceConfig> frenzySelectedResources = new ArrayList<>();
+    private ResourceConfig monopolySelectedResource = null;
+    
     private final ObjectProperty<DiceViewState> diceRoll = new SimpleObjectProperty<>(new DiceViewState());
     private final ObjectProperty<BankViewState> bankState = new SimpleObjectProperty<>(new BankViewState());
 
@@ -318,8 +328,90 @@ public final class GameViewModel {
                 buildRoad(roadIndex);
                 switchToBuildState();
             }
+            case HIGHWAY_MADNESS -> {
+                // collect two road selections, then apply
+                if (!highwaySelectedRoads.contains(roadIndex)) {
+                    highwaySelectedRoads.add(roadIndex);
+                }
+                if (highwaySelectedRoads.size() == 2) {
+                    int pId = currentPlayer.get().idProperty().get();
+                    boolean success = gameModel.applyHighwayMadness(pId, highwaySelectedRoads.get(0), highwaySelectedRoads.get(1));
+                    if (success) {
+                        int playerID = pId;
+                        for (int idx : highwaySelectedRoads) {
+                            roads.get(idx).owner.set(playerID);
+                            roads.get(idx).visible.set(true);
+                        }
+                        updatePlayerViewState(getCurrentPlayer());
+                        for (int i = 0; i < players.size(); i++) {
+                            updatePlayerViewState(players.get(i));
+                        }
+                    }
+                    highwaySelectedRoads.clear();
+                    switchToBuildState();
+                }
+            }
             default -> {
                 // No action
+            }
+        }
+    }
+
+    public void onResourceTypeSelected(ResourceConfig resource) {
+        switch (turnState.get()) {
+            case TRADE_FRENZY -> {
+                frenzySelectedResources.add(resource);
+                if (frenzySelectedResources.size() == 3) {
+                    int pId = currentPlayer.get().idProperty().get();
+                    boolean success = gameModel.applyTradingFrenzy(pId, new ArrayList<>(frenzySelectedResources));
+                    if (success) {
+                        updatePlayerViewState(getCurrentPlayer());
+                        for (int i = 0; i < players.size(); i++) {
+                            updatePlayerViewState(players.get(i));
+                        }
+                    }
+                    frenzySelectedResources.clear();
+                    switchToBuildState();
+                }
+            }
+            case MONOPOLY -> {
+                monopolySelectedResource = resource;
+                int pId = currentPlayer.get().idProperty().get();
+                boolean success = gameModel.applyMonopoly(pId, monopolySelectedResource);
+                if (success) {
+                    updatePlayerViewState(getCurrentPlayer());
+                    for (int i = 0; i < players.size(); i++) {
+                        updatePlayerViewState(players.get(i));
+                    }
+                }
+                monopolySelectedResource = null;
+                switchToBuildState();
+            }
+            default -> {
+                // ignore
+            }
+        }
+    }
+
+    public void playDevCard(String devCardId) {
+        int playerId = getCurrentPlayer().idProperty().get();
+        boolean success = gameModel.playDevCard(playerId, devCardId);
+        if (!success) {
+            return; // card play failed (card not found, not in hand, etc.)
+        }
+
+        // Get the action type and switch to the appropriate state
+        DevCardConfig cfg = ConfigService.getDevCard(devCardId);
+        if (cfg == null) return;
+
+        String action = cfg.actionType == null ? "" : cfg.actionType;
+        switch (action) {
+            case "ECO_CONFERENCE" -> switchToEcoConferenceState();
+            case "HIGHWAY_MADNESS" -> switchToHighwayMadnessState();
+            case "TRADING_FRENZY" -> switchToTradeFrenzyState();
+            case "MONOPOLY" -> switchToMonopolyState();
+            default -> {
+                // unknown card type
             }
         }
     }
@@ -489,6 +581,32 @@ public final class GameViewModel {
         }
     }
 
+    // do these need more happening in them?
+    public void switchToEcoConferenceState() {
+        turnState.set(TurnState.ECO_CONFERENCE);
+    }
+
+    public void switchToHighwayMadnessState(){
+        turnState.set(TurnState.HIGHWAY_MADNESS);
+    }
+
+    public void switchToTradeFrenzyState(){
+        turnState.set(TurnState.TRADE_FRENZY);
+    }
+
+    public void switchToMonopolyState(){
+        turnState.set(TurnState.MONOPOLY);
+    }
+
+    public void switchToPlayDevCardState() {
+        turnState.set(TurnState.PLAY_DEV_CARD);
+    }
+
+    public void endTurn() {
+        nextPlayer();
+        switchToRollDiceState();
+    }
+
     public int[][] getRoads() {
         return AdjacencyMaps.RoadConnections;
     }
@@ -502,8 +620,14 @@ public final class GameViewModel {
     }
 
     public void moveRobber(int index) {
-        if (turnState.get() != TurnState.MOVE_ROBBER_STATE) {
-            return;
+        if (turnState.get() == TurnState.MOVE_ROBBER_STATE) {
+            gameModel.checkPlayerResources();
+            gameModel.moveRobber(index);
+            switchToStealResourceState();
+        }
+        else if (turnState.get() == TurnState.ECO_CONFERENCE) {
+            gameModel.moveRobber(index);
+            switchToStealResourceState();
         }
         gameModel.checkPlayerResources();
         gameModel.moveRobber(index);
