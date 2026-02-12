@@ -161,6 +161,19 @@ public class Roads {
         return false;
     }
 
+    /**
+     * Check if road is connected by given player; does NOT check if owned by player
+     * @param roadIndex road to check
+     * @param playerID ID of player
+     * @return true if the road is connected by player; false if otherwise
+     */
+    public boolean isRoadConnectedByPlayer(int roadIndex, int playerID) {
+        // road is connected if either vertex is connected
+        int[] verts = roads[roadIndex].getVertices();
+
+        return isVertexConnectedByPlayer(verts[0], playerID) || isVertexConnectedByPlayer(verts[1], playerID);
+    }
+
 
     /**
      * Attempts to remove a road at the specified index for the given player.
