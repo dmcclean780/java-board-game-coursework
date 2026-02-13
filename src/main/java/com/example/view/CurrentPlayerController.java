@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
 public class CurrentPlayerController {
@@ -73,7 +74,7 @@ public class CurrentPlayerController {
 
         // initialize
         populateResources(currentPlayer.get());
-
+        
 
         // Buttons
         buildSettlementButton.disableProperty().bind(
@@ -169,7 +170,9 @@ public class CurrentPlayerController {
 
     public void nextPlayer() {
         viewModel.nextPlayer();
-        System.out.println("Next player: " + viewModel.getCurrentPlayer().nameProperty().get());
+
+        System.out.println("Next player: " +
+            viewModel.getCurrentPlayer().nameProperty().get());
     }
 
     public void rollDice() {
