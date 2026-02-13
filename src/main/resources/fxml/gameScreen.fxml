@@ -16,40 +16,44 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.shape.Circle?>
 
-<Pane fx:id="rootPane"
+<StackPane fx:id="overlayRoot"
     prefHeight="864.0"
     prefWidth="1536.0"
     xmlns="http://javafx.com/javafx"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.example.view.GameScreenController">
 
-    <!-- Large left-side pentagon -->
-    <Polygon fx:id="mainPentagon"
-        fill="rgb(5, 0, 88)"
-        stroke="rgb(5, 0, 88)"
-        strokeWidth="10"
-        layoutX="0"
-        layoutY="0">
-        <points>
-            <!-- Top-left corner -->
-            <Double fx:value="0.0" />
-            <Double fx:value="0.0" />
-            <!-- Bottom-left corner -->
-            <Double fx:value="0.0" />
-            <Double fx:value="864.0" />
-            <!-- Bottom-center -->
-            <Double fx:value="715.0" />
-            <Double fx:value="864.0" />
-            <!-- Top-center -->
-            <Double fx:value="715.0" />
-            <Double fx:value="433.0" />
-            <!-- Middle point slightly right -->
-            <Double fx:value="715.0" />
-            <Double fx:value="0.0" />
+    <Pane fx:id="rootPane"
+        prefHeight="864.0"
+        prefWidth="1536.0">
 
-        </points>
+        <!-- Large left-side pentagon -->
+        <Polygon fx:id="mainPentagon"
+            fill="rgb(5, 0, 88)"
+            stroke="BLACK"
+            strokeWidth="4"
+            layoutX="0"
+            layoutY="0">
+            <points>
+                <!-- Top-left corner -->
+                <Double fx:value="0.0" />
+                <Double fx:value="0.0" />
+                <!-- Bottom-left corner -->
+                <Double fx:value="0.0" />
+                <Double fx:value="864.0" />
+                <!-- Bottom-center -->
+                <Double fx:value="715.0" />
+                <Double fx:value="864.0" />
+                <!-- Top-center -->
+                <Double fx:value="715.0" />
+                <Double fx:value="433.0" />
+                <!-- Middle point slightly right -->
+                <Double fx:value="715.0" />
+                <Double fx:value="0.0" />
 
-    </Polygon>
+            </points>
+
+        </Polygon>
 
     <!-- Large left-side pentagon -->
     <Polygon fx:id="smallTriangle"
@@ -74,17 +78,17 @@
     <!-- Main board pane with tiles -->
     <Pane fx:id="borderPane" prefWidth="1000" prefHeight="800" />
 
-    <!-- Main board pane with tiles -->
-    <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800" />
+        <!-- Main board pane with tiles -->
+        <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800" />
 
-    <!-- Pane for vertices, automatically on top -->
-    <Pane fx:id="roadsPane" pickOnBounds="false" />
+        <!-- Pane for vertices, automatically on top -->
+        <Pane fx:id="roadsPane" pickOnBounds="false" />
 
-    <!-- Pane for vertices, automatically on top -->
-    <Pane fx:id="portsPane" pickOnBounds="false" />
+        <!-- Pane for vertices, automatically on top -->
+        <Pane fx:id="portsPane" pickOnBounds="false" />
 
-    <!-- Pane for vertices, automatically on top -->
-    <Pane fx:id="vertexPane" pickOnBounds="false" />
+        <!-- Pane for vertices, automatically on top -->
+        <Pane fx:id="vertexPane" pickOnBounds="false" />
 
     <VBox>
         <Button fx:id="giveSettlementResourcesButton" text="GIVE SETTLEMENT RESOURCES"
@@ -222,6 +226,32 @@
         <Pane fx:id="bottomPane" layoutY="432" prefHeight="432" prefWidth="819">
             <!-- Added Dynamically Here -->
         </Pane>
-
     </Pane>
-</Pane>
+    </Pane>
+
+    <!-- POPUP OVERLAY -->
+    <StackPane fx:id="popupOverlay"
+        visible="false"
+        alignment="CENTER"
+        style="-fx-background-color: rgba(0,0,0,0.5);">
+
+        <!-- Actual popup box -->
+        <StackPane fx:id="popupBox"
+            alignment="CENTER"
+            maxWidth="800"
+            maxHeight="700"
+            style="
+                -fx-background-color: #1e1e2f;
+                -fx-background-radius: 12;
+                -fx-border-radius: 12;
+                -fx-border-color: white;
+                -fx-border-width: 2;
+                -fx-padding: 20;
+            ">
+
+            <!-- CONTENT ADDED DYNAMICALLY -->
+        </StackPane>
+
+    </StackPane>
+
+</StackPane>

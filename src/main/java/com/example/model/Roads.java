@@ -54,6 +54,10 @@ public class Roads {
         return roads;
     }
 
+    public Road getRoad(int index) {
+        return this.roads[index];
+    }
+
     /**
      * Attempts to build a road at the specified index for the given player.
      * @param index     Index of the road to build (0 to 71)
@@ -155,6 +159,19 @@ public class Roads {
             }
         }
         return false;
+    }
+
+    /**
+     * Check if road is connected by given player; does NOT check if owned by player
+     * @param roadIndex road to check
+     * @param playerID ID of player
+     * @return true if the road is connected by player; false if otherwise
+     */
+    public boolean isRoadConnectedByPlayer(int roadIndex, int playerID) {
+        // road is connected if either vertex is connected
+        int[] verts = roads[roadIndex].getVertices();
+
+        return isVertexConnectedByPlayer(verts[0], playerID) || isVertexConnectedByPlayer(verts[1], playerID);
     }
 
 

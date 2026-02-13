@@ -54,5 +54,14 @@ public class Ports {
         return ports;
     }
 
+    public ArrayList<PortConfig> getPortConfigsByPortNumbers(ArrayList<Integer> portNumbers){
+        ArrayList<PortConfig> portConfigs = new ArrayList<PortConfig>();
+
+        for (int p : portNumbers){
+            Port currentPort = ports.get(p);
+            portConfigs.add(ConfigService.getPort(currentPort.getPortID()));
+        }
+        return portConfigs;
+    }
 
 }

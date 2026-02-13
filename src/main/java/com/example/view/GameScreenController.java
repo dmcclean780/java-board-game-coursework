@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.viewmodel.GameViewModel;
-import com.example.viewmodel.PlayerViewState;
-import com.example.viewmodel.RoadViewState;
-import com.example.viewmodel.TileViewState;
-import com.example.viewmodel.VertexViewState;
+import com.example.viewmodel.viewstates.GameUIState;
+import com.example.viewmodel.viewstates.PlayerViewState;
+import com.example.viewmodel.viewstates.RoadViewState;
+import com.example.viewmodel.viewstates.TileViewState;
+import com.example.viewmodel.viewstates.VertexViewState;
 
 import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
@@ -35,6 +36,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 
 public class GameScreenController implements ViewModelAware<GameViewModel> {
     private GameViewModel viewModel;
@@ -65,6 +67,11 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     private Pane bottomPane;
+
+    @FXML
+    private StackPane popupOverlay;
+    @FXML
+    private StackPane popupBox;
 
     // Static holder for names before screen loads
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
@@ -150,6 +157,24 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             e.printStackTrace();
         }
 
+        bindTradingMenu();
+
+    }
+
+    private void bindTradingMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/tradingMenu.fxml"));
+            Node menu = loader.load();
+            TradingMenuController ctrl = loader.getController();
+            ctrl.bind(viewModel);
+
+            //row.setUserData(player); // store reference for removal
+            menu.maxHeight(Region.USE_PREF_SIZE);
+            popupBox.getChildren().add(menu);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void addPlayerRow(PlayerViewState player, int index) {
@@ -275,6 +300,10 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         createCatanBoard(rootPane);
         playerColumnPane.toBack();
         mainPentagon.toBack();
+
+        popupOverlay.visibleProperty()
+            .bind(GameUIState.popupVisible);
+
     }
 
     private void mapPortsToVertices(int[][] ports) {
@@ -660,10 +689,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
             // Example: tell ViewModel
             viewModel.onVertexClicked(vertexId);
-
-            // Optional visual feedback
-            vertex.setStroke(Color.GOLD);
-            vertex.setStrokeWidth(3);
         });
 
         // Optional hover feedback
@@ -698,8 +723,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             viewModel.onRoadClicked(roadId);
 
             // Optional visual feedback
-            road.setStroke(Color.GOLD);
-            road.setStrokeWidth(3);
         });
 
         // Optional hover feedback
@@ -844,36 +867,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
                 0.0, height / 2 // left
         );
         return hex;
-    }
-
-    public void switchToBUILDSETTLEMENTPHASE() {
-        viewModel.switchToBuildSettlementState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDROADPHASE() {
-        viewModel.switchToBuildRoadState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDCITYPHASE() {
-        viewModel.switchToBuildCityState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToROLLDICEPHASE() {
-        viewModel.switchToRollDiceState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToBUILDINGPHASE() {
-        viewModel.switchToBuildState();
-        System.out.println(viewModel.getTurnState());
-    }
-
-    public void switchToMOVEROBBERPHASE(){
-        viewModel.switchToMoveRobberState();
-        System.out.println(viewModel.getTurnState());
     }
 
     public void nextPlayer() {

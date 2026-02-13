@@ -2,8 +2,10 @@ package com.example.view;
 
 import java.io.IOException;
 
-import com.example.viewmodel.PlayerViewState;
-import com.example.viewmodel.ResourceViewState;
+import com.example.viewmodel.TurnState;
+import com.example.viewmodel.viewstates.GameUIState;
+import com.example.viewmodel.viewstates.PlayerViewState;
+import com.example.viewmodel.viewstates.ResourceViewState;
 import com.example.viewmodel.GameViewModel;
 
 import javafx.beans.binding.Bindings;
@@ -11,6 +13,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
@@ -24,16 +27,26 @@ public class CurrentPlayerController {
     private Label currentPlayerDisplay;
     @FXML
     private VBox resourcesBox;
+
     @FXML
-    private Node buildSettlementButton;
+    private Button buildSettlementButton;
     @FXML
-    private Node buildCityButton;
+    private Button buildCityButton;
     @FXML
-    private Node buildRoadButton;
-    @FXML 
-    private Node endTurnButton;
-    @FXML 
-    private Node rollDiceButton;
+    private Button buildRoadButton;
+    @FXML
+    private Button rollDiceButton;
+    @FXML
+    private Button buildButton;
+    @FXML
+    private Button tradeButton;
+    @FXML
+    private Button endTurnButton;
+
+    // @FXML
+    // private Label die1Value;
+    // @FXML
+    // private Label die2Value;
 
     private GameViewModel viewModel;
 
@@ -62,6 +75,7 @@ public class CurrentPlayerController {
         // initialize
         populateResources(currentPlayer.get());
         
+
         // Buttons
         buildSettlementButton.disableProperty().bind(
                 Bindings.selectBoolean(currentPlayer, "canBuildSettlement").not());
@@ -69,6 +83,26 @@ public class CurrentPlayerController {
                 Bindings.selectBoolean(currentPlayer, "canBuildCity").not());
         buildRoadButton.disableProperty().bind(
                 Bindings.selectBoolean(currentPlayer, "canBuildRoad").not());
+
+        // die1Value.textProperty().bind(
+        //         Bindings.selectString(viewModel.diceRollProperty(), "dice1"));
+        // die2Value.textProperty().bind(
+        //         Bindings.selectString(viewModel.diceRollProperty(), "dice2"));
+
+        rollDiceButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.DICE_ROLL));
+        buildRoadButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
+        buildSettlementButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
+        buildCityButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
+        buildButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.TRADE));
+        endTurnButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
+        tradeButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.TRADE));
     }
 
     private void populateResources(PlayerViewState player) {
@@ -111,46 +145,43 @@ public class CurrentPlayerController {
 
     public void switchToBUILDSETTLEMENTPHASE() {
         viewModel.switchToBuildSettlementState();
-        System.out.println(viewModel.getTurnState());
+        System.out.println(viewModel.turnStateProperty().get());
     }
 
     public void switchToBUILDROADPHASE() {
         viewModel.switchToBuildRoadState();
-        System.out.println(viewModel.getTurnState());
+        System.out.println(viewModel.turnStateProperty().get());
     }
 
     public void switchToBUILDCITYPHASE() {
         viewModel.switchToBuildCityState();
-        System.out.println(viewModel.getTurnState());
+        System.out.println(viewModel.turnStateProperty().get());
     }
 
     public void switchToROLLDICEPHASE() {
-        rollDiceButton.setVisible(false);
-        rollDiceButton.setManaged(false);
-
-        endTurnButton.setVisible(true);
-        endTurnButton.setManaged(true);
-
         viewModel.switchToRollDiceState();
-        System.out.println(viewModel.getTurnState());
+        System.out.println(viewModel.turnStateProperty().get());
     }
 
     public void switchToBUILDINGPHASE() {
         viewModel.switchToBuildState();
-        System.out.println(viewModel.getTurnState());
+        System.out.println(viewModel.turnStateProperty().get());
     }
 
     public void nextPlayer() {
         viewModel.nextPlayer();
 
-        endTurnButton.setVisible(false);
-        endTurnButton.setManaged(false);
-
-        rollDiceButton.setVisible(true);
-        rollDiceButton.setManaged(true);
-
         System.out.println("Next player: " +
             viewModel.getCurrentPlayer().nameProperty().get());
     }
 
+    public void rollDice() {
+        viewModel.rollDice();
+        System.out.println(viewModel.turnStateProperty().get());
+    }
+
+    public void showTradingMenu() {
+        GameUIState.popupVisible.set(true);
+        System.out.println(viewModel.turnStateProperty().get());
+    }
 }

@@ -76,6 +76,10 @@ public class SetupViewModel {
             playerNames.add(player4Name.get());
         }
         gameModel.initializePlayers(playerNames);
+        
+        boolean settlementSetupSuccess = gameModel.initializeBoard();
+        if (!settlementSetupSuccess) {System.err.println("Starting settlements/roads did not setup correctly!");} // if this line ever runs, screenshot the board and send to Ethan
+        
         GameViewModel gameVM = new GameViewModel(gameModel, navigationService);
         navigationService.navigateTo("gameScreen", gameVM);
     }

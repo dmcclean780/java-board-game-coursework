@@ -31,7 +31,6 @@
         StackPane.alignment="CENTER_LEFT"
         translateX="0" />
 
-    <!-- Make Background parallelogram????? -->
     <!-- <Polygon fx:id="bottomBackground"
                 styleClass="parallelogram"
                 stroke="black"
@@ -123,7 +122,7 @@
 
     <!-- Bottom HUD Area -->
     <Pane fx:id="hudPane" layoutX="0" layoutY="120" prefHeight="250" prefWidth="819">
-        <VBox spacing="6" style="-fx-padding: 6;">
+        <VBox spacing="3" style="-fx-padding: 6;">
 
             <!-- 3-Column Grid: Resources | Trackers & Dev Cards | Score & Actions -->
             <HBox spacing="6" prefHeight="280" VBox.vgrow="ALWAYS">
@@ -239,6 +238,53 @@
                 <!-- Score & Actions Column -->
                 <VBox spacing="2" prefWidth="250" translateX="10">
 
+                    <!-- Score & Dice side-by-side -->
+                    <!-- <HBox spacing="4" prefWidth="210" prefHeight="68" alignment="CENTER">
+                        <StackPane prefWidth="100" prefHeight="62" alignment="CENTER">
+                            <Polygon fill="white" stroke="black" strokeWidth="2">
+                                <points>
+                                    <Double fx:value="8.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="108.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="100.0" />
+                                    <Double fx:value="62.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="62.0" />
+                                </points>
+                            </Polygon>
+                            <VBox alignment="CENTER" spacing="2">
+                                <Label text="Dice" styleClass="tracker-title" />
+                                <Label fx:id="diceValue" styleClass="tracker-content"/>
+                            </VBox>
+                        </StackPane>
+
+                        <!- Dice ->
+                        <StackPane prefWidth="100" prefHeight="62" alignment="CENTER">
+                            <Polygon fill="white" stroke="black" strokeWidth="2">
+                                <points>
+                                    <Double fx:value="8.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="108.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="100.0" />
+                                    <Double fx:value="62.0" />
+                                    <Double fx:value="0.0" />
+                                    <Double fx:value="62.0" />
+                                </points>
+                            </Polygon>
+                            <VBox alignment="CENTER" spacing="2">
+                                <Label text="Dice"
+                                    style="-fx-font-size: 11; -fx-text-fill: black; -fx-font-weight: bold;" />
+                                <Label fx:id="die1Value"
+                                    style="-fx-font-size: 17; -fx-text-fill: black; -fx-font-weight: bold;" />
+                                <Label fx:id="die2Value"
+                                    style="-fx-font-size: 17; -fx-text-fill: black; -fx-font-weight: bold;" />
+                            </VBox>
+                        </StackPane>
+                    </HBox> -->
+
+                    <!-- Action buttons -->
                     <VBox fx:id="actionButtonsBox" spacing="5" prefWidth="250"
                         alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
 
@@ -275,34 +321,33 @@
                             prefWidth="250"
                             styleClass="action-button"/>
                         <Button fx:id="tradeButton"
+                            onAction="#showTradingMenu"
                             text="Trade"
                             prefWidth="250"
                             styleClass="action-button"/>
-                        <!-- <Button fx:id="buildButton"
-                            onAction="#switchToBUILDINGPHASE"
-                            text="Build"
-                            prefWidth="250"
-                            styleClass="action-button"/> -->
                         <StackPane fx:id="bottomRightAction"
                                 prefWidth="250"
                                 prefHeight="60"
                                 alignment="CENTER">
 
                             <Button fx:id="rollDiceButton"
-                                    onAction="#switchToROLLDICEPHASE"
+                                    onAction="#rollDice"
                                     text="Roll Dice"
                                     prefWidth="250"
                                     prefHeight="60"
                                     styleClass="action-button"/>
-
+                            <Button fx:id="buildButton"
+                                    onAction="#switchToBUILDINGPHASE"
+                                    text="Build"
+                                    prefWidth="250"
+                                    prefHeight="60"
+                                    styleClass="action-button"/>
                             <Button fx:id="endTurnButton"
                                     onAction="#nextPlayer"
                                     text="End Turn"
                                     prefWidth="250"
                                     prefHeight="60"
-                                    styleClass="action-button"
-                                    visible="false"
-                                    managed="false"/>
+                                    styleClass="action-button"/>
                         </StackPane>    
                     </VBox>
                 </VBox>

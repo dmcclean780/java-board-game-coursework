@@ -35,5 +35,10 @@
     "_comment": "Title Screen:",
     "playText": "Play Game",
     "settingsText": "Settings",
-    "exitText": "Exit"
+    "exitText": "Exit",
+    "confirmTradeButton": "Confirm Trade",
+    "proposeTradeButton": "Propose Trade",
+    "bankTradeTitleLabel": "Trade with Bank",
+    "portTradeTitleLabel": "Trade with Ports",
+    "playerTradeTitleLabel": "Trade with Players"
 }
