@@ -55,28 +55,28 @@
 
         </Polygon>
 
-    <!-- Large left-side pentagon -->
-    <Polygon fx:id="smallTriangle"
-        fill="#e43b29"
-        stroke="#e43b29"
-        strokeWidth="5"
-        layoutX="0"
-        layoutY="0">
-        <points>
-            <!-- Top-Right -->
-            <Double fx:value="715.0" />
-            <Double fx:value="774.0" />
-            <!-- Bottom-Right -->
-            <Double fx:value="715.0" />
-            <Double fx:value="864.0" />
-            <!-- Bottom-Left -->
-            <Double fx:value="660.0" />
-            <Double fx:value="864.0" />
-        </points>
-    </Polygon>
+        <!-- Large left-side pentagon -->
+        <Polygon fx:id="smallTriangle"
+            fill="#e43b29"
+            stroke="#e43b29"
+            strokeWidth="5"
+            layoutX="0"
+            layoutY="0">
+            <points>
+                <!-- Top-Right -->
+                <Double fx:value="715.0" />
+                <Double fx:value="774.0" />
+                <!-- Bottom-Right -->
+                <Double fx:value="715.0" />
+                <Double fx:value="864.0" />
+                <!-- Bottom-Left -->
+                <Double fx:value="660.0" />
+                <Double fx:value="864.0" />
+            </points>
+        </Polygon>
 
-    <!-- Main board pane with tiles -->
-    <Pane fx:id="borderPane" prefWidth="1000" prefHeight="800" />
+        <!-- Main board pane with tiles -->
+        <Pane fx:id="borderPane" prefWidth="1000" prefHeight="800" />
 
         <!-- Main board pane with tiles -->
         <Pane fx:id="catanBoardPane" prefWidth="1000" prefHeight="800" />
@@ -90,143 +90,154 @@
         <!-- Pane for vertices, automatically on top -->
         <Pane fx:id="vertexPane" pickOnBounds="false" />
 
-    <VBox>
-        <Button fx:id="giveSettlementResourcesButton" text="GIVE SETTLEMENT RESOURCES"
-            onAction="#giveSettlementResources" />
-        <Button fx:id="giveCityResourcesButton" text="GIVE CITY RESOURCES"
-            onAction="#giveCityResources" />
-        <Button fx:id="giveRoadResourcesButton" text="GIVE ROAD RESOURCES"
-            onAction="#giveRoadResources" />
-    </VBox>
+        <VBox>
+            <Button fx:id="giveSettlementResourcesButton" text="GIVE SETTLEMENT RESOURCES"
+                onAction="#giveSettlementResources" />
+            <Button fx:id="giveCityResourcesButton" text="GIVE CITY RESOURCES"
+                onAction="#giveCityResources" />
+            <Button fx:id="giveRoadResourcesButton" text="GIVE ROAD RESOURCES"
+                onAction="#giveRoadResources" />
+        </VBox>
 
-    <Pane fx:id="playerColumnPane" layoutX="717" prefWidth="819" prefHeight="864" styleClass="columnPane">
+        <Pane fx:id="playerColumnPane" layoutX="717" prefWidth="819" prefHeight="864"
+            styleClass="columnPane">
 
-        <StackPane fx:id="climateTrackerBox" alignment="TOP_RIGHT" layoutX="25" layoutY="10"
-            prefWidth="768" prefHeight="70">
-            
-            <Pane fx:id="numberLine"
-            prefWidth="750"
-            prefHeight="50"
-            layoutX="30"
-            layoutY="10"
-            styleClass="number-line-cont">
+            <StackPane fx:id="climateTrackerBox" alignment="TOP_RIGHT" layoutX="25" layoutY="10"
+                prefWidth="768" prefHeight="70">
 
-                <!-- Arrow -->
-                <Polygon fx:id="numberArrow"
+                <Pane fx:id="numberLine"
+                    prefWidth="750"
+                    prefHeight="50"
+                    layoutX="30"
+                    layoutY="10"
+                    styleClass="number-line-cont">
+
+                    <!-- Arrow -->
+                    <Polygon fx:id="numberArrow"
                         layoutX="57"
                         layoutY="56"
                         styleClass="numArrow">
-                    <points>
-                        <Double fx:value="20.0"/>    <Double fx:value="15.0"/>
-                        <Double fx:value="10.0"/>  <Double fx:value="0.0"/>
-                        <Double fx:value="0.0"/>   <Double fx:value="15.0"/>
-                    </points>
-                </Polygon>
+                        <points>
+                            <Double fx:value="20.0" />
+                            <Double fx:value="15.0" />
+                            <Double fx:value="10.0" />
+                            <Double fx:value="0.0" />
+                            <Double fx:value="0.0" />
+                            <Double fx:value="15.0" />
+                        </points>
+                    </Polygon>
 
-                <!-- Baseline -->
-                <Rectangle x="50" y="10"
-                    width="700"
-                    height="10"
-                    fill="grey"
-                    arcWidth="5"
-                    arcHeight="5"/>
+                    <!-- Baseline -->
+                    <Rectangle x="50" y="10"
+                        width="700"
+                        height="10"
+                        fill="grey"
+                        arcWidth="5"
+                        arcHeight="5" />
 
 
-                <!-- Numbers -->
-                <HBox fx:id="numberLineBox"
-                    alignment="CENTER"
-                    spacing="0"
-                    prefWidth="700"
-                    layoutX="50"
-                    layoutY="22"
-                    styleClass="number-line">
+                    <!-- Numbers -->
+                    <HBox fx:id="numberLineBox"
+                        alignment="CENTER"
+                        spacing="0"
+                        prefWidth="700"
+                        layoutX="50"
+                        layoutY="22"
+                        styleClass="number-line">
 
-                    <Label text="0"  styleClass="numLineNum-5"/>
-                    <Label text="1"  styleClass="numLineNum"/>
-                    <Label text="2"  styleClass="numLineNum"/>
-                    <Label text="3"  styleClass="numLineNum"/>
-                    <Label text="4"  styleClass="numLineNum"/>
-                    <Label text="5"  styleClass="numLineNum-5"/>
-                    <Label text="6"  styleClass="numLineNum"/>
-                    <Label text="7"  styleClass="numLineNum"/>
-                    <Label text="8"  styleClass="numLineNum"/>
-                    <Label text="9"  styleClass="numLineNum"/>
-                    <Label text="10" styleClass="numLineNum-5"/>
-                    <Label text="11" styleClass="numLineNum"/>
-                    <Label text="12" styleClass="numLineNum"/>
-                    <Label text="13" styleClass="numLineNum"/>
-                    <Label text="14" styleClass="numLineNum"/>
-                    <Label text="15" styleClass="numLineNum-5"/>
-                    <Label text="16" styleClass="numLineNum"/>
-                    <Label text="17" styleClass="numLineNum"/>
-                    <Label text="18" styleClass="numLineNum"/>
-                    <Label text="19" styleClass="numLineNum"/>
-                    <Label text="20" styleClass="numLineNum-5"/>
-                    <Label text="21" styleClass="numLineNum"/>
-                    <Label text="22" styleClass="numLineNum"/>
-                    <Label text="23" styleClass="numLineNum"/>
-                    <Label text="24" styleClass="numLineNum"/>
-                    <Label text="25" styleClass="numLineNum-5"/>
+                        <Label text="0" styleClass="numLineNum-5" />
+                        <Label text="1" styleClass="numLineNum" />
+                        <Label text="2" styleClass="numLineNum" />
+                        <Label text="3" styleClass="numLineNum" />
+                        <Label text="4" styleClass="numLineNum" />
+                        <Label text="5" styleClass="numLineNum-5" />
+                        <Label text="6" styleClass="numLineNum" />
+                        <Label text="7" styleClass="numLineNum" />
+                        <Label text="8" styleClass="numLineNum" />
+                        <Label text="9" styleClass="numLineNum" />
+                        <Label text="10" styleClass="numLineNum-5" />
+                        <Label text="11" styleClass="numLineNum" />
+                        <Label text="12" styleClass="numLineNum" />
+                        <Label text="13" styleClass="numLineNum" />
+                        <Label text="14" styleClass="numLineNum" />
+                        <Label text="15" styleClass="numLineNum-5" />
+                        <Label text="16" styleClass="numLineNum" />
+                        <Label text="17" styleClass="numLineNum" />
+                        <Label text="18" styleClass="numLineNum" />
+                        <Label text="19" styleClass="numLineNum" />
+                        <Label text="20" styleClass="numLineNum-5" />
+                        <Label text="21" styleClass="numLineNum" />
+                        <Label text="22" styleClass="numLineNum" />
+                        <Label text="23" styleClass="numLineNum" />
+                        <Label text="24" styleClass="numLineNum" />
+                        <Label text="25" styleClass="numLineNum-5" />
 
-                </HBox>
+                    </HBox>
+                </Pane>
+            </StackPane>
+
+            <!-- Top half: player list -->
+            <HBox fx:id="achievementTrackers" spacing="2" alignment="TOP_LEFT" layoutX="50"
+                layoutY="75"
+                prefWidth="768" prefHeight="100" translateX="-26">
+                <StackPane alignment="CENTER">
+                    <Polygon fx:id="longestRoad" stroke="black" strokeWidth="4"
+                        styleClass="progress-track-cont">
+                        <points>
+                            <Double fx:value="0.0" />
+                            <Double fx:value="0.0" />
+                            <Double fx:value="250.0" />
+                            <Double fx:value="0.0" />
+                            <Double fx:value="275.0" />
+                            <Double fx:value="42.0" />
+                            <Double fx:value="25.0" />
+                            <Double fx:value="42.0" />
+                        </points>
+                    </Polygon>
+                    <Label fx:id="longestRoadTitle" styleClass="tracker-title"
+                        StackPane.alignment="CENTER_LEFT"
+                        text="Longest Road:" translateX="30" />
+                    <Label fx:id="longestRoadCurrent" styleClass="tracker-title"
+                        StackPane.alignment="CENTER_RIGHT"
+                        text="5 Required" translateX="-30" />
+                </StackPane>
+
+                <StackPane alignment="CENTER" styleClass="progress-track-pane">
+                    <Polygon fx:id="cleanestEnviro" stroke="black" strokeWidth="4"
+                        styleClass="progress-track-cont">
+                        <points>
+                            <Double fx:value="0.0" />
+                            <Double fx:value="0.0" />
+                            <Double fx:value="250.0" />
+                            <Double fx:value="0.0" />
+                            <Double fx:value="275.0" />
+                            <Double fx:value="42.0" />
+                            <Double fx:value="25.0" />
+                            <Double fx:value="42.0" />
+                        </points>
+                    </Polygon>
+                    <Label fx:id="cleanestEnviroTitle" styleClass="tracker-title"
+                        StackPane.alignment="CENTER_LEFT"
+                        text="Cleanest Enviroment:" translateX="30" />
+                    <Label fx:id="cleanestEnviroCurrent" styleClass="tracker-title"
+                        StackPane.alignment="CENTER_RIGHT"
+                        text="3 Required" translateX="-30" />
+                </StackPane>
+
+            </HBox>
+
+            <!-- Top half: player list -->
+            <VBox fx:id="playerList" spacing="-5" alignment="TOP_CENTER" layoutX="60" layoutY="165"
+                prefWidth="768" prefHeight="282">
+
+                <!-- Player rows will be added dynamically -->
+            </VBox>
+
+            <!-- Bottom half: current player info + bottom HUD -->
+            <Pane fx:id="bottomPane" layoutY="432" prefHeight="432" prefWidth="819">
+                <!-- Added Dynamically Here -->
             </Pane>
-        </StackPane>
-
-        <!-- Top half: player list -->
-        <HBox fx:id="achievementTrackers" spacing="2" alignment="TOP_LEFT" layoutX="50" layoutY="75"
-            prefWidth="768" prefHeight="100" translateX="-26">
-            <StackPane alignment="CENTER">
-                <Polygon fx:id="longestRoad" stroke="black" strokeWidth="4" styleClass="progress-track-cont">
-                    <points>
-                        <Double fx:value="0.0" />
-                        <Double fx:value="0.0" />
-                        <Double fx:value="250.0" />
-                        <Double fx:value="0.0" />
-                        <Double fx:value="275.0" />
-                        <Double fx:value="42.0" />
-                        <Double fx:value="25.0" />
-                        <Double fx:value="42.0" />
-                    </points>
-                </Polygon>
-                <Label fx:id="longestRoadTitle" styleClass="tracker-title" StackPane.alignment="CENTER_LEFT" 
-                    text="Longest Road:" translateX="30"/>
-                <Label fx:id="longestRoadCurrent" styleClass="tracker-title" StackPane.alignment="CENTER_RIGHT"
-                    text="5 Required" translateX="-30"/>
-            </StackPane>
-
-            <StackPane alignment="CENTER" styleClass="progress-track-pane">
-                <Polygon fx:id="cleanestEnviro" stroke="black" strokeWidth="4" styleClass="progress-track-cont">
-                    <points>
-                        <Double fx:value="0.0" />
-                        <Double fx:value="0.0" />
-                        <Double fx:value="250.0" />
-                        <Double fx:value="0.0" />
-                        <Double fx:value="275.0" />
-                        <Double fx:value="42.0" />
-                        <Double fx:value="25.0" />
-                        <Double fx:value="42.0" />
-                    </points>
-                </Polygon>
-                <Label fx:id="cleanestEnviroTitle" styleClass="tracker-title" StackPane.alignment="CENTER_LEFT" 
-                    text="Cleanest Enviroment:" translateX="30"/>
-                <Label fx:id="cleanestEnviroCurrent" styleClass="tracker-title" StackPane.alignment="CENTER_RIGHT"
-                    text="3 Required" translateX="-30"/>
-            </StackPane>
-
-        </HBox>
-
-        <!-- Top half: player list -->
-        <VBox fx:id="playerList" spacing="-5" alignment="TOP_CENTER" layoutX="60" layoutY="165"
-            prefWidth="768" prefHeight="282">
-
-            <!-- Player rows will be added dynamically -->
-        </VBox>
-
-        <!-- Bottom half: current player info + bottom HUD -->
-        <Pane fx:id="bottomPane" layoutY="432" prefHeight="432" prefWidth="819">
-            <!-- Added Dynamically Here -->
         </Pane>
-    </Pane>
     </Pane>
 
     <!-- POPUP OVERLAY -->
@@ -236,7 +247,26 @@
         style="-fx-background-color: rgba(0,0,0,0.5);">
 
         <!-- Actual popup box -->
-        <StackPane fx:id="popupBox"
+        <StackPane fx:id="tradingMenuPopup"
+            visible="false"
+            alignment="CENTER"
+            maxWidth="800"
+            maxHeight="700"
+            style="
+                -fx-background-color: #1e1e2f;
+                -fx-background-radius: 12;
+                -fx-border-radius: 12;
+                -fx-border-color: white;
+                -fx-border-width: 2;
+                -fx-padding: 20;
+            ">
+
+            <!-- CONTENT ADDED DYNAMICALLY -->
+        </StackPane>
+
+        <!-- Select Resource Popup -->
+        <StackPane fx:id="selectResourcePopup"
+            visible="false"
             alignment="CENTER"
             maxWidth="800"
             maxHeight="700"

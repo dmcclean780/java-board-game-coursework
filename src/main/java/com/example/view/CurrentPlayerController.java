@@ -16,7 +16,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
 public class CurrentPlayerController {
@@ -26,7 +25,7 @@ public class CurrentPlayerController {
     @FXML
     private Label currentPlayerDisplay;
     @FXML
-    private VBox resourcesBox;
+    private VBox resourcesBox, devCardBox;
 
     @FXML
     private Button buildSettlementButton;
@@ -34,6 +33,8 @@ public class CurrentPlayerController {
     private Button buildCityButton;
     @FXML
     private Button buildRoadButton;
+    @FXML
+    private Button buildDevCardButton;
     @FXML
     private Button rollDiceButton;
     @FXML
@@ -52,7 +53,7 @@ public class CurrentPlayerController {
 
     public void bindCurrentPlayer(GameViewModel viewModel) {
 
-        //Initialize Static Text Method HERE
+        // Initialize Static Text Method HERE
 
         this.viewModel = viewModel;
 
@@ -74,7 +75,7 @@ public class CurrentPlayerController {
 
         // initialize
         populateResources(currentPlayer.get());
-        
+        populateDevCards();
 
         // Buttons
         buildSettlementButton.disableProperty().bind(
@@ -83,12 +84,8 @@ public class CurrentPlayerController {
                 Bindings.selectBoolean(currentPlayer, "canBuildCity").not());
         buildRoadButton.disableProperty().bind(
                 Bindings.selectBoolean(currentPlayer, "canBuildRoad").not());
-
-        // die1Value.textProperty().bind(
-        //         Bindings.selectString(viewModel.diceRollProperty(), "dice1"));
-        // die2Value.textProperty().bind(
-        //         Bindings.selectString(viewModel.diceRollProperty(), "dice2"));
-
+        buildDevCardButton.disableProperty().bind(
+                Bindings.selectBoolean(currentPlayer, "canBuildDevCard").not());
         rollDiceButton.visibleProperty().bind(
                 viewModel.turnStateProperty().isEqualTo(TurnState.DICE_ROLL));
         buildRoadButton.visibleProperty().bind(
@@ -97,12 +94,28 @@ public class CurrentPlayerController {
                 viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
         buildCityButton.visibleProperty().bind(
                 viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
+        buildDevCardButton.visibleProperty().bind(
+                viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
         buildButton.visibleProperty().bind(
                 viewModel.turnStateProperty().isEqualTo(TurnState.TRADE));
         endTurnButton.visibleProperty().bind(
                 viewModel.turnStateProperty().isEqualTo(TurnState.BUILD));
         tradeButton.visibleProperty().bind(
                 viewModel.turnStateProperty().isEqualTo(TurnState.TRADE));
+    }
+
+    private void populateDevCards() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/devCardBox.fxml"));
+            Node node = loader.load();
+
+            DevCardBoxController ctrl = loader.getController();
+            ctrl.bindDevCards(viewModel);
+            devCardBox.getChildren().add(node);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void populateResources(PlayerViewState player) {
@@ -134,8 +147,7 @@ public class CurrentPlayerController {
     private void setResourceIndents() {
 
         int size = resourcesBox.getChildren().size();
-        for(int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             Node row = resourcesBox.getChildren().get(size - i - 1);
 
             row.setTranslateX(0);
@@ -172,7 +184,7 @@ public class CurrentPlayerController {
         viewModel.nextPlayer();
 
         System.out.println("Next player: " +
-            viewModel.getCurrentPlayer().nameProperty().get());
+                viewModel.getCurrentPlayer().nameProperty().get());
     }
 
     public void rollDice() {
@@ -182,6 +194,13 @@ public class CurrentPlayerController {
 
     public void showTradingMenu() {
         GameUIState.popupVisible.set(true);
+        GameUIState.tradingMenuVisible.set(true);
+
         System.out.println(viewModel.turnStateProperty().get());
+    }
+
+    @FXML
+    private void buildDevCard() {
+        viewModel.buildDevCard();
     }
 }
