@@ -12,6 +12,7 @@ import java.util.Random;
 import com.example.model.config.PlayerInfrastructureConfig;
 import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
+import com.example.model.config.DevCardConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
 import com.example.model.trading.TradeBank;
@@ -825,6 +826,13 @@ public class GameModel {
         }
     }
 
+    public boolean playerHasDevCardResources(int playerID) {
+        Player player = getPlayer(playerID);
+        String structureID = "player_infrastructure.dev_card";
+
+        return player.hasEnoughResourcesForStructure(structureID) && player.getStructuresRemaining(structureID) > 0;
+    }
+
     public boolean buyDevelopmentCard(int playerId) {
         Player player = getPlayer(playerId);
         if (player == null)
@@ -861,7 +869,7 @@ public class GameModel {
         if (player == null)
             return;
 
-        com.example.model.config.DevCardConfig cfg = ConfigService.getDevCard(devCardId);
+        DevCardConfig cfg = ConfigService.getDevCard(devCardId);
         if (cfg == null) {
             // unknown card: treat as no-op
             return;
@@ -878,26 +886,25 @@ public class GameModel {
         player.addCard(devCardId);
     }
 
-    public boolean playDevCard(int playerId, String devCardId) {
+    public boolean playDevCard(int playerId, DevCardConfig devCardConfig) {
         Player player = getPlayer(playerId);
         if (player == null)
             return false;
 
-        if (!player.hasCard(devCardId))
+        if (!player.hasCard(devCardConfig.id))
             return false;
 
-        com.example.model.config.DevCardConfig cfg = ConfigService.getDevCard(devCardId);
-        if (cfg == null)
+        if (devCardConfig == null)
             return false;
 
-        String action = cfg.actionType == null ? "" : cfg.actionType;
+        String action = devCardConfig.actionType == null ? "" : devCardConfig.actionType;
         if ("VICTORY_POINT".equals(action)) {
             // cannot be played
             return false;
         }
 
         // remove the card from the player's hand (played)
-        boolean removed = player.removeCard(devCardId);
+        boolean removed = player.removeCard(devCardConfig.id);
         if (!removed)
             return false;
 
@@ -1002,6 +1009,13 @@ public class GameModel {
             return new ArrayList<>();
         ArrayList<Integer> portNumbers = settlements.getPortsOwnedByPlayer(playerId);
         return ports.getPortConfigsByPortNumbers(portNumbers);
+    }
+
+    public ArrayList<DevCardConfig> getPlayerDevCards(int playerId) {
+        Player player = getPlayer(playerId);
+        if (player == null)
+            return new ArrayList<>();
+        return player.getDevCards();
     }
 
     // TESTING METHODS

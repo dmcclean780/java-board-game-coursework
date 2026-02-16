@@ -57,9 +57,11 @@ public final class GameViewModel {
     private final ArrayList<Integer> highwaySelectedRoads = new ArrayList<>();
     private final ArrayList<ResourceConfig> frenzySelectedResources = new ArrayList<>();
     private ResourceConfig monopolySelectedResource = null;
-    
+
     private final ObjectProperty<DiceViewState> diceRoll = new SimpleObjectProperty<>(new DiceViewState());
     private final ObjectProperty<BankViewState> bankState = new SimpleObjectProperty<>(new BankViewState());
+
+    private TurnState previousState = TurnState.DICE_ROLL;
 
     public GameViewModel(GameModel gameModel, NavigationService navigationService) {
         this.gameModel = gameModel;
@@ -124,6 +126,8 @@ public final class GameViewModel {
         playerState.canBuildSettlementProperty().set(gameModel.playerHasSettlementResources(player.getId()));
         playerState.canBuildCityProperty().set(gameModel.playerHasCityResources(player.getId()));
         playerState.canBuildRoadProperty().set(gameModel.playerHasRoadResources(player.getId()));
+        playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
+
         playerState.scoreProperty().set(0);
         playerState.longestRoadProperty().set(false);
         playerState.cleanestEnvironmentProperty().set(false);
@@ -131,6 +135,7 @@ public final class GameViewModel {
 
         initPlayerResources(playerState);
         initPlayerPorts(playerState);
+        initPlayerDevCards(playerState);
         return playerState;
     }
 
@@ -139,11 +144,14 @@ public final class GameViewModel {
         playerState.canBuildSettlementProperty().set(gameModel.playerHasSettlementResources(player.getId()));
         playerState.canBuildCityProperty().set(gameModel.playerHasCityResources(player.getId()));
         playerState.canBuildRoadProperty().set(gameModel.playerHasRoadResources(player.getId()));
+        playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
+
         // playerState.scoreProperty().set(player.getScore());
         // playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
         // playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
         updateResourceCounts(playerState);
         updatePlayerPorts(playerState);
+        updatePlayerDevCards(playerState);
         return playerState;
     }
 
@@ -168,8 +176,6 @@ public final class GameViewModel {
         }
         return bankState;
     }
-
-
 
     private void initPlayerResources(PlayerViewState playerState) {
         Player player = gameModel.getPlayer(playerState.idProperty().get());
@@ -204,6 +210,18 @@ public final class GameViewModel {
         int playerID = playerState.idProperty().get();
         ArrayList<PortConfig> portConfigs = gameModel.getPlayerPorts(playerID);
         playerState.getPorts().setAll(portConfigs);
+    }
+
+    private void initPlayerDevCards(PlayerViewState playerState) {
+        int playerID = playerState.idProperty().get();
+        ArrayList<DevCardConfig> devCards = gameModel.getPlayerDevCards(playerID);
+        playerState.getDevCards().addAll(devCards);
+    }
+
+    private void updatePlayerDevCards(PlayerViewState playerState) {
+        int playerID = playerState.idProperty().get();
+        ArrayList<DevCardConfig> devCards = gameModel.getPlayerDevCards(playerID);
+        playerState.getDevCards().setAll(devCards);
     }
 
     private void updateTileViewStates() {
@@ -292,6 +310,14 @@ public final class GameViewModel {
         }
     }
 
+    public void buildDevCard() {
+        boolean success = gameModel.buyDevelopmentCard(currentPlayer.get().idProperty().get());
+        if (success) {
+            updatePlayerViewState(currentPlayer.get());
+            updateBankViewState(bankState.get());
+        }
+    }
+
     private void stealResource(int vertexIndex) {
         if (turnState.get() != TurnState.STEAL_RESOURCE) {
             return;
@@ -335,7 +361,8 @@ public final class GameViewModel {
                 }
                 if (highwaySelectedRoads.size() == 2) {
                     int pId = currentPlayer.get().idProperty().get();
-                    boolean success = gameModel.applyHighwayMadness(pId, highwaySelectedRoads.get(0), highwaySelectedRoads.get(1));
+                    boolean success = gameModel.applyHighwayMadness(pId, highwaySelectedRoads.get(0),
+                            highwaySelectedRoads.get(1));
                     if (success) {
                         int playerID = pId;
                         for (int idx : highwaySelectedRoads) {
@@ -393,18 +420,18 @@ public final class GameViewModel {
         }
     }
 
-    public void playDevCard(String devCardId) {
+    public void playDevCard(DevCardConfig devCardConfig) {
         int playerId = getCurrentPlayer().idProperty().get();
-        boolean success = gameModel.playDevCard(playerId, devCardId);
+        boolean success = gameModel.playDevCard(playerId, devCardConfig);
         if (!success) {
             return; // card play failed (card not found, not in hand, etc.)
         }
 
         // Get the action type and switch to the appropriate state
-        DevCardConfig cfg = ConfigService.getDevCard(devCardId);
-        if (cfg == null) return;
+        if (devCardConfig == null)
+            return;
 
-        String action = cfg.actionType == null ? "" : cfg.actionType;
+        String action = devCardConfig.actionType == null ? "" : devCardConfig.actionType;
         switch (action) {
             case "ECO_CONFERENCE" -> switchToEcoConferenceState();
             case "HIGHWAY_MADNESS" -> switchToHighwayMadnessState();
@@ -489,7 +516,7 @@ public final class GameViewModel {
         gameModel.rollDice();
         updateDiceRoll();
 
-        if(diceRoll.get().dice1Property().get() + diceRoll.get().dice2Property().get() == 7) {
+        if (diceRoll.get().dice1Property().get() + diceRoll.get().dice2Property().get() == 7) {
             switchToMoveRobberState();
             return;
         }
@@ -576,30 +603,46 @@ public final class GameViewModel {
         updatePlayerViewStates();
         updateBankViewState(bankState.get());
 
-        if(!canSteal) {
+        if (!canSteal) {
             switchToTradeState();
         }
     }
 
     // do these need more happening in them?
     public void switchToEcoConferenceState() {
+        previousState = turnState.get();
         turnState.set(TurnState.ECO_CONFERENCE);
+        updatePlayerViewStates();
+
     }
 
-    public void switchToHighwayMadnessState(){
+    public void switchToHighwayMadnessState() {
+        previousState = turnState.get();
         turnState.set(TurnState.HIGHWAY_MADNESS);
+        for (int i = 0; i < roads.size(); i++) {
+            roads.get(i).visible.set(canCurrentPlayerBuildRoad(i));
+        }
+        updatePlayerViewStates();
     }
 
-    public void switchToTradeFrenzyState(){
+    public void switchToTradeFrenzyState() {
+        previousState = turnState.get();
         turnState.set(TurnState.TRADE_FRENZY);
+        updatePlayerViewStates();
     }
 
-    public void switchToMonopolyState(){
+    public void switchToMonopolyState() {
+        previousState = turnState.get();
         turnState.set(TurnState.MONOPOLY);
+        updatePlayerViewStates();
     }
 
     public void switchToPlayDevCardState() {
         turnState.set(TurnState.PLAY_DEV_CARD);
+    }
+
+    public void switchToPreviousState() {
+        turnState.set(previousState);
     }
 
     public void endTurn() {
@@ -624,8 +667,7 @@ public final class GameViewModel {
             gameModel.checkPlayerResources();
             gameModel.moveRobber(index);
             switchToStealResourceState();
-        }
-        else if (turnState.get() == TurnState.ECO_CONFERENCE) {
+        } else if (turnState.get() == TurnState.ECO_CONFERENCE) {
             gameModel.moveRobber(index);
             switchToStealResourceState();
         }
@@ -638,7 +680,7 @@ public final class GameViewModel {
 
     public void setBankTrade(ResourceConfig giveResource, ResourceConfig receiveResource) {
         TradeBank tradeBank = new TradeBank(currentPlayer.get().idProperty().get(), giveResource, receiveResource);
-        if(gameModel.validTrade(tradeBank)) {
+        if (gameModel.validTrade(tradeBank)) {
             gameModel.executeTrade(tradeBank);
             updatePlayerViewState(currentPlayer.get());
             updateBankViewState(bankState.get());
@@ -647,16 +689,18 @@ public final class GameViewModel {
 
     public void setPortTrade(PortConfig portConfig, ResourceConfig receiveResource) {
         TradePort tradePort = new TradePort(portConfig, currentPlayer.get().idProperty().get(), receiveResource);
-        if(gameModel.validTrade(tradePort)) {
+        if (gameModel.validTrade(tradePort)) {
             gameModel.executeTrade(tradePort);
             updatePlayerViewState(currentPlayer.get());
             updateBankViewState(bankState.get());
         }
     }
 
-    public void setPlayerTrade(int playerID, HashMap<ResourceConfig, Integer> giveResource, HashMap<ResourceConfig, Integer> receiveResource) {
-        TradePlayer tradePlayer = new TradePlayer(currentPlayer.get().idProperty().get(), playerID, giveResource, receiveResource);
-        if(gameModel.validTrade(tradePlayer)) {
+    public void setPlayerTrade(int playerID, HashMap<ResourceConfig, Integer> giveResource,
+            HashMap<ResourceConfig, Integer> receiveResource) {
+        TradePlayer tradePlayer = new TradePlayer(currentPlayer.get().idProperty().get(), playerID, giveResource,
+                receiveResource);
+        if (gameModel.validTrade(tradePlayer)) {
             gameModel.executeTrade(tradePlayer);
             System.out.println("Trade executed successfully");
             updatePlayerViewStates();

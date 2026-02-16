@@ -1,5 +1,6 @@
 package com.example.viewmodel.viewstates;
 
+import com.example.model.config.DevCardConfig;
 import com.example.model.config.PortConfig;
 
 import javafx.beans.property.BooleanProperty;
@@ -10,9 +11,12 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
 
 public class PlayerViewState {
     private final StringProperty name = new SimpleStringProperty();
@@ -23,21 +27,66 @@ public class PlayerViewState {
     private final BooleanProperty canBuildSettlement = new SimpleBooleanProperty();
     private final BooleanProperty canBuildCity = new SimpleBooleanProperty();
     private final BooleanProperty canBuildRoad = new SimpleBooleanProperty();
+    private final BooleanProperty canBuildDevCard = new SimpleBooleanProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
 
     private final ObservableList<ResourceViewState> resources = FXCollections.observableArrayList();
     private final ObservableList<PortConfig> ports = FXCollections.observableArrayList();
+    private final ObservableList<DevCardConfig> devCards = FXCollections.observableArrayList();
 
+    public StringProperty nameProperty() {
+        return name;
+    }
 
-    public StringProperty nameProperty() { return name; }
-    public IntegerProperty idProperty() { return id; }
-    public IntegerProperty scoreProperty() { return score; }
-    public BooleanProperty longestRoadProperty() { return longestRoad; }
-    public BooleanProperty cleanestEnvironmentProperty() { return cleanestEnvironment; }
-    public BooleanProperty canBuildSettlementProperty() { return canBuildSettlement; }
-    public BooleanProperty canBuildCityProperty() { return canBuildCity; }
-    public BooleanProperty canBuildRoadProperty() { return canBuildRoad; }
-    public ObjectProperty<Color> colorProperty() { return color; }
-    public ObservableList<ResourceViewState> getResources() { return resources; }
-    public ObservableList<PortConfig> getPorts() { return ports; }
+    public IntegerProperty idProperty() {
+        return id;
+    }
+
+    public IntegerProperty scoreProperty() {
+        return score;
+    }
+
+    public BooleanProperty longestRoadProperty() {
+        return longestRoad;
+    }
+
+    public BooleanProperty cleanestEnvironmentProperty() {
+        return cleanestEnvironment;
+    }
+
+    public BooleanProperty canBuildSettlementProperty() {
+        return canBuildSettlement;
+    }
+
+    public BooleanProperty canBuildCityProperty() {
+        return canBuildCity;
+    }
+
+    public BooleanProperty canBuildRoadProperty() {
+        return canBuildRoad;
+    }
+
+    public BooleanProperty canBuildDevCardProperty() {
+        return canBuildDevCard;
+    }
+
+    public ObjectProperty<Color> colorProperty() {
+        return color;
+    }
+
+    public ObservableList<ResourceViewState> getResources() {
+        return resources;
+    }
+
+    public ObservableList<PortConfig> getPorts() {
+        return ports;
+    }
+
+    public ObservableList<DevCardConfig> getDevCards() {
+        return devCards;
+    }
+
+    public IntegerBinding devCardCountBinding() {
+        return Bindings.size(devCards);
+    }
 }
