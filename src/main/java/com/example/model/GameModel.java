@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.example.model.config.DevCardConfig;
 import com.example.model.config.PlayerInfrastructureConfig;
 import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
-import com.example.model.config.DevCardConfig;
 import com.example.model.config.registry.ResourceRegistry;
 import com.example.model.config.service.ConfigService;
 import com.example.model.trading.TradeBank;
@@ -426,6 +426,15 @@ public class GameModel {
             }
         }
         return -1; // invalid ID as input
+    }
+
+    public boolean checkIfGameOver() {
+        for (Player p : this.players) {
+            if (p.getTotalVictoryPoints() >= 10) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean buildSettlement(int vertex, int playerID) {
