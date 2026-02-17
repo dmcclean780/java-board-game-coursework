@@ -153,4 +153,20 @@ public class Settlements {
         //no settlement
         return null;
     }
+
+    public ArrayList<Integer> getPortsOwnedByPlayer(int playerID) {
+        ArrayList<Integer> portsOwned = new ArrayList<>();
+        for (Settlement s : settlements) {
+            if (s.getPlayerID() == playerID) {
+                int vertex = s.getVertex();
+                for (int i = 0; i < AdjacencyMaps.PortVertices.length; i++) {
+                    int[] portVertices = AdjacencyMaps.PortVertices[i];
+                    if (portVertices[0] == vertex || portVertices[1] == vertex) {
+                        portsOwned.add(i);
+                    }
+                }
+            }
+        }
+        return portsOwned;
+    }
 }

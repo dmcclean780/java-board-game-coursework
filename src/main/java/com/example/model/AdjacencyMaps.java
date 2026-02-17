@@ -1,5 +1,7 @@
 package com.example.model;
 
+import java.util.ArrayList;
+
 public class AdjacencyMaps {
     // { Top, URight, DRight, Down, DLeft, ULeft }
     // This is Joshua's changed version to work with UI Code, old one in numerical
@@ -86,7 +88,7 @@ public class AdjacencyMaps {
 
     public static final int[][] PortVertices = {
         {0, 1},     // port 0
-        {5, 6},     // port 1
+        {5, 4},     // port 1
         {14, 15},   // port 2
         {26, 37},   // port 3
         {45, 46},   // port 4
@@ -95,4 +97,20 @@ public class AdjacencyMaps {
         {28, 38},   // port 7
         {7, 17}     // port 8
     };
+
+
+    public static ArrayList<Integer> getAdjacentVertices(int vertex) { // helper function, used in board setup
+        ArrayList<Integer> connections = new ArrayList<>();
+
+        for (int[] edge : AdjacencyMaps.RoadConnections) {
+            if (edge[0] == vertex) {
+                connections.add(edge[1]);
+            }
+            if (edge[1] == vertex) {
+                connections.add(edge[0]);
+            }
+        }
+
+        return connections;
+    }
 }

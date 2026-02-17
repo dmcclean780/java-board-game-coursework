@@ -1,9 +1,8 @@
 package com.example.view;
 
-import com.example.viewmodel.ResourceViewState;
-
 import com.example.model.config.LangManager;
 import com.example.model.config.ResourceConfig;
+import com.example.viewmodel.viewstates.ResourceViewState;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
