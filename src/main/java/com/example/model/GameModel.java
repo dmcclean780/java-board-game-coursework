@@ -428,9 +428,19 @@ public class GameModel {
         return -1; // invalid ID as input
     }
 
+    public boolean checkIfGameOver() {
+        for (Player p : this.players) {
+            System.err.println(p.getTotalVictoryPoints());
+            if (p.getTotalVictoryPoints() >= 10) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean buildSettlement(int vertex, int playerID) {
         Player player = getPlayer(playerID);
-        String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
+        String structureID = "player_infrastructure.settlement";
 
         boolean success_build = settlements.buildSettlement(vertex, playerID);
         boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
@@ -452,7 +462,7 @@ public class GameModel {
 
     public boolean buildCity(int vertex, int playerID) {
         Player player = getPlayer(playerID);
-        String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
+        String structureID = "player_infrastructure.city";
 
         boolean success_upgrade = settlements.upgradeSettlement(vertex, playerID);
         boolean success_resources = player.deductStructureResources(structureID);

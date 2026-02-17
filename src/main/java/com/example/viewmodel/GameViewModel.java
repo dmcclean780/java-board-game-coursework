@@ -11,6 +11,7 @@ import com.example.model.Road;
 import com.example.model.Settlement;
 import com.example.model.Tile;
 import com.example.model.config.DevCardConfig;
+import com.example.model.config.LangManager;
 import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.trading.TradeBank;
@@ -28,6 +29,8 @@ import com.example.viewmodel.viewstates.VertexViewState;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -48,6 +51,7 @@ public final class GameViewModel {
     private final ObservableList<PlayerViewState> players = FXCollections.observableArrayList(); // All players except
                                                                                                  // current
     private final ObjectProperty<PlayerViewState> currentPlayer = new SimpleObjectProperty<>(); // Current player
+    private final StringProperty turnHintText = new SimpleStringProperty();
     private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
 
     private final ArrayList<Integer> highwaySelectedRoads = new ArrayList<>();
@@ -103,11 +107,17 @@ public final class GameViewModel {
             roads.add(roadState);
         }
 
+        turnState.addListener((obs, oldState, newState) -> updateTurnHintText(newState));
+        updateTurnHintText(turnState.get());
         bankState.set(setUpBankViewState());
         updateBankViewState(bankState.get());
 
         updateDiceRoll();
         updatePlayerViewStates();
+    }
+
+    private void updateTurnHintText(TurnState state) {
+        turnHintText.set(LangManager.get(state.getHintKey()));
     }
 
     private void updateDiceRoll() {
@@ -124,7 +134,8 @@ public final class GameViewModel {
         playerState.canBuildRoadProperty().set(gameModel.playerHasRoadResources(player.getId()));
         playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
 
-        playerState.scoreProperty().set(0);
+        playerState.knownScoreProperty().set(player.getKnownVictoryPoints());
+        playerState.realScoreProperty().set(player.getTotalVictoryPoints());
         playerState.longestRoadProperty().set(false);
         playerState.cleanestEnvironmentProperty().set(false);
         playerState.colorProperty().set(getPlayerColor(player.getId()));
@@ -142,9 +153,11 @@ public final class GameViewModel {
         playerState.canBuildRoadProperty().set(gameModel.playerHasRoadResources(player.getId()));
         playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
 
-        // playerState.scoreProperty().set(player.getScore());
+        playerState.knownScoreProperty().set(player.getKnownVictoryPoints());
+        playerState.realScoreProperty().set(player.getTotalVictoryPoints());
         playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
         playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
+        
         updateResourceCounts(playerState);
         updatePlayerPorts(playerState);
         updatePlayerDevCards(playerState);
@@ -247,6 +260,10 @@ public final class GameViewModel {
 
     public ObjectProperty<TurnState> turnStateProperty() {
         return turnState;
+    }
+
+    public StringProperty turnHintTextProperty() {
+        return turnHintText;
     }
 
     public ObservableList<RoadViewState> roadsProperty() {
@@ -464,6 +481,10 @@ public final class GameViewModel {
         return gameModel.getRoads()[i].getPlayerID() != -1;
     }
 
+    private boolean isGameOver() {
+        return gameModel.checkIfGameOver();
+    }
+
     private int getIndexOfPlayerWithID(int playerID) {
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).idProperty().get() == playerID) {
@@ -642,6 +663,12 @@ public final class GameViewModel {
     }
 
     public void endTurn() {
+        if (isGameOver()) {
+            // switch to stats screen, currently crashes
+            // StatsViewModel statsViewModel = new StatsViewModel(gameModel, navigationService);
+            // navigationService.navigateTo("endScreen", statsViewModel);
+            // return;
+        } 
         nextPlayer();
         switchToRollDiceState();
     }
@@ -667,9 +694,6 @@ public final class GameViewModel {
             gameModel.moveRobber(index);
             switchToStealResourceState();
         }
-        gameModel.checkPlayerResources();
-        gameModel.moveRobber(index);
-        switchToStealResourceState();
         updateTileViewStates();
 
     }

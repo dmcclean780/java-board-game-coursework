@@ -2,11 +2,11 @@ package com.example.view;
 
 import java.io.IOException;
 
+import com.example.viewmodel.GameViewModel;
 import com.example.viewmodel.TurnState;
 import com.example.viewmodel.viewstates.GameUIState;
 import com.example.viewmodel.viewstates.PlayerViewState;
 import com.example.viewmodel.viewstates.ResourceViewState;
-import com.example.viewmodel.GameViewModel;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -25,6 +25,12 @@ public class CurrentPlayerController {
     @FXML
     private Label currentPlayerDisplay;
     @FXML
+    private Label scoreValue;
+    @FXML
+
+    private Label turnHintLabel;
+    @FXML
+
     private VBox resourcesBox, devCardBox;
 
     @FXML
@@ -56,12 +62,17 @@ public class CurrentPlayerController {
         // Initialize Static Text Method HERE
 
         this.viewModel = viewModel;
+        turnHintLabel.textProperty().bind(viewModel.turnHintTextProperty());
 
         ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
 
         // Name
         currentPlayerDisplay.textProperty().bind(
                 Bindings.selectString(currentPlayer, "name"));
+
+        // real score
+        scoreValue.textProperty().bind(
+                Bindings.selectString(currentPlayer, "realScore"));
 
         // Background color
         bottomBackground.fillProperty().bind(
@@ -178,6 +189,10 @@ public class CurrentPlayerController {
     public void switchToBUILDINGPHASE() {
         viewModel.switchToBuildState();
         System.out.println(viewModel.turnStateProperty().get());
+    }
+
+    public void endTurn() {
+        viewModel.endTurn();
     }
 
     public void nextPlayer() {
