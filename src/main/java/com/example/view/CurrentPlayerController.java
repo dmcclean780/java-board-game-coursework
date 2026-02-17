@@ -25,6 +25,10 @@ public class CurrentPlayerController {
     @FXML
     private Label currentPlayerDisplay;
     @FXML
+
+    private Label turnHintLabel;
+    @FXML
+
     private VBox resourcesBox, devCardBox;
 
     @FXML
@@ -56,6 +60,7 @@ public class CurrentPlayerController {
         // Initialize Static Text Method HERE
 
         this.viewModel = viewModel;
+        turnHintLabel.textProperty().bind(viewModel.turnHintTextProperty());
 
         ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
 

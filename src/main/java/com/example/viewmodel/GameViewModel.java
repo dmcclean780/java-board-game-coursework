@@ -9,6 +9,7 @@ import com.example.model.GameModel;
 import com.example.model.Player;
 import com.example.model.Road;
 import com.example.model.Tile;
+import com.example.model.config.LangManager;
 import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.trading.TradeBank;
@@ -30,6 +31,8 @@ import com.example.model.config.ResourceConfig;
 import com.example.model.config.service.ConfigService;
 import com.example.service.NavigationService;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -52,6 +55,7 @@ public final class GameViewModel {
     private final ObservableList<PlayerViewState> players = FXCollections.observableArrayList(); // All players except
                                                                                                  // current
     private final ObjectProperty<PlayerViewState> currentPlayer = new SimpleObjectProperty<>(); // Current player
+    private final StringProperty turnHintText = new SimpleStringProperty();
     private final ObservableList<PortViewState> ports = FXCollections.observableArrayList();
 
     private final ArrayList<Integer> highwaySelectedRoads = new ArrayList<>();
@@ -107,11 +111,17 @@ public final class GameViewModel {
             roads.add(roadState);
         }
 
+        turnState.addListener((obs, oldState, newState) -> updateTurnHintText(newState));
+        updateTurnHintText(turnState.get());
         bankState.set(setUpBankViewState());
         updateBankViewState(bankState.get());
 
         updateDiceRoll();
         updatePlayerViewStates();
+    }
+
+    private void updateTurnHintText(TurnState state) {
+        turnHintText.set(LangManager.get(state.getHintKey()));
     }
 
     private void updateDiceRoll() {
@@ -251,6 +261,10 @@ public final class GameViewModel {
 
     public ObjectProperty<TurnState> turnStateProperty() {
         return turnState;
+    }
+
+    public StringProperty turnHintTextProperty() {
+        return turnHintText;
     }
 
     public ObservableList<RoadViewState> roadsProperty() {

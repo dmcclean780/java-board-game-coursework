@@ -99,6 +99,11 @@
                 onAction="#giveRoadResources" />
         </VBox>
 
+        <!-- Bottom half: current player info + bottom HUD -->
+        <Pane fx:id="bottomPane" layoutY="432"
+         prefHeight="432" prefWidth="819">
+            <!-- Added Dynamically Here -->
+        </Pane>
         <Pane fx:id="playerColumnPane" layoutX="717" prefWidth="819" prefHeight="864"
             styleClass="columnPane">
 
