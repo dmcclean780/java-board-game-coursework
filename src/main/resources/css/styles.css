@@ -424,6 +424,24 @@
     -fx-fill: transparent;
 }
 
+.turn-hint-box {
+    -fx-fill: rgba(50, 50, 50, 1.0);
+    -fx-stroke: rgb(0, 0, 0);
+    -fx-stroke-width: 4;
+    -fx-arc-width: 8;
+    -fx-arc-height: 8;
+    -fx-effect: dropshadow(one-pass-box, rgb(255, 255, 255), 8, 1.0, 0, 0);
+}
+
+.turn-hint-label {
+    -fx-font-size: 14;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-family: "Oswald";
+    -fx-effect: dropshadow(one-pass-box, black, 10, 1.0, 0, 0);
+    -fx-padding: 0 12 0 12;
+}
+
 .dev-card:hover{
     -fx-opacity: 1;
     -fx-translate-y: -3;

@@ -156,7 +156,8 @@
         </VBox>
 
         <!-- Bottom half: current player info + bottom HUD -->
-        <Pane fx:id="bottomPane" layoutY="432" prefHeight="432" prefWidth="819">
+        <Pane fx:id="bottomPane" layoutY="432"
+         prefHeight="432" prefWidth="819">
             <!-- Added Dynamically Here -->
         </Pane>
 

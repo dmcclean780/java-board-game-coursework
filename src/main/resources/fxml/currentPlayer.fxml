@@ -319,4 +319,13 @@
         </VBox>
     </Pane>
 
+    <!-- hint -->
+    <StackPane alignment="CENTER_LEFT" 
+        layoutX="-700" layoutY="350"
+        prefWidth="420" prefHeight="52" viewOrder="100"> <!--  change 800 later  -->
+        <Rectangle width="420" height="52" styleClass="turn-hint-box" />
+        
+        <Label fx:id="turnHintLabel" styleClass="turn-hint-label" />
+    </StackPane> 
+
 </Pane>
