@@ -430,7 +430,7 @@ public class GameModel {
 
     public boolean buildSettlement(int vertex, int playerID) {
         Player player = getPlayer(playerID);
-        String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
+        String structureID = "player_infrastructure.settlement";
 
         boolean success_build = settlements.buildSettlement(vertex, playerID);
         boolean success_resources = getPlayer(playerID).deductStructureResources(structureID);
@@ -452,7 +452,7 @@ public class GameModel {
 
     public boolean buildCity(int vertex, int playerID) {
         Player player = getPlayer(playerID);
-        String structureID = settlements.getAllSettlements()[vertex].getSettlementType();
+        String structureID = "player_infrastructure.city";
 
         boolean success_upgrade = settlements.upgradeSettlement(vertex, playerID);
         boolean success_resources = player.deductStructureResources(structureID);
