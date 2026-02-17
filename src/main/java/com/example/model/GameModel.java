@@ -738,10 +738,10 @@ public class GameModel {
         return roads.getAllRoads();
     }
 
-    public int playerWithLongestRoad() {
+    public boolean playerHasLongestRoad(int playerId) {
         Road[] allRoads = roads.getAllRoads();
         if (players.isEmpty() || allRoads == null || allRoads.length == 0) {
-            return -1;
+            return false;
         }
 
         int bestPlayerId = -1;
@@ -806,7 +806,7 @@ public class GameModel {
             }
         }
 
-        return bestPlayerId;
+        return bestPlayerId == playerId && bestSize >= 5;
     }
 
     // return true if two roads (their vertex arrays) share at least one vertex
@@ -881,6 +881,25 @@ public class GameModel {
         player.increaseTilesRestored();
 
         return true;
+    }
+
+    public boolean playerHasCleanestEnvironment(int playerId) {
+        Player player = getPlayer(playerId);
+        if (player == null) {
+            return false;
+        }
+
+        int bestPlayerId = -1;
+        int bestTiles = -1;
+        for (Player p : players) {
+            int tid = p.getTilesRestored();
+            if (tid > bestTiles) {
+                bestTiles = tid;
+                bestPlayerId = p.getId();
+            }
+        }
+
+        return bestPlayerId == playerId && bestTiles >= 3;
     }
 
     /*

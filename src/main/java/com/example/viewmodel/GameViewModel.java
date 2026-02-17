@@ -8,7 +8,9 @@ import com.example.model.AdjacencyMaps;
 import com.example.model.GameModel;
 import com.example.model.Player;
 import com.example.model.Road;
+import com.example.model.Settlement;
 import com.example.model.Tile;
+import com.example.model.config.DevCardConfig;
 import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.trading.TradeBank;
@@ -23,12 +25,6 @@ import com.example.viewmodel.viewstates.ResourceViewState;
 import com.example.viewmodel.viewstates.RoadViewState;
 import com.example.viewmodel.viewstates.TileViewState;
 import com.example.viewmodel.viewstates.VertexViewState;
-import com.example.model.Settlement;
-import com.example.model.Tile;
-import com.example.model.config.DevCardConfig;
-import com.example.model.config.ResourceConfig;
-import com.example.model.config.service.ConfigService;
-import com.example.service.NavigationService;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -147,8 +143,8 @@ public final class GameViewModel {
         playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
 
         // playerState.scoreProperty().set(player.getScore());
-        // playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
-        // playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
+        playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
+        playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
         updateResourceCounts(playerState);
         updatePlayerPorts(playerState);
         updatePlayerDevCards(playerState);
