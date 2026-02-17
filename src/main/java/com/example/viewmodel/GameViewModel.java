@@ -663,8 +663,11 @@ public final class GameViewModel {
 
     public void endTurn() {
         if (isGameOver()) {
-            // switch to stats screen??
-        }
+            // switch to stats screen, currently crashes
+            // StatsViewModel statsViewModel = new StatsViewModel(gameModel, navigationService);
+            // navigationService.navigateTo("endScreen", statsViewModel);
+            // return;
+        } 
         nextPlayer();
         switchToRollDiceState();
     }
