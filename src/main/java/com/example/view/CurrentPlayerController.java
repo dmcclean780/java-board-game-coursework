@@ -191,6 +191,10 @@ public class CurrentPlayerController {
         System.out.println(viewModel.turnStateProperty().get());
     }
 
+    public void endTurn() {
+        viewModel.endTurn();
+    }
+
     public void nextPlayer() {
         viewModel.nextPlayer();
 
