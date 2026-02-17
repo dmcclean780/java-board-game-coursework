@@ -2,11 +2,11 @@ package com.example.view;
 
 import java.io.IOException;
 
+import com.example.viewmodel.GameViewModel;
 import com.example.viewmodel.TurnState;
 import com.example.viewmodel.viewstates.GameUIState;
 import com.example.viewmodel.viewstates.PlayerViewState;
 import com.example.viewmodel.viewstates.ResourceViewState;
-import com.example.viewmodel.GameViewModel;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -24,6 +24,8 @@ public class CurrentPlayerController {
     private Rectangle bottomBackground;
     @FXML
     private Label currentPlayerDisplay;
+    @FXML
+    private Label scoreValue;
     @FXML
 
     private Label turnHintLabel;
@@ -67,6 +69,10 @@ public class CurrentPlayerController {
         // Name
         currentPlayerDisplay.textProperty().bind(
                 Bindings.selectString(currentPlayer, "name"));
+
+        // real score
+        scoreValue.textProperty().bind(
+                Bindings.selectString(currentPlayer, "realScore"));
 
         // Background color
         bottomBackground.fillProperty().bind(

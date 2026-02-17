@@ -8,7 +8,9 @@ import com.example.model.AdjacencyMaps;
 import com.example.model.GameModel;
 import com.example.model.Player;
 import com.example.model.Road;
+import com.example.model.Settlement;
 import com.example.model.Tile;
+import com.example.model.config.DevCardConfig;
 import com.example.model.config.LangManager;
 import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
@@ -24,17 +26,11 @@ import com.example.viewmodel.viewstates.ResourceViewState;
 import com.example.viewmodel.viewstates.RoadViewState;
 import com.example.viewmodel.viewstates.TileViewState;
 import com.example.viewmodel.viewstates.VertexViewState;
-import com.example.model.Settlement;
-import com.example.model.Tile;
-import com.example.model.config.DevCardConfig;
-import com.example.model.config.ResourceConfig;
-import com.example.model.config.service.ConfigService;
-import com.example.service.NavigationService;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -138,7 +134,8 @@ public final class GameViewModel {
         playerState.canBuildRoadProperty().set(gameModel.playerHasRoadResources(player.getId()));
         playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
 
-        playerState.scoreProperty().set(0);
+        playerState.knownScoreProperty().set(player.getKnownVictoryPoints());
+        playerState.realScoreProperty().set(player.getTotalVictoryPoints());
         playerState.longestRoadProperty().set(false);
         playerState.cleanestEnvironmentProperty().set(false);
         playerState.colorProperty().set(getPlayerColor(player.getId()));
@@ -156,7 +153,8 @@ public final class GameViewModel {
         playerState.canBuildRoadProperty().set(gameModel.playerHasRoadResources(player.getId()));
         playerState.canBuildDevCardProperty().set(gameModel.playerHasDevCardResources(player.getId()));
 
-        // playerState.scoreProperty().set(player.getScore());
+        playerState.knownScoreProperty().set(player.getKnownVictoryPoints());
+        playerState.realScoreProperty().set(player.getTotalVictoryPoints());
         // playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
         // playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
         updateResourceCounts(playerState);
@@ -482,6 +480,10 @@ public final class GameViewModel {
         return gameModel.getRoads()[i].getPlayerID() != -1;
     }
 
+    private boolean isGameOver() {
+        return gameModel.checkIfGameOver();
+    }
+
     private int getIndexOfPlayerWithID(int playerID) {
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).idProperty().get() == playerID) {
@@ -660,6 +662,9 @@ public final class GameViewModel {
     }
 
     public void endTurn() {
+        if (isGameOver()) {
+            // switch to stats screen??
+        }
         nextPlayer();
         switchToRollDiceState();
     }
