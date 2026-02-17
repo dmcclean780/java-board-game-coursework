@@ -671,9 +671,6 @@ public final class GameViewModel {
             gameModel.moveRobber(index);
             switchToStealResourceState();
         }
-        gameModel.checkPlayerResources();
-        gameModel.moveRobber(index);
-        switchToStealResourceState();
         updateTileViewStates();
 
     }
