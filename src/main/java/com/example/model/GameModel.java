@@ -749,85 +749,14 @@ public class GameModel {
     }
 
     public boolean playerHasLongestRoad(int playerId) {
-        Road[] allRoads = roads.getAllRoads();
-        if (players.isEmpty() || allRoads == null || allRoads.length == 0) {
-            return false;
+        int[] playerIds = new int[players.size()]; // create playerId array
+        int i=0;
+        for (Player p: players) {
+            playerIds[i++] = p.getId();
         }
-
-        int bestPlayerId = -1;
-        int bestSize = 0;
-
-        for (Player p : players) {
-            int pid = p.getId();
-
-            // collect indices of roads owned by this player
-            ArrayList<Integer> ownedIndices = new ArrayList<>();
-            for (int i = 0; i < allRoads.length; i++) {
-                if (allRoads[i].getPlayerID() == pid) {
-                    ownedIndices.add(i);
-                }
-            }
-
-            if (ownedIndices.isEmpty()) {
-                continue;
-            }
-
-            // build adjacency map for the player's roads (by global road index)
-            Map<Integer, ArrayList<Integer>> adj = new HashMap<>();
-            for (int idx : ownedIndices) {
-                adj.put(idx, new ArrayList<>());
-            }
-
-            for (int i = 0; i < ownedIndices.size(); i++) {
-                int ri = ownedIndices.get(i);
-                int[] vertsI = allRoads[ri].getVertices();
-                for (int j = i + 1; j < ownedIndices.size(); j++) {
-                    int rj = ownedIndices.get(j);
-                    int[] vertsJ = allRoads[rj].getVertices();
-                    if (sharesVertex(vertsI, vertsJ)) {
-                        adj.get(ri).add(rj);
-                        adj.get(rj).add(ri);
-                    }
-                }
-            }
-
-            // find largest connected component size among this player's roads
-            HashSet<Integer> visited = new HashSet<>();
-            for (int start : ownedIndices) {
-                if (visited.contains(start)) continue;
-                int size = 0;
-                ArrayList<Integer> stack = new ArrayList<>();
-                stack.add(start);
-                visited.add(start);
-                while (!stack.isEmpty()) {
-                    int cur = stack.remove(stack.size() - 1);
-                    size++;
-                    for (int nb : adj.get(cur)) {
-                        if (!visited.contains(nb)) {
-                            visited.add(nb);
-                            stack.add(nb);
-                        }
-                    }
-                }
-                if (size > bestSize) {
-                    bestSize = size;
-                    bestPlayerId = pid;
-                }
-            }
-        }
-
-        return bestPlayerId == playerId && bestSize >= 5;
+        return roads.longestRoadExists(playerIds) && roads.longestRoadOwner(playerIds) == playerId;
     }
 
-    // return true if two roads (their vertex arrays) share at least one vertex
-    private boolean sharesVertex(int[] a, int[] b) {
-        for (int x : a) {
-            for (int y : b) {
-                if (x == y) return true;
-            }
-        }
-        return false;
-    }
 
     // need to do front end stuff to chose tile to destroy
     // asks for same resource as tile atm - need to fix
