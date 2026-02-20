@@ -748,6 +748,16 @@ public class GameModel {
         return roads.getAllRoads();
     }
 
+    public boolean playerHasLongestRoad(int playerId) {
+        int[] playerIds = new int[players.size()]; // create playerId array
+        int i=0;
+        for (Player p: players) {
+            playerIds[i++] = p.getId();
+        }
+        return roads.longestRoadExists(playerIds) && roads.longestRoadOwner(playerIds) == playerId;
+    }
+
+
     // need to do front end stuff to chose tile to destroy
     // asks for same resource as tile atm - need to fix
     public boolean tileRestore(int tileIndex, int playerId) {
@@ -807,7 +817,28 @@ public class GameModel {
             bankCards.returnResourceCard(r, amount);
         }
 
+        player.increaseTilesRestored();
+
         return true;
+    }
+
+    public boolean playerHasCleanestEnvironment(int playerId) {
+        Player player = getPlayer(playerId);
+        if (player == null) {
+            return false;
+        }
+
+        int bestPlayerId = -1;
+        int bestTiles = -1;
+        for (Player p : players) {
+            int tid = p.getTilesRestored();
+            if (tid > bestTiles) {
+                bestTiles = tid;
+                bestPlayerId = p.getId();
+            }
+        }
+
+        return bestPlayerId == playerId && bestTiles >= 3;
     }
 
     /*
