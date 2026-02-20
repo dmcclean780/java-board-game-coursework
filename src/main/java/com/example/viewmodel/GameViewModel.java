@@ -155,8 +155,9 @@ public final class GameViewModel {
 
         playerState.knownScoreProperty().set(player.getKnownVictoryPoints());
         playerState.realScoreProperty().set(player.getTotalVictoryPoints());
-        // playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
-        // playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
+        playerState.longestRoadProperty().set(gameModel.playerHasLongestRoad(player.getId()));
+        playerState.cleanestEnvironmentProperty().set(gameModel.playerHasCleanestEnvironment(player.getId()));
+        
         updateResourceCounts(playerState);
         updatePlayerPorts(playerState);
         updatePlayerDevCards(playerState);
