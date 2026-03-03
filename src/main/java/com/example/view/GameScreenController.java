@@ -223,6 +223,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
             CurrentPlayerController ctrl = loader.getController();
             ctrl.bindCurrentPlayer(viewModel);
+            bottomPane.toFront();
             bottomPane.getChildren().add(node);
 
         } catch (IOException e) {
@@ -396,7 +397,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
     @FXML
     public void initialize() {
-
+        
         // Load font from classpath
         try {
             // mainFont =
@@ -425,7 +426,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
 
         selectResourcePopup.visibleProperty()
                 .bind(GameUIState.selectResourceMenuVisible);
-
+        
     }
 
     private void mapPortsToVertices(int[][] ports) {

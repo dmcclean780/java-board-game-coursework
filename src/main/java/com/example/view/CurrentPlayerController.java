@@ -32,10 +32,11 @@ public class CurrentPlayerController {
     @FXML
     private Label scoreValue;
     @FXML
-
     private Label turnHintLabel;
     @FXML
+    private Rectangle turnHintBox;
 
+    @FXML
     private VBox resourcesBox, devCardBox;
 
     @FXML
@@ -108,7 +109,8 @@ public class CurrentPlayerController {
 
         this.viewModel = viewModel;
         turnHintLabel.textProperty().bind(viewModel.turnHintTextProperty());
-
+        turnHintBox.toFront();
+        turnHintLabel.toFront();
         ObjectProperty<PlayerViewState> currentPlayer = viewModel.currentPlayerProperty();
 
         // Name
