@@ -751,10 +751,16 @@ public class GameModel {
                 if (player == null) {
                     throw new IllegalStateException("Player not found for settlement");
                 }
-
                 int production = 1;
+
+                if(tile.getIsBlocked() && !currentSettlement.isCity()) {
+                    continue; // tile is blocked by the robber, skip resource distribution
+                }
                 if (currentSettlement.isCity()) {
                     production++;
+                }
+                if(tile.getIsBlocked() && currentSettlement.isCity()) {
+                    production++; // tile is blocked by the robber, reduce production of city to 1
                 }
 
                 // for loop accounts for cities giving two resources, whilst still ensuring

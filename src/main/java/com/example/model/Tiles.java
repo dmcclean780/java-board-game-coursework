@@ -204,7 +204,7 @@ public class Tiles {
         for (Tile t : allTiles){
             if (t.getNumber() == diceroll){
                 //tile has the desired value
-                if (!t.getIsBlocked() && !t.getIsDestroyed()){
+                if (!t.getIsDestroyed()){
                     tilesWithDiceroll.add(t);
                 }
             }
