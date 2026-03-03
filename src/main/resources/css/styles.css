@@ -472,15 +472,17 @@
     -fx-arc-width: 8;
     -fx-arc-height: 8;
     -fx-effect: dropshadow(one-pass-box, rgb(255, 255, 255), 8, 1.0, 0, 0);
+    -fx-translate-y: 16;
 }
 
 .turn-hint-label {
-    -fx-font-size: 14;
+    -fx-font-size: 13;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-family: "Oswald";
     -fx-effect: dropshadow(one-pass-box, black, 10, 1.0, 0, 0);
     -fx-padding: 0 12 0 12;
+    -fx-translate-y: 16;
 }
 
 .numberLineCurrent {
@@ -749,7 +751,6 @@
 /* |     STATS SCREEN    |*/
 /* -----------------------*/
 
-
 .player-row {
     -fx-padding: 12 18 12 18;
     -fx-background-color: rgba(0,0,0,0.15);
@@ -779,8 +780,6 @@
     -fx-text-fill: #eaeaea;
 }
 
-
-
 .badge {
     -fx-font-size: 20px;
     -fx-font-weight: 900;
@@ -794,7 +793,6 @@
     -fx-background-color: rgba(255, 215, 0, 0.18);
     -fx-text-fill: gold;
 }
-
 
 .tooltip {
     -fx-background-color: black;
