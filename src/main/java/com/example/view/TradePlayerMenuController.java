@@ -2,15 +2,10 @@ package com.example.view;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Observable;
 
 import com.example.model.config.LangManager;
-import com.example.model.config.PortConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.viewmodel.GameViewModel;
-import com.example.viewmodel.viewstates.BankViewState;
 import com.example.viewmodel.viewstates.GameUIState;
 import com.example.viewmodel.viewstates.PlayerViewState;
 import com.example.viewmodel.viewstates.ResourceViewState;
@@ -19,6 +14,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
@@ -30,9 +28,6 @@ import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.collections.FXCollections;
 
 public class TradePlayerMenuController {
     private GameViewModel viewModel;
@@ -78,6 +73,15 @@ public class TradePlayerMenuController {
     public void initialize() {
         playerTradeTitleLabel.setText(LangManager.get("playerTradeTitleLabel"));
         proposeTradeButton.setText(LangManager.get("proposeTradeButton"));
+        proposeTradeButton.disableProperty().bind(
+            Bindings.createBooleanBinding(
+                () -> selectedGiveResources.values().stream().mapToInt(Integer::intValue).sum() == 0
+                || selectedReceiveResources.values().stream().mapToInt(Integer::intValue).sum() == 0,
+                selectedGiveResources,
+                selectedReceiveResources
+            )
+        );
+        
     }
 
     private void updateResourceBoxes(GameViewModel viewModel) {
@@ -136,6 +140,11 @@ public class TradePlayerMenuController {
                 spinner.getValueFactory().setValue(newVal.intValue());
             }
         });
+        
+        spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            ResourceConfig resource = (ResourceConfig) spinner.getUserData();
+            selectedGiveResources.put(resource, newVal);
+        });
 
         spinner.disableProperty().bind(tradeProposed);
         spinner.setUserData(resourceViewState.configProperty().get());
@@ -176,6 +185,12 @@ public class TradePlayerMenuController {
                 spinner.getValueFactory().setValue(oldValue);
             }
         });
+
+        spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            ResourceConfig resource = (ResourceConfig) spinner.getUserData();
+            selectedReceiveResources.put(resource, newVal);
+        });
+
         spinner.disableProperty().bind(tradeProposed);
         spinner.setUserData(resourceViewState.configProperty().get());
         selectBox.getChildren().addAll(nameLabel, spinner);

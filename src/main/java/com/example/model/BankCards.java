@@ -60,6 +60,7 @@ public class BankCards {
 
     //get how many cards of a type are left
     public int getResourceCount(ResourceConfig resource) {
+        if (resource == null) return 0;
         return resourceCards.getOrDefault(resource.id, 0);
     }
 
@@ -67,6 +68,7 @@ public class BankCards {
     //returns true if there are enough cards and reduces card count
     //returns false if there are not enough cards in deck
     public boolean giveResourceCard(ResourceConfig resource, int amount) {
+        if (resource == null) return false;
         int current = getResourceCount(resource);
         if (current >= amount) {
             resourceCards.put(resource.id, current - amount);

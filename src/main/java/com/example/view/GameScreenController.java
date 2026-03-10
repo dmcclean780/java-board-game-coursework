@@ -577,12 +577,12 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             vertexPane.getChildren().add(vertex);
 
             // Add vertex ID label above
-            Text label = new Text(String.valueOf(vertexId));
-            label.setFill(Color.INDIGO);
-            label.setFont(Font.font(12));
-            label.setLayoutX(avgX - 4);
-            label.setLayoutY(avgY - 12);
-            vertexPane.getChildren().add(label);
+            // Text label = new Text(String.valueOf(vertexId));
+            // label.setFill(Color.INDIGO);
+            // label.setFont(Font.font(12));
+            // label.setLayoutX(avgX - 4);
+            // label.setLayoutY(avgY - 12);
+            // vertexPane.getChildren().add(label);
         }
     }
 
