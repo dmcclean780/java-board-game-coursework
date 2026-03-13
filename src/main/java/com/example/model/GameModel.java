@@ -760,9 +760,8 @@ public class GameModel {
                     production++;
                 }
                 if(tile.getIsBlocked() && currentSettlement.isCity()) {
-                    production++; // tile is blocked by the robber, reduce production of city to 1
+                    production+=2; // double production for cities on blocked tiles
                 }
-
                 // for loop accounts for cities giving two resources, whilst still ensuring
                 // that when only one resource is left, a city will still produce one
                 for (int i = 0; i < production; i++) {
