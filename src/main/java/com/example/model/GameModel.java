@@ -56,7 +56,7 @@ public class GameModel {
         this.cleanestEnvironmentAmount = 0;
     }
 
-    // // code used to test how settlement placements are be valued
+    // //  test how settlement placements are be valued
     // private void _logTestValuation(int playerID, double k, int[] vertices) {
     // System.out.print("-- Player ");
     // System.out.print(playerID);System.out.print("-- K: ");
@@ -864,7 +864,6 @@ public class GameModel {
     }
 
     // need to do front end stuff to chose tile to destroy
-    // asks for same resource as tile atm - need to fix
     public boolean tileRestore(int tileIndex, int playerId) {
         Tile[] allTiles = tiles.getTiles();
         if (tileIndex < 0 || tileIndex >= allTiles.length) {
@@ -975,10 +974,7 @@ public class GameModel {
      * when settlements get resources
      * when certain devcards are played
      * (trading frenzy, highway madness, monopoly)
-     * -need to check which devcard before calling
      */
-    // also where should tile restoration be implemented
-    // for restore tile i need unique id for each tile to know which one to restore
     public void increaseClimateAndDistributeDisasterCards() {
         climateTracker.increaseClimate();
 
@@ -991,7 +987,6 @@ public class GameModel {
                     // destroy tile
                     tiles.destroyTile(disasterCard);
                 }
-                // do nothing if no cards are left??
             }
         }
     }

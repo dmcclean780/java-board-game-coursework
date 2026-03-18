@@ -570,7 +570,7 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
             avgX /= corners.size();
             avgY /= corners.size();
 
-            // Create vertex shape (default Circle for now)
+            // Create vertex shape (default Circle)
             Shape vertex = createCircleVertex(Color.GREY, avgX, avgY);
 
             vertexNodes[vertexId] = vertex;
@@ -955,8 +955,6 @@ public class GameScreenController implements ViewModelAware<GameViewModel> {
         // --- Background ---
         Polygon background = createFlatTopHex(hexWidth * 8, totalHeight - 92);
 
-        // I Will want to bring this back at some point, just having a bit of a layering
-        // issue
         background.setFill(Color.rgb(57, 69, 147));
         background.setStroke(Color.rgb(7, 4, 60));
         background.setStrokeWidth(3);

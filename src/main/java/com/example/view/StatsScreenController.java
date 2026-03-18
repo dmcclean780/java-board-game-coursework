@@ -6,16 +6,13 @@ import java.util.List;
 import com.example.view.components.Hex;
 import com.example.viewmodel.StatsViewModel;
 
-import javafx.fxml.FXML;
-
 import javafx.animation.AnimationTimer;
-
+import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 public class StatsScreenController implements ViewModelAware<StatsViewModel> {
@@ -56,7 +53,6 @@ public class StatsScreenController implements ViewModelAware<StatsViewModel> {
 
     // 
     private void bindViewModel() {
-        // TODO bindings fix after 
         viewModel.loadFromGame();
 
 

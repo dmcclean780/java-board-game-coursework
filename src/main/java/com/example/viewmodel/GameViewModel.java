@@ -691,7 +691,6 @@ public final class GameViewModel {
         updateTileViewStates();
     }
 
-    // do these need more happening in them?
     public void switchToEcoConferenceState() {
         previousState = turnState.get();
         turnState.set(TurnState.ECO_CONFERENCE);

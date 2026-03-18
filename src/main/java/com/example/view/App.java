@@ -28,7 +28,8 @@ public class App extends Application {
         // Start with the first screen, passing the model
         TitleViewModel titleVM = new TitleViewModel(model, navigationService);
         navigationService.navigateTo("titleScreen", titleVM);
-
+        
+        // Print list of fonts (for system font debugging)
         // Font.getFamilies().forEach(System.out::println);
     }
 

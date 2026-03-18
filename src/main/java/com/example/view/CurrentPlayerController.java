@@ -73,11 +73,6 @@ public class CurrentPlayerController {
     private final ImageView dice1 = new ImageView();
     private final ImageView dice2 = new ImageView();
 
-    // @FXML
-    // private Label die1Value;
-    // @FXML
-    // private Label die2Value;
-
     private GameViewModel viewModel;
 
     public void initialize() {
