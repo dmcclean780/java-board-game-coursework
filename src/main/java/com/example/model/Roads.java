@@ -50,7 +50,7 @@ public class Roads {
     }
 
     public Road[] getAllRoads() {
-        // Only returns owned roads
+        // returns all roads; includes unowned
         return roads;
     }
 

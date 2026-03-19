@@ -106,7 +106,7 @@ public class StatsViewModel {
             player1Name.set(p.getName());
             player1TotalResources.set(p.getTotalResources());
             player1DevCards.set(p.numberOfCards());
-            player1VictoryPoints.set(calcVictoryPoints(p)); // TODO check this matches your rules
+            player1VictoryPoints.set(calcVictoryPoints(p));
         } else if (idx == 2) {
             player2Name.set(p.getName());
             player2TotalResources.set(p.getTotalResources());
@@ -126,7 +126,6 @@ public class StatsViewModel {
     }
 
     private int calcVictoryPoints(Player p) {
-        // sorry euan, i am not fixing that code, just use the getter
         return p.getTotalVictoryPoints();
     }
 

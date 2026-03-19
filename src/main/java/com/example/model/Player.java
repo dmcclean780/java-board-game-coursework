@@ -35,7 +35,7 @@ public class Player {
      * 
      * @param name name of the player
      */
-    public Player(String name) { // Maybe pass in the starting structuresRemaining?
+    public Player(String name) {
 
         this.id = Player.nextId++;
 
@@ -48,7 +48,6 @@ public class Player {
 
         this.devCards = new ArrayList<>();
 
-        // Replace with global version
         ArrayList<String> structureTypes = ConfigService.getAllInfrastructureIDs();
 
         this.structuresRemaining = new HashMap<>();

@@ -1,12 +1,14 @@
 package com.example.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.example.model.config.ConfigManager;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.BeforeAll;
 
 public class TilesTest {
 
@@ -76,7 +78,7 @@ public class TilesTest {
         for (Tile t : tiles.getTiles()) {
             if (t.getIsBlocked()) {
                 // Desert tile: number is allowed to be 0
-                assertTrue(t.getNumber() == 0 || t.getNumber() > 0);
+                assertTrue(t.getNumber() >= 0);
             }
         }
     }

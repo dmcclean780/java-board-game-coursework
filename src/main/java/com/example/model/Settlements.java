@@ -7,7 +7,7 @@ public class Settlements {
     public static final int NUMBER_OF_VERTICES = 54;
     public static final int UNOWNED_SETTLEMENT_ID = -1;
 
-    private Settlement[] settlements;
+    private final Settlement[] settlements;
 
     public Settlements(){
 
@@ -108,7 +108,6 @@ public class Settlements {
     }
 
     /**
-     * (Added by 40452739)
      * Checks whether a potential settlement (at a vertex) is near another settlement.
      * @param vertex vertex to check
      * @return whether there are any settlements near the vertex with a range of one edge

@@ -78,7 +78,7 @@ public class SetupViewModel {
         gameModel.initializePlayers(playerNames);
         
         boolean settlementSetupSuccess = gameModel.initializeBoard();
-        if (!settlementSetupSuccess) {System.err.println("Starting settlements/roads did not setup correctly!");} // if this line ever runs, screenshot the board and send to Ethan
+        if (!settlementSetupSuccess) {System.err.println("Starting settlements/roads did not setup correctly!");} // should never run
         
         GameViewModel gameVM = new GameViewModel(gameModel, navigationService);
         navigationService.navigateTo("gameScreen", gameVM);

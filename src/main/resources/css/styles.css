@@ -11,7 +11,6 @@
     -fx-background-color: black;
 }
 
-/* Optional: override size globally */
 .root-pane, .root-pane * {
     -fx-font-size: 40;
 }
@@ -555,14 +554,14 @@
 }
 
 .dev-card {
-    -fx-background-color: #fdb76b;  /* matches your desired card bg */
+    -fx-background-color: #fdb76b;  /* matches desired card bg */
     -fx-border-color: black;
     -fx-border-width: 2;
     -fx-border-radius: 6;
     -fx-background-radius: 8;
     -fx-opacity: 1.0;
     -fx-padding: 5;
-    -fx-alignment: TOP_CENTER;ease
+    -fx-alignment: TOP_CENTER;
 }
 
 /* Card name label */
@@ -760,7 +759,7 @@
 .name-label {
     -fx-font-size: 34px;
     -fx-font-weight: 900;
-    -fx-text-overrun: clip; /* prevents ... */
+    -fx-text-overrun: clip;
 }
 
 .stat-label {
